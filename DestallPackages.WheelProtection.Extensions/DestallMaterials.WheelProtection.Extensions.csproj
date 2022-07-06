@@ -7,6 +7,8 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Copyright>Authored by Destall</Copyright>
     <Description>All-encompassing extensions for standard objects.</Description>
+    <RepositoryType>https://github.com/dest-all/DestallMaterials</RepositoryType>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
 </Project>

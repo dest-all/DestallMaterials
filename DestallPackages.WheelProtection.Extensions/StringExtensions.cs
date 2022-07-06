@@ -174,7 +174,7 @@ namespace DestallMaterials.WheelProtection.Extensions.String
         {
             if (input == null)
             {
-                return input;
+                return "";
             }
 
             if (input == "")
