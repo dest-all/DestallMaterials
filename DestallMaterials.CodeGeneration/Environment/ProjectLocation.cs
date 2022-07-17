@@ -1,4 +1,4 @@
-﻿namespace DestallMaterials.CodeGeneration
+﻿namespace DestallMaterials.CodeGeneration.Environment
 {
     public class ProjectLocation
     {

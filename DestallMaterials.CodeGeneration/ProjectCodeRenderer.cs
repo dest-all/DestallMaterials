@@ -1,6 +1,9 @@
 ﻿using BlazorTemplater;
 using Buildalyzer;
 using Buildalyzer.Workspaces;
+using DestallMaterials.CodeGeneration.Environment;
+using DestallMaterials.CodeGeneration.Text;
+using DestallMaterials.WheelProtection.Extensions.String;
 using Microsoft.AspNetCore.Components;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,10 +23,13 @@ namespace DestallMaterials.CodeGeneration
     {
         readonly Dictionary<string, Type> _entryTemplatesByProjects = new Dictionary<string, Type>();
         readonly SolutionPathFinder _pathFinder;
-        Action<Compilation, ComponentRenderer<DynamicComponent>> _rendererConfiguration;
+        readonly ConsoleLogger _logger = new ConsoleLogger();
+        readonly FileWriter _fileWriter;
+        Action<Compilation, ComponentRenderer<DynamicComponent>>? _rendererConfiguration;
         public ProjectCodeRenderer(string solutionDirectoryPath)
         {
             _pathFinder = SolutionPathFinder.Create(solutionDirectoryPath);
+            _fileWriter = new FileWriter(_pathFinder, _logger);
         }
 
 
@@ -76,7 +82,8 @@ namespace DestallMaterials.CodeGeneration
 
         async Task<Compilation> GetProjectCompilationAsync(string projectName)
         {
-            string projectToAnalyze = Path.Combine(_pathFinder.RelativeToAbsolutePath(projectName), projectName);
+            string projectToAnalyze = Path.Combine(_pathFinder.RelativeToAbsolutePath(projectName), projectName)
+                .MustEndWith(".csproj");
 
             AnalyzerManager manager = new AnalyzerManager();
             IProjectAnalyzer analyzer = manager.GetProject(projectToAnalyze);
@@ -89,9 +96,37 @@ namespace DestallMaterials.CodeGeneration
             return compilation ?? throw new InvalidOperationException($"Could not create compilation data object of project {projectName}.");
         }
 
-        public async Task RenderAsync()
-        { 
+        public async Task<SourceFileData[]> RenderAsync(bool writeFiles = true)
+        {
+            List<string> rawResults = new List<string>();
 
+            try
+            {
+                foreach (var (projectName, templateToRender) in _entryTemplatesByProjects)
+                {
+                    var compilation = await GetProjectCompilationAsync(projectName);
+
+                    var renderer = CreateComponentRenderer(templateToRender, compilation);
+
+                    var subresult = renderer.Render();
+
+                    rawResults.Add(subresult);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error occured during rendering.", ex);
+                return new SourceFileData[0];
+            }
+
+            var sourceFiles = rawResults.SelectMany(content => _fileWriter.SplitIntoFiles(content)).ToArray();
+
+            if (writeFiles)
+            {
+                await _fileWriter.WriteSourceFilesAsync(sourceFiles);
+            }
+
+            return sourceFiles;
         }
     }
 }

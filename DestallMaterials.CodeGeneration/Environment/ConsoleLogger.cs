@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace DestallMaterials.CodeGeneration
+namespace DestallMaterials.CodeGeneration.Environment
 {
     class ConsoleLogger : ILogger
     {

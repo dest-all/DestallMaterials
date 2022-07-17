@@ -5,15 +5,21 @@ namespace DestallMaterials.CodeGeneration
 {
     public abstract class CodegenComponent : ComponentBase
     {
+        public static class SourceCodeRenderingSymbols
+        {
+            public static readonly MarkupString GreaterSign = (MarkupString)">";
+            public static readonly MarkupString Arrow = (MarkupString)"=>";
+            public static readonly MarkupString G = GreaterSign;
+            public static readonly MarkupString L = (MarkupString)"<";
+            public static MarkupString Raw(string str) => (MarkupString)str;
+            public static MarkupString A => Arrow;
+
+        }
 
         [Parameter]
         public Compilation Compilation { get; set; }
 
-        protected static readonly MarkupString GreaterSign = (MarkupString)">";
-        protected static readonly MarkupString Arrow = (MarkupString)"=>";
-        protected static readonly MarkupString G = GreaterSign;
-        protected static readonly MarkupString L = (MarkupString)"<";
-        protected static MarkupString Raw(string str) => (MarkupString)str;
-        protected static MarkupString A => Arrow;
+        
+
     }
 }

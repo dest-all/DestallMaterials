@@ -170,6 +170,15 @@ namespace DestallMaterials.WheelProtection.Extensions.String
             return input + desiredEnding;
         }
 
+        public static string MustEndWith(this string input, string desiredEnding)
+        {
+            if (input.EndsWith(desiredEnding))
+            {
+                return input;
+            }
+            return input + desiredEnding;
+        }
+
         public static string BoundBy(this string input, char boundary)
         {
             if (input == null)

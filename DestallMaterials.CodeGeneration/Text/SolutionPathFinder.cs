@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace DestallMaterials.CodeGeneration
+namespace DestallMaterials.CodeGeneration.Text
 {
-    public class SolutionPathFinder
+    class SolutionPathFinder
     {
         public const string GuidPattern = @".{8}-.{4}-.{4}-.{4}-.{12}";
         public const string SourceGenerationProjectBaseName = "SourceGeneration";
@@ -24,12 +24,8 @@ namespace DestallMaterials.CodeGeneration
 
             if (Directory.Exists(rootProjectPath))
             {
-                rootProjectPath = Directory.GetFiles(rootProjectPath).FirstOrDefault(f => f.EndsWith(".sln") || f.EndsWith(".csproj") || f.EndsWith(".shproj"));
-            }
-
-            if (rootProjectPath == null)
-            {
-                throw new Exception($"No csproj, sln or shproj file in specified folder.");
+                rootProjectPath = Directory.GetFiles(rootProjectPath).FirstOrDefault(f => f.EndsWith(".sln") || f.EndsWith(".csproj") || f.EndsWith(".shproj"))
+                    ?? throw new Exception($"No csproj, sln or shproj file in specified folder.");
             }
 
             if (rootProjectPath.EndsWith(".csproj"))
@@ -71,10 +67,10 @@ namespace DestallMaterials.CodeGeneration
 
 
 
-        public string RelativeToAbsolutePath(string relativeLocation)
+        public string? RelativeToAbsolutePath(string relativeLocation)
         {
             relativeLocation = relativeLocation.Replace("/", "\\");
-            string targetProject = relativeLocation.Split('\\').FirstOrDefault();
+            string targetProject = relativeLocation.Split('\\').First();
             if (targetProject == null) { return null; }
 
             string targetProjectFolder;
@@ -89,7 +85,7 @@ namespace DestallMaterials.CodeGeneration
             }
             else
             {
-                string targetProjectFile = SeekInParentDirectories(Directory.GetParent(_rootProjectPath).FullName, targetProject + ".csproj").FirstOrDefault()
+                string? targetProjectFile = SeekInParentDirectories(Directory.GetParent(_rootProjectPath).FullName, targetProject + ".csproj").FirstOrDefault()
                     ?? SeekInParentDirectories(Directory.GetParent(_rootProjectPath).FullName, targetProject + ".shproj").FirstOrDefault();
 
 

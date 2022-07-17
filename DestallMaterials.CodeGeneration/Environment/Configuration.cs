@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DestallMaterials.CodeGeneration
+namespace DestallMaterials.CodeGeneration.Environment
 {
     class CodegenSettings
     {
@@ -34,6 +34,7 @@ namespace DestallMaterials.CodeGeneration
 
         public string CodeGeneratorServerBaseUrl { get; set; }
         public string CodeGeneratorUniversalMethodAddress { get; set; }
+        public string GeneratedFileSuffix { get; set; } = "";
     }
     class ProjectCodeGenerationSettings
     {

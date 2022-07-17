@@ -11,6 +11,11 @@
 		<PackageReference Include="Buildalyzer" Version="4.1.4" />
 		<PackageReference Include="Buildalyzer.Workspaces" Version="4.1.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Components" Version="6.0.6" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\DestallPackages.WheelProtection.Extensions\DestallMaterials.WheelProtection.Extensions.csproj" />
 	</ItemGroup>
 
 </Project>

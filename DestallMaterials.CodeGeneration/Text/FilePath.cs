@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace DestallMaterials.CodeGeneration
+namespace DestallMaterials.CodeGeneration.Text
 {
     public class FilePath
     {
