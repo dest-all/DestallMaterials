@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DestallMaterials.WheelProtection.Extensions.Dictionary
+namespace DestallMaterials.WheelProtection.Extensions
 {
     public static class DictionaryExtensions
     {
@@ -23,18 +23,12 @@ namespace DestallMaterials.WheelProtection.Extensions.Dictionary
         public static Dictionary<TKey, TResult> JoinDictionaries<TKey, TValue1, TValue2, TResult>(this IDictionary<TKey, TValue1> dict1, IDictionary<TKey, TValue2> dict2, Func<TKey, TValue1, TValue2, TResult> selector)
         {
             var result = new Dictionary<TKey, TResult>();
-            try
+
+            foreach (var kv in dict1)
             {
-                foreach (var kv in dict1)
-                {
-                    result.Add(kv.Key, selector(kv.Key, kv.Value, dict2[kv.Key]));
-                }
-                return result;
+                result.Add(kv.Key, selector(kv.Key, kv.Value, dict2[kv.Key]));
             }
-            catch (KeyNotFoundException)
-            {
-                throw;
-            }
+            return result;
         }
 
         /// <summary>
@@ -67,8 +61,6 @@ namespace DestallMaterials.WheelProtection.Extensions.Dictionary
                 }
             }
             return result;
-
-
         }
 
         public static MergedDictionary<TKey, TValue> Merge<TKey, TValue>(this IEnumerable<IDictionary<TKey, TValue>> dicts)

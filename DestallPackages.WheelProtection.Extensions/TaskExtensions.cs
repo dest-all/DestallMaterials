@@ -19,7 +19,7 @@ namespace DestallMaterials.WheelProtection.Extensions.Tasks
         {
             var tasksList = tasks.ToList();
             await Task.WhenAny(tasksList);
-            foreach (var task in tasksList.Where(t => t.IsCompleted).ToList())
+            foreach (var task in tasksList.Where(t => t.IsCompleted).ToArray())
             {
                 if (task.IsCompleted)
                 {
@@ -78,6 +78,5 @@ namespace DestallMaterials.WheelProtection.Extensions.Tasks
                 task.Dispose();
             }
         }
-
     }
 }
