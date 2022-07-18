@@ -18,12 +18,19 @@ namespace DestallMaterials.CodeGeneration.Text
 
         private static readonly string[] ExceptionsForUnicode = { "proto" };
 
-        readonly ProjectCodeGenerationSettings _settings;
+        readonly ProjectCodeGenerationSettings _settings = new ProjectCodeGenerationSettings
+        {
+            
+        };
 
         public FileWriter(SolutionPathFinder pathFinder, ILogger logger)
         {
             _pathFinder = pathFinder;
             _logger = logger;
+
+
+            Dictionary<string, string> lineCommentPatterns = new CodegenSettings().extensionLineCommentPatterns;
+            SourceFileData.LoadLineCommentPatterns(lineCommentPatterns);
         }
 
         public static async Task WriteCreatingDirectoryAsync(FilePath filePath, string fileContent)

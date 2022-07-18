@@ -144,5 +144,18 @@ namespace DestallMaterials.WheelProtection.Linq
         }
 
         public static bool HasContent<T>(this IEnumerable<T> items) => items?.Any() == true;
+
+        public static IEnumerable<T> DistinctBy<T>(this IEnumerable<T> source, Func<T, T, bool> areSame)
+        {
+            List<T> items = new List<T>();
+            foreach (var item in source)
+            {
+                if (!items.Any(i => areSame(i, item)))
+                {
+                    items.Add(item);
+                    yield return item;
+                }
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@ using Buildalyzer.Workspaces;
 using DestallMaterials.CodeGeneration.Environment;
 using DestallMaterials.CodeGeneration.Text;
 using DestallMaterials.WheelProtection.Extensions.String;
+using DestallMaterials.WheelProtection.Linq;
 using Microsoft.AspNetCore.Components;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
@@ -87,7 +88,20 @@ namespace DestallMaterials.CodeGeneration
 
             AnalyzerManager manager = new AnalyzerManager();
             IProjectAnalyzer analyzer = manager.GetProject(projectToAnalyze);
+
+            var buildResultsTask = Task.Run(() => analyzer.Build());
+
+            var solution = analyzer.SolutionDirectory;
+
             var workspace = new AdhocWorkspace();
+
+            var buildResult = await buildResultsTask;
+            var dependencyProjects = buildResult.First().ProjectReferences.SelectAsync(r => Task.Run(() => manager.GetProject(r)));
+
+            await foreach (var dependency in dependencyProjects)
+            {
+                dependency.AddToWorkspace(workspace);
+            }
 
             var project = analyzer.AddToWorkspace(workspace);
 

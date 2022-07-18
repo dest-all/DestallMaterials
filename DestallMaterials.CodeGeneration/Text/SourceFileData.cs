@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DestallMaterials.WheelProtection.Extensions.String;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -57,5 +58,7 @@ namespace DestallMaterials.CodeGeneration.Text
             var commentedString = GetCommentString(commentLine);
             Content = $"{commentedString}\n\n{Content}";
         }
+
+        public override string ToString() => FilePath?.FileName + FilePath?.Extension.MustStartWith('.');
     }
 }
