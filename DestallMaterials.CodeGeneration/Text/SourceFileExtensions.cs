@@ -2,6 +2,7 @@
 using DestallMaterials.WheelProtection.Extensions.String;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Text.RegularExpressions;
 
 namespace DestallMaterials.CodeGeneration.Text
 {
@@ -9,9 +10,21 @@ namespace DestallMaterials.CodeGeneration.Text
     {
         private readonly static IEnumerable<char> PathForbiddenSymbols = Path.GetInvalidPathChars();
         private readonly static IEnumerable<char> NameForbiddenSymbols = Path.GetInvalidFileNameChars();
+
+        static readonly Regex _textTags = new Regex(@"<(\s|\t|\r|\n)*/?>(\s|\t|\r|\n)*", RegexOptions.Compiled);
+
         internal static void Normalize(this SourceFileData sourceFile)
         {
-            sourceFile.Content = FormatCode(sourceFile.FilePath, sourceFile.Content).Replace("<text>", "").Replace("</text>", "");
+            sourceFile.Content = FormatCode(
+                sourceFile.FilePath, 
+                sourceFile.Content
+                    .Replace("<text>", "")
+                    .Replace("</text>", "")
+                    .Replace("&quot;", "\"")
+                    .Replace("&gt;", ">")
+                    .Replace("&amp;","&")
+                //FileWriter.RemoveTextTags(sourceFile.Content)
+                );
             sourceFile.Content = MinimizeFrontLines(sourceFile.Content).Trim();
         }
 

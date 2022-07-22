@@ -223,5 +223,10 @@ namespace DestallMaterials.WheelProtection.Extensions.String
             return JsonSerializer.Serialize(obj);
         }
 
+        public static string Replace(this string str, Regex regex, string replacePattern)
+        {
+            var result = regex.Replace(str, replacePattern);
+            return result;
+        }
     }
 }

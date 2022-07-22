@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace DestallMaterials.CodeGeneration.Text
 {
-    class FileWriter
+    public class FileWriter
     {
         private static readonly Regex _directoryPath = new Regex(@"(.*)\\(^\\)*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private readonly SolutionPathFinder _pathFinder;
@@ -18,12 +18,60 @@ namespace DestallMaterials.CodeGeneration.Text
 
         private static readonly string[] ExceptionsForUnicode = { "proto" };
 
+        static readonly IEnumerable<char> _emptySymbols = new char[] 
+        {
+            '\r', '\t', '\n', ' ', '/'
+        };
+        public static string RemoveTextTags(string str, int startingIndex = 0)
+        {
+            int tagOpenedAt = -1;
+            bool textMet = false;
+            for (int i = startingIndex; i < str.Length; i++)
+            {
+                char symbol = str[i];
+                if (tagOpenedAt == -1 && symbol == '<')
+                {
+                    tagOpenedAt = i;
+                }
+                else if (tagOpenedAt != -1)
+                {
+                    if (symbol == '>')
+                    {
+                        var stringWithRemovedText = str[0..(tagOpenedAt)]
+                            + str[(i + 1)..];
+                        var result = RemoveTextTags(stringWithRemovedText, tagOpenedAt);
+                        return result;
+                    }
+                    if (!_emptySymbols.Contains(symbol))
+                    {
+                        if (!textMet)
+                        {
+                            if (str[i..(i + 4)] != "text")
+                            {
+                                tagOpenedAt = -1;
+                            }
+                            else 
+                            {
+                                textMet = true;
+                            }
+                            i += 3;
+                        }
+                        else 
+                        {
+                            tagOpenedAt = -1;
+                        }
+                    }
+                }
+            }
+            return str;
+        }
+
         readonly ProjectCodeGenerationSettings _settings = new ProjectCodeGenerationSettings
         {
             
         };
 
-        public FileWriter(SolutionPathFinder pathFinder, ILogger logger)
+        internal FileWriter(SolutionPathFinder pathFinder, ILogger logger)
         {
             _pathFinder = pathFinder;
             _logger = logger;

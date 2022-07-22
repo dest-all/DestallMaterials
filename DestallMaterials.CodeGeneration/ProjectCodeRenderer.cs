@@ -58,6 +58,34 @@ namespace DestallMaterials.CodeGeneration
             return this;
         }
 
+        /// <summary>
+        /// Binds entry template to project.
+        /// </summary>
+        /// <typeparam name="TTemplate"></typeparam>
+        /// <param name="projectName"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public ProjectCodeRenderer Bind(string projectName, Type templateType)
+        {
+            if (_entryTemplatesByProjects.Any(kv => kv.Key.Trim().ToLower() == projectName.ToLower()))
+            {
+                throw new InvalidOperationException($"Entry template already set for project {projectName}.");
+            }
+            if (_pathFinder.RelativeToAbsolutePath(projectName) == null)
+            {
+                throw new InvalidOperationException($"Could not find path to project with the name {projectName}.");
+            }
+
+            if (!IsComponent(templateType))
+            {
+                throw new Exception($"Template component provided is not a {typeof(CodegenComponent).FullName}.");
+            }
+
+            _entryTemplatesByProjects.Add(projectName, templateType);
+
+            return this;
+        }
+
         ComponentRenderer<Microsoft.AspNetCore.Components.DynamicComponent> CreateComponentRenderer(Type componentType, Compilation compilation)
         {
             var renderer = new BlazorTemplater.ComponentRenderer<Microsoft.AspNetCore.Components.DynamicComponent>();
@@ -141,6 +169,20 @@ namespace DestallMaterials.CodeGeneration
             }
 
             return sourceFiles;
+        }
+
+        static bool IsComponent(Type type)
+        {
+            type = type.BaseType;
+            while (type is not null)
+            {
+                if (type == typeof(CodegenComponent))
+                {
+                    return true;
+                }
+                type = type.BaseType;
+            }
+            return false;
         }
     }
 }
