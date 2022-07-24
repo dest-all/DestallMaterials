@@ -1,0 +1,78 @@
+﻿@using Protocol.Models.Filters.NumberFilter;
+@using Client.Web.View.Components.Universal.Inputs;
+
+@inherits LeftRightLimitPropertyFilter<float, NumberFilterModel>
+
+<NumberInput OnValueSet="v => { Value.Left = v; OnLimitChanged(); }" InputLabel="@fromLabel" InvalidityCondition="s => invalidityConditionForInputs(LimitErrored.Left)" Value="Value.Left">
+    <Flag Disabled="@(LimitErrored.Left)" Value="Filters.Left" OnValueSet="v=>{ Filters.Left = v; OnFilterChange(ValueWithFlag, GetResult()); }" />
+</NumberInput>
+
+<NumberInput OnValueSet="v => {Value.Right = v; OnLimitChanged(); }" InvalidityCondition="s => invalidityConditionForInputs(LimitErrored.Right)" InputLabel="@toLabel" Value="Value.Right">
+    <Flag Disabled="@(LimitErrored.Right)" Value="Filters.Right" OnValueSet="v=>{ Filters.Right = v; OnFilterChange(ValueWithFlag, GetResult()); }" />
+</NumberInput>
+@code {        
+    protected override NumberFilterModel GetResult()
+    {
+        if (!Filters.Left && !Filters.Right || LimitErrored.Left || LimitErrored.Right)
+        {
+            return null;
+        }
+        NumberFilterModel result = new NumberFilterModel()
+        {
+            LeftLimit = Filters.Left ? Value.Left : float.MinValue,
+            RightLimit = Filters.Right ? Value.Right : float.MaxValue,
+        };
+        return result;
+    }
+        
+   void OnLimitChanged()
+    {
+        if (Value.Left == default(float))
+        {
+            Filters.Left = false;
+            LimitErrored.Left = false;
+            Value.Left = float.MinValue;
+        }
+        else
+        {
+            Filters.Left = true;
+            LimitErrored.Left = false;
+        }
+
+        if (Value.Right == default(float))
+        {
+            Filters.Right = false;
+            LimitErrored.Right = false;
+            Value.Right = float.MinValue;
+        }
+        else
+        {
+            Filters.Right = true;
+            LimitErrored.Right = false;
+        }
+
+        checkLeftLessThanRight(Value.Left, Value.Right);
+
+        OnFilterChange(ValueWithFlag, GetResult());
+
+    }
+
+    void checkLeftLessThanRight(float left, float right)
+    {
+        if (right < left)
+        {
+            LimitErrored.Right = true;
+            Filters.Right = false;
+        }
+        StateHasChanged();
+    }
+
+
+    string invalidityConditionForInputs(bool error) => error ? "Invalid input." : "";
+
+
+    string fromLabel => $"{InputLabel}: from";
+    string toLabel => $"{InputLabel}: to";
+
+
+}

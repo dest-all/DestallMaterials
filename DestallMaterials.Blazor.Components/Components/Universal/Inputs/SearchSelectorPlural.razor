@@ -1,0 +1,125 @@
+﻿@using Client.Web.View.Services;
+@using Client.Web.View.Services.Extensions;
+
+@typeparam TItem
+@inherits SearchSelectorBase<TItem>;
+@using Common.Extensions.Object;
+
+@inject IGlobalClickCatcher globalClickCatcher;
+
+<div>
+    <StringInput InputLabel="@InputLabel" OnValueSet="async s => await OnFilterChange(s)" Value="@_filterString">
+
+        <ul class="selected-items">
+            @foreach (var selectedItem in SelectedItems)
+            {
+                    <li>
+                    @GetItemRepresentation(selectedItem)
+                        <span style="margin-left: 5px; font-size: 18px" @onclick="(a) => SelectedItems.Remove(selectedItem)">
+                            -
+                        </span>
+                    </li>
+            }
+        </ul>
+
+        @if (_showList)
+        {
+            string listClass = $"referrables-list " + (!string.IsNullOrEmpty(InputLabel) ? "with-label" : "");
+                <ul class="@listClass" @onmouseover="() => _pointerHovers = true" @onmouseout="() => _pointerHovers = false">
+                @foreach (var item in _currentBatch)
+                {
+                    string selected = ItemsComparison(SelectedItem, item) ? "selected" : "";
+                            <li @onclick="e => { ToggleList(false); _onItemSelect(item); }" class="@selected">
+                        @GetItemRepresentation(item)
+                            </li>
+                }
+                </ul>
+        }
+
+    </StringInput>
+</div>
+
+@code {
+
+    [Parameter]
+    public IList<TItem> SelectedItems { get; set; } = new List<TItem>();
+
+    private bool _pointerHovers = false;
+
+    protected sealed override void _onItemSelect(TItem item)
+    {
+        SelectedItem = item;
+        _filterString = GetItemRepresentation(item);
+        if (OnItemSelect != null)
+        {
+            OnItemSelect(item);
+        }
+        StateHasChanged();
+    }
+
+    protected override IList<TItem> ProcessBatch(IList<TItem> incomingBatch)
+    {
+        return incomingBatch.Where(i1 => !SelectedItems.Any(i2 => ItemsComparison(i1, i2))).ToList();
+    }
+
+    protected override void ToggleList(bool onoff)
+    {
+        base.ToggleList(onoff);
+        AnythingSelected = false;
+    }
+
+    protected override void OnOuterClick(MouseEventArgs mouseEventArgs)
+    {
+        ToggleList(false);
+    }
+
+
+    protected override void ConfigureClickHandlers()
+    {
+        Subscribe(
+            globalClickCatcher.OnKeyPressed(Key.ArrowDown, e =>
+            {
+                if (_currentBatch.Any())
+                {
+                    int selectedIndex = SelectedItem != null ? _currentBatch.IndexOf(SelectedItem) : (-1);
+                    if (selectedIndex < _currentBatch.Count - 1)
+                    {
+                        _onItemSelect(_currentBatch[selectedIndex + 1]);
+                    }
+                    else
+                    {
+                        _onItemSelect(_currentBatch.First());
+                    }
+                }
+            }),
+            globalClickCatcher.OnKeyPressed(Key.ArrowUp, e =>
+            {
+                if (_currentBatch.Any())
+                {
+                    int selectedIndex = SelectedItem != null ? _currentBatch.IndexOf(SelectedItem) : (_currentBatch.Count - 1);
+                    if (selectedIndex > 0)
+                    {
+                        _onItemSelect(_currentBatch[selectedIndex - 1]);
+                    }
+                    else
+                    {
+                        _onItemSelect(_currentBatch[_currentBatch.Count - 1]);
+                    }
+                }
+            }),
+            globalClickCatcher.OnKeyPressed(Key.Enter, e =>
+                {
+                    ToggleList(false);
+                    if (SelectedItem != null)
+                    {
+                        SelectedItems.Add(SelectedItem);
+                    }
+                    _filterString = "";
+                    StateHasChanged();
+                })
+        );
+    }
+    }
+
+
+

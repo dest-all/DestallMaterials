@@ -1,0 +1,41 @@
+﻿@using Common.Extensions.Object;
+@using Client.Web.View.Services;
+
+@inherits BaseInput<DateTime>
+@inject IGlobalClickCatcher globalClickCatcher;
+
+<StringInput InputLabel="@InputLabel" InvalidityCondition="v => _invalidityCondition(v)" Value="@Value.ToString()" OnValueSet="@_onValueSet" />
+
+@code{
+
+    string _invalidityCondition(string value)
+    {
+        if (!DateTime.TryParse(value, out var date))
+        {
+            return "Not a valid date";
+        }
+        else
+        {
+            return InvalidityCondition(date);
+        }
+    }
+
+    [Parameter]
+    public Func<DateTime, string> InvalidityCondition { get; set; } = s => "";
+
+    void _onValueSet(string value)
+    {
+        if (DateTime.TryParse(value, out var x))
+        {
+            Value = x;
+            OnValueSet(x);
+        }
+    }
+
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+
+    public string ErrorMessage => InvalidityCondition(Value);
+
+    private string InputClass() => HasError ? "errored" : "";
+
+}

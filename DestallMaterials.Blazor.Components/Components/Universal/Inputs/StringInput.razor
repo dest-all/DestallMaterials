@@ -1,0 +1,42 @@
+﻿@using Common.Extensions.Object;
+@using Client.Web.View.Services;
+
+@inherits BaseInput<string>
+@inject IGlobalClickCatcher globalClickCatcher;
+
+<div class="edit-field" @onmouseover="OnMouseOver" @onmouseout="OnMouseOut">
+    <input @bind="Value" class="@(InputClass())" @oninput="s => _onTextInput(s.Value.ToString())" />
+    @if (!string.IsNullOrEmpty(InputLabel))
+    {
+        <span>@InputLabel</span>
+    }
+    @if (ChildContent != null)
+    {
+        @ChildContent
+    }
+</div>
+
+@code{
+
+    [Parameter]
+    public Func<string, string> InvalidityCondition { get; set; } = s => "";
+
+    [Parameter]
+    public EventCallback OnMouseOver { get; set; }
+    
+    [Parameter]
+    public EventCallback OnMouseOut { get; set; }
+
+    private void _onTextInput(string s)
+    {
+        Value = s;
+        OnValueSet(s);
+    }
+
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+
+    public string ErrorMessage => InvalidityCondition(Value);
+
+    private string InputClass() => HasError ? "errored" : "";
+    
+}

@@ -1,0 +1,35 @@
+﻿@using Client.Web.View.Services
+@using Common.Extensions.Object;
+
+@inherits BaseInput<bool>
+
+@inject IGlobalClickCatcher globalClickCatcher;
+
+@if (ChildContent != null || !InputLabel.IsVoid())
+{
+    <div class="edit-field">
+        @if (!string.IsNullOrEmpty(InputLabel))
+        {
+            @(InputLabel)<span>:</span>
+        }
+
+        <input style="display:inline; margin-left:4px; vertical-align: middle" @bind="Value" @bind:event="oninput" @onclick="e=>onClick(!Value)" type="checkbox" class="edit-field" disabled="@Disabled"/>
+
+        @if (ChildContent != null)
+        {
+            @ChildContent
+        }
+    </div>
+}
+else
+{
+    <input style="display:inline; margin-left:4px; vertical-align: middle" @bind="Value" @bind:event="oninput" @onclick="e=>onClick(!Value)" type="checkbox" class="edit-field" disabled="@Disabled" />
+}
+
+@code{
+    void onClick(bool value)
+    {
+        Value = value;
+        OnValueSet(value);
+    }
+}

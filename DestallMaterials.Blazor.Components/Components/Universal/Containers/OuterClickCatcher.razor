@@ -1,0 +1,16 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+
+@inherits ViewComponent
+
+@code {
+    [Parameter]
+    public string CssClass { get; set; }
+
+    [Parameter]
+    public string Tag { get; set; }
+
+    [Parameter]
+    public Action<MouseEventArgs> OnOuterClick { get; set; }
+
+    private EventHandler<MouseEventArgs> OnOuterClickHandler { get; set; }
+}

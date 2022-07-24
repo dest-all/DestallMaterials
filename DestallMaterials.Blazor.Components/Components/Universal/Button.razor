@@ -1,0 +1,52 @@
+﻿@inherits ViewComponent
+
+@if (actionInProgress)
+{
+    <Spinner></Spinner>
+} else
+{
+    <button @onclick="e => OnClickAsyncHandler()" style="@Style" disabled="@(Disabled)" class="@ButtonCssClass">@ChildContent</button>
+}
+
+@code {
+    public enum ButtonType { Button, Text, Link }
+
+    [Parameter]
+    public ButtonType Type { get; set; } = Button.ButtonType.Button;
+
+    [Parameter]
+    public string ButtonCssClass { get; set; }
+
+    [Parameter]
+    public string Style { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public Func<Task> OnClick { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    bool actionInProgress;
+
+    protected async Task OnClickAsyncHandler()
+    {
+        if (OnClick == null)
+        {
+            throw new ArgumentException("On click action not specified.");
+        }
+        actionInProgress = true;
+
+        try
+        {
+            await OnClick();
+        }
+        catch
+        {
+        }
+        actionInProgress = false;
+    }
+
+}

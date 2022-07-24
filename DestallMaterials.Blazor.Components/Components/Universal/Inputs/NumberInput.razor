@@ -1,0 +1,42 @@
+﻿@using Common.Extensions.Object;
+@using Client.Web.View.Services;
+
+@inherits BaseInput<float>
+@inject IGlobalClickCatcher globalClickCatcher;
+
+<StringInput InputLabel="@InputLabel" InvalidityCondition="v => _invalidityCondition(v)" Value="@valueString" OnValueSet="@_onValueSet" />
+
+@code{
+
+    string _invalidityCondition(string value)
+    {
+        if (!float.TryParse(value, out var number))
+        {
+            return "Not a valid number";
+        }
+        else
+        {
+            return InvalidityCondition(number);
+        }
+    }
+
+    [Parameter]
+    public Func<float, string> InvalidityCondition { get; set; } = s => "";
+
+    void _onValueSet(string value)
+    {
+        if (float.TryParse(value, out var x))
+        {
+            Value = x;
+            OnValueSet(x);
+        }
+    }
+
+    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+
+    public string ErrorMessage => InvalidityCondition(Value);
+
+    string valueString => Value == float.MinValue ? "" : Value.ToString();
+
+    private string InputClass() => HasError ? "errored" : "";
+}

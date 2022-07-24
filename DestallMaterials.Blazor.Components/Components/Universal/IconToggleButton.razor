@@ -1,0 +1,12 @@
+﻿@inherits IconButton
+
+<button @onclick="OnClickAsyncHandler" style="@style" disabled="@(Disabled)">
+    <i class="material-icons" style="color:grey; font-size:40px">@MaterialIconName</i>
+</button>
+@code {
+    [Parameter]
+    public bool ToggledOn { get; set; }
+
+    protected override string style => ToggledOn ? "border: inset" : base.style;
+
+}

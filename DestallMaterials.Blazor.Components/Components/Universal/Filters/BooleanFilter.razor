@@ -1,0 +1,21 @@
+﻿@using Protocol.Models.Filters.BooleanFilter;
+@using Client.Web.View.Components.Universal.Inputs;
+
+@inherits PropertyFilterBase<bool, BooleanFilterModel>
+
+<Flag OnValueSet="v => { Value = v; OnFilterChange(ValueWithFlag, GetResult()); }" InputLabel="@InputLabel" Value="@Value">
+    <Flag OnValueSet="v => { Filters = v; OnFilterChange(ValueWithFlag, GetResult()); }" Value="@Filters" />
+</Flag>
+
+@code {
+    protected override BooleanFilterModel GetResult()
+    {
+        if (!Filters) { return null; }
+        BooleanFilterModel result = new BooleanFilterModel
+        {
+            Value = Value
+        };
+        return result;
+        
+    }
+}

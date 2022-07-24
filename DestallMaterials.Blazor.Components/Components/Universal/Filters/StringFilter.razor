@@ -1,0 +1,34 @@
+﻿@using Protocol.Models.Filters.StringFilter;
+@using Protocol.Models.Filters.ReferenceFilter;
+@using Protocol.Models.Filters.ReferenceCollectionFilter;
+@using Client.Web.View.Components.Universal.Inputs;
+
+@inherits PropertyFilterBase<string, StringFilterModel>
+
+<StringInput OnValueSet="v => onTextInput(v)" InputLabel="@InputLabel" Value="@Value">
+    <Flag Value="Filters" OnValueSet="v => { Filters = v; OnFilterChange(ValueWithFlag, GetResult()); }" />
+</StringInput>
+
+@code {
+    protected override StringFilterModel GetResult()
+    {
+        if (Value.IsVoid() || !Filters)
+        {
+            return null;
+        }
+        StringFilterModel result = new StringFilterModel()
+        {
+            Pattern = $"%{Value}%"
+        };
+        return result;
+    }
+
+    void onTextInput(string value)
+    {
+        Filters = !value.IsVoid();
+        Value = value;
+        OnFilterChange(ValueWithFlag, GetResult());
+    }
+
+
+}

@@ -13,13 +13,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestAsConsoler", "TestAsCon
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeGeneration", "CodeGeneration", "{FBF06A7C-DD83-4257-B012-CF37A8CA12AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DestallMaterials.CodeGeneration", "DestallMaterials.CodeGeneration\DestallMaterials.CodeGeneration.csproj", "{FCE55518-4A9A-4D55-95E4-700F0EF34AF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.CodeGeneration", "DestallMaterials.CodeGeneration\DestallMaterials.CodeGeneration.csproj", "{FCE55518-4A9A-4D55-95E4-700F0EF34AF9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{023EFA56-3D87-402E-A854-2D74FE19A4E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestComponents", "TestComponents\TestComponents.csproj", "{ACA82F46-B748-4051-AC99-4B85B45978D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestComponents", "TestComponents\TestComponents.csproj", "{ACA82F46-B748-4051-AC99-4B85B45978D6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeGenerationTests", "CodeGenerationTests\CodeGenerationTests.csproj", "{9AD5C986-E441-47EA-9386-84DEBE274655}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeGenerationTests", "CodeGenerationTests\CodeGenerationTests.csproj", "{9AD5C986-E441-47EA-9386-84DEBE274655}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Blazor", "Blazor", "{F1780A35-75A9-47EB-A195-A1B7349E9057}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DestallMaterials.Blazor", "DestallMaterials.Blazor.Components\DestallMaterials.Blazor.csproj", "{DA8AEA36-B559-4697-8122-91C69325D38D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DestallMaterials.WheelProtection.DataStructures", "DestallMaterials.DataStructures\DestallMaterials.WheelProtection.DataStructures.csproj", "{40C599D5-792D-438B-A80A-337B356F2B09}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +61,14 @@ Global
 		{9AD5C986-E441-47EA-9386-84DEBE274655}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AD5C986-E441-47EA-9386-84DEBE274655}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AD5C986-E441-47EA-9386-84DEBE274655}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA8AEA36-B559-4697-8122-91C69325D38D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA8AEA36-B559-4697-8122-91C69325D38D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA8AEA36-B559-4697-8122-91C69325D38D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA8AEA36-B559-4697-8122-91C69325D38D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40C599D5-792D-438B-A80A-337B356F2B09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40C599D5-792D-438B-A80A-337B356F2B09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40C599D5-792D-438B-A80A-337B356F2B09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40C599D5-792D-438B-A80A-337B356F2B09}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +81,8 @@ Global
 		{FCE55518-4A9A-4D55-95E4-700F0EF34AF9} = {FBF06A7C-DD83-4257-B012-CF37A8CA12AF}
 		{ACA82F46-B748-4051-AC99-4B85B45978D6} = {FBF06A7C-DD83-4257-B012-CF37A8CA12AF}
 		{9AD5C986-E441-47EA-9386-84DEBE274655} = {FBF06A7C-DD83-4257-B012-CF37A8CA12AF}
+		{DA8AEA36-B559-4697-8122-91C69325D38D} = {F1780A35-75A9-47EB-A195-A1B7349E9057}
+		{40C599D5-792D-438B-A80A-337B356F2B09} = {023EFA56-3D87-402E-A854-2D74FE19A4E2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F0F81FA6-ADDA-4AC5-A926-AC32F3A47ABD}
