@@ -4,9 +4,9 @@
 @inherits BaseInput<float>
 @inject IGlobalClickCatcher globalClickCatcher;
 
-<StringInput InputLabel="@InputLabel" InvalidityCondition="v => _invalidityCondition(v)" Value="@valueString" OnValueSet="@_onValueSet" />
+<StringInput InputLabel="@InputLabel" InvalidityCondition="v => _invalidityCondition(v)" Value="@valueString" OnValueSet="_onValueSet" />
 
-@code{
+@code {
 
     string _invalidityCondition(string value)
     {
@@ -25,6 +25,18 @@
 
     void _onValueSet(string value)
     {
+        if (value == "∞")
+        {
+            Value = float.MaxValue;
+            OnValueSet(Value);
+            return;
+        }
+        if (value == "-∞")
+        {
+            Value = float.MinValue;
+            OnValueSet(Value);
+            return;
+        }
         if (float.TryParse(value, out var x))
         {
             Value = x;
@@ -36,7 +48,7 @@
 
     public string ErrorMessage => InvalidityCondition(Value);
 
-    string valueString => Value == float.MinValue ? "" : Value.ToString();
+    string valueString => Value == float.MinValue ? "-∞" : Value == float.MaxValue ? "+∞" : Value.ToString();
 
     private string InputClass() => HasError ? "errored" : "";
 }

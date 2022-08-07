@@ -1,11 +1,12 @@
 ﻿@using DestallMaterials.Blazor.Services
+@using DestallMaterials.WheelProtection.Extensions.String
 
 @inherits BaseInput<string>
 @inject IGlobalClickCatcher globalClickCatcher;
 
 <div class="edit-field" @onmouseover="OnMouseOver" @onmouseout="OnMouseOut">
     <input @bind="Value" class="@(InputClass())" @oninput="s => _onTextInput(s.Value.ToString())" />
-    @if (!string.IsNullOrEmpty(InputLabel))
+    @if (InputLabel.HasContent())
     {
         <span>@InputLabel</span>
     }
@@ -32,7 +33,7 @@
         OnValueSet(s);
     }
 
-    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+    public bool HasError => ErrorMessage.HasContent();
 
     public string ErrorMessage => InvalidityCondition(Value);
 

@@ -5,7 +5,7 @@
 <Flag 
     Disabled="@(LimitErrored)" 
     Value="Filters" 
-    OnValueSet="v=>{ Filters = v; OnFilterChange(FilterValue); }" />
+    OnValueSet="v=>{ Filters = v; OnFilterChange(); }" />
 
 <NumberInput 
     OnValueSet="v => { Value = new(Value) {Left = v}; OnLimitChanged(); }" 
@@ -19,51 +19,30 @@
     InputLabel="@toLabel" 
     Value="Value.Right" />
 
-@code {        
-
-   void OnLimitChanged()
+@code {
+    void OnLimitChanged()
     {
         if (Value.Left == default && Value.Right == default)
         {
             Filters = false;
-            LimitErrored = new();
             return;
         }
 
         if (Value.Right == default)
         {
-            LimitErrored = false;
-            Value = new(Value) { Right = default };
+            Value = new(Value) { Right = float.MaxValue };
         }
         else if (Value.Left == default)
         {
-            LimitErrored = false;
-            Value = new(Value) { Left = default };
+            Value = new(Value) { Left = float.MinValue };
         }
-
-        CheckLeftLessThanRight(Value.Left, Value.Right);
-
-        OnFilterChange(new() { Filters = Filters, Value = Value });
-
-    }
-
-
-    void CheckLeftLessThanRight(float left, float right)
-    {
-        if (right < left)
-        {
-            LimitErrored = true;
-            Filters = false;
-        }
+        Filters = !LimitErrored;
+        OnFilterChange();
         StateHasChanged();
     }
 
-
     string invalidityConditionForInputs(bool error) => error ? "Invalid input." : "";
-
 
     string fromLabel => $"{InputLabel}: from";
     string toLabel => $"{InputLabel}: to";
-
-
 }

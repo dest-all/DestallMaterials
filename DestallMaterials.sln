@@ -23,11 +23,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeGenerationTests", "Code
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Blazor", "Blazor", "{F1780A35-75A9-47EB-A195-A1B7349E9057}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DestallMaterials.Blazor", "DestallMaterials.Blazor.Components\DestallMaterials.Blazor.csproj", "{DA8AEA36-B559-4697-8122-91C69325D38D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.Blazor", "DestallMaterials.Blazor.Components\DestallMaterials.Blazor.csproj", "{DA8AEA36-B559-4697-8122-91C69325D38D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DestallMaterials.WheelProtection.DataStructures", "DestallMaterials.DataStructures\DestallMaterials.WheelProtection.DataStructures.csproj", "{40C599D5-792D-438B-A80A-337B356F2B09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.WheelProtection.DataStructures", "DestallMaterials.DataStructures\DestallMaterials.WheelProtection.DataStructures.csproj", "{40C599D5-792D-438B-A80A-337B356F2B09}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DestallMaterials.Blazor.VisualTests", "DestallMaterials.Blazor.VisualTests\DestallMaterials.Blazor.VisualTests.csproj", "{135BA53E-7D33-4BF8-BABC-CAE251FBD8C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.Blazor.VisualTests", "DestallMaterials.Blazor.VisualTests\DestallMaterials.Blazor.VisualTests.csproj", "{135BA53E-7D33-4BF8-BABC-CAE251FBD8C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

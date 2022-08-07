@@ -3,18 +3,14 @@
 @typeparam TValue where TValue : IComparable<TValue>
 
 @code {
-
-    [Parameter]
-    public Action<ValueWithFlag<LeftRightValuePair<TValue>>> OnFilterChange { get; set; } = (v) => { };
-
     [Parameter]
     public bool Filters { get; set; }
 
     [Parameter]
-    public Action<TValue> OnValueSet { get; set; } = s => { };
+    public Action<ValueWithFlag<LeftRightValuePair<TValue>>> OnValueSet { get; set; } = s => { };
 
     [Parameter]
-    public Action<TValue> OnValueGet { get; set; } = s => { };
+    public Action<ValueWithFlag<LeftRightValuePair<TValue>>> OnValueGet { get; set; } = s => { };
 
     [Parameter]
     public string InputLabel { get; set; }
@@ -28,7 +24,7 @@
     [Parameter]
     public bool Disabled { get; set; }
 
-    protected bool LimitErrored;
+    protected virtual bool LimitErrored => Value.Left.CompareTo(Value.Right) > 0;
 
     protected override void OnParametersSet()
     {
@@ -46,9 +42,16 @@
         base.OnAfterRender(firstRender);
         if (firstRender)
         {
-            OnFilterChange(ValueWithFlag);
+            OnFilterChange();
         }
     }
 
-
+    protected void OnFilterChange()
+    {
+        var value = ValueWithFlag;
+        if (OnValueSet != null)
+        {
+            OnValueSet(value);
+        }
+    }
 }

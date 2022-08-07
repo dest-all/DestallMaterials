@@ -2,7 +2,7 @@
 
 namespace DestallMaterials.Blazor.Components.Universal.Filters
 {
-    public partial class LeftRightLimitPropertyFilter<TValue>
+    public abstract partial class LeftRightLimitPropertyFilter<TValue>
         where TValue : IComparable<TValue>
     {
         protected ValueWithFlag<LeftRightValuePair<TValue>> FilterValue 

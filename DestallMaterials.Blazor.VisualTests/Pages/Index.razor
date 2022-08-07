@@ -1,1 +1,11 @@
 ﻿@page "/"
+
+@using DestallMaterials.Blazor.Components.Universal.Filters;
+
+<NumberFilter OnValueSet="v => Console.WriteLine(v.Value.Left.ToString())"></NumberFilter>
+
+@code {
+    private string inp = "basic";
+
+    
+}

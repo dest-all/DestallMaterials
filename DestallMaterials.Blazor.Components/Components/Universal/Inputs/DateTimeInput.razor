@@ -3,7 +3,7 @@
 @inherits BaseInput<DateTime>
 @inject IGlobalClickCatcher globalClickCatcher;
 
-<StringInput InputLabel="@InputLabel" InvalidityCondition="v => _invalidityCondition(v)" Value="@Value.ToString()" OnValueSet="@_onValueSet"/>
+<StringInput InputLabel="@InputLabel" InvalidityCondition="v => _invalidityCondition(v)" Value=@ValueString OnValueSet="@_onValueSet"/>
 
 @code{
 
@@ -24,6 +24,12 @@
 
     void _onValueSet(string value)
     {
+        if (value == "∞")
+        {
+            Value = DateTime.MaxValue;
+            OnValueSet(Value);
+            return;
+        }
         if (DateTime.TryParse(value, out var x))
         {
             Value = x;
@@ -36,5 +42,7 @@
     public string ErrorMessage => InvalidityCondition(Value);
 
     private string InputClass() => HasError ? "errored" : "";
+
+    string ValueString => Value == DateTime.MaxValue ? "∞" : Value.ToString();
 
 }

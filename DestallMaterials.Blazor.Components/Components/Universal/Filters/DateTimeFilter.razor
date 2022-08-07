@@ -2,7 +2,7 @@
 
 @inherits LeftRightLimitPropertyFilter<DateTime>
 
-<Flag disabled="@(LimitErrored)" Value="Filters" OnValueSet="v=>{ Filters = v; OnFilterChange(ValueWithFlag); }" />
+<Flag disabled="@(LimitErrored)" Value="Filters" OnValueSet="v=>{ Filters = v; OnFilterChange(); }" />
 
 <DateTimeInput 
     OnValueSet="v => { Value = new(Value) { Left = v }; OnLimitChanged(); }" 
@@ -23,35 +23,23 @@
         if (Value.Left == default && Value.Right == default)
         {
             Filters = false;
-            LimitErrored = new();
             return;
         }
 
         if (Value.Right == default)
         {
-            LimitErrored = false;
             Value = new(Value) { Right = default };
         }
         else if (Value.Left == default)
         {
-            LimitErrored = false;
             Value = new(Value) { Left = default };
         }
-
-        CheckLeftLessThanRight(Value.Left, Value.Right);
-
-        OnFilterChange(new() { Filters = Filters, Value = Value });
-
-    }
-
-    void CheckLeftLessThanRight(DateTime left, DateTime right)
-    {
-        if (right < left)
+        else
         {
-            LimitErrored = true;
-            Filters = false;
+            Filters = true;
         }
-        StateHasChanged();
+        OnFilterChange();
+
     }
 
     string invalidityConditionForInputs(bool error) => error ? "Invalid input." : "";
