@@ -1,4 +1,4 @@
-﻿namespace Client.Web.View.Components
+﻿namespace DestallMaterials.Blazor.Components
 {
     public interface IEditableListComponent<TModel> : IModelComponent<TModel>
     {

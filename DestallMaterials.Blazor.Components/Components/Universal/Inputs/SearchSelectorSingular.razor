@@ -1,18 +1,19 @@
 ﻿@using Client.Web.View.Services;
-@using Client.Web.View.Services.Extensions;
 
 @typeparam TItem
 @inherits SearchSelectorBase<TItem>;
 
-@using Common.Extensions.Object;
+@using DestallMaterials.Blazor.Services
+@using DestallMaterials.Blazor.Services.Extensions
+@using Microsoft.AspNetCore.Components.Web
 
 @inject IGlobalClickCatcher globalClickCatcher;
 
-<StringInput 
-    InputLabel=InputLabel 
-    OnValueSet="async s => await OnFilterChange(s)" 
-    Value=_filterString 
-    OnMouseOut=_onMouseOut 
+<StringInput
+    InputLabel=InputLabel
+    OnValueSet="async s => await OnFilterChange(s)"
+    Value=_filterString
+    OnMouseOut=_onMouseOut
     OnMouseOver=_onMouseIn>
     @if (_showList)
     {
@@ -30,6 +31,7 @@
 </StringInput>
 
 @code{
+
     protected override void _onItemSelect(TItem item)
     {
         SelectedItem = item;
@@ -78,7 +80,7 @@
             {
                 if (_currentBatch.Any())
                 {
-                     int selectedIndex = SelectedItem != null ? _currentBatch.IndexOf(SelectedItem) : (_currentBatch.Count - 1);
+                    int selectedIndex = SelectedItem != null ? _currentBatch.IndexOf(SelectedItem) : (_currentBatch.Count - 1);
                     if (selectedIndex > 0)
                     {
                         _onItemSelect(_currentBatch[selectedIndex - 1]);
@@ -90,15 +92,15 @@
                 }
             }),
             globalClickCatcher.OnKeyPressed(Key.Enter, e =>
+            {
+                if (_currentBatch.Any())
                 {
-                    if (_currentBatch.Any())
-                    {
-                        _onItemSelect(SelectedItem);
-                    }
-                    ToggleList(false);
-                    StateHasChanged();
-                })
-        );
-
+                    _onItemSelect(SelectedItem);
+                }
+                ToggleList(false);
+                StateHasChanged();
+            })
+            );
     }
+
 }

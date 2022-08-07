@@ -1,34 +1,17 @@
-﻿@using Protocol.Models.Filters.StringFilter;
-@using Protocol.Models.Filters.ReferenceFilter;
-@using Protocol.Models.Filters.ReferenceCollectionFilter;
-@using Client.Web.View.Components.Universal.Inputs;
+﻿@using DestallMaterials.Blazor.Components.Universal.Inputs
+@using DestallMaterials.WheelProtection.Extensions.String
 
-@inherits PropertyFilterBase<string, StringFilterModel>
+@inherits PropertyFilterBase<string>
 
-<StringInput OnValueSet="v => onTextInput(v)" InputLabel="@InputLabel" Value="@Value">
-    <Flag Value="Filters" OnValueSet="v => { Filters = v; OnFilterChange(ValueWithFlag, GetResult()); }" />
+<StringInput OnValueSet="v => OnTextInput(v)" InputLabel="@InputLabel" Value="@Value">
+    <Flag Value="Filters" OnValueSet="v => { Filters = v; OnFilterChange(FilterValue); }" />
 </StringInput>
 
 @code {
-    protected override StringFilterModel GetResult()
+    void OnTextInput(string value)
     {
-        if (Value.IsVoid() || !Filters)
-        {
-            return null;
-        }
-        StringFilterModel result = new StringFilterModel()
-        {
-            Pattern = $"%{Value}%"
-        };
-        return result;
-    }
-
-    void onTextInput(string value)
-    {
-        Filters = !value.IsVoid();
+        Filters = value.HasContent();
         Value = value;
-        OnFilterChange(ValueWithFlag, GetResult());
+        OnFilterChange(FilterValue);
     }
-
-
 }

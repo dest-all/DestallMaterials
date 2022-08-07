@@ -1,11 +1,11 @@
-﻿@using Client.Web.View.Services
-@using Common.Extensions.Object;
+﻿@using DestallMaterials.Blazor.Services;
+@using DestallMaterials.WheelProtection.Extensions.String
 
 @inherits BaseInput<bool>
 
 @inject IGlobalClickCatcher globalClickCatcher;
 
-@if (ChildContent != null || !InputLabel.IsVoid())
+@if (ChildContent != null || !InputLabel.IsEmpty())
 {
     <div class="edit-field">
         @if (!string.IsNullOrEmpty(InputLabel))

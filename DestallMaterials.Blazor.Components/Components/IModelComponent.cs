@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Client.Web.View.Components
+namespace DestallMaterials.Blazor.Components
 {
     public interface IModelComponent<TModel> : IComponent
     {

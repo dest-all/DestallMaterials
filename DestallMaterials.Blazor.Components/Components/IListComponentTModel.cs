@@ -1,7 +1,7 @@
-﻿namespace Client.Web.View.Components
+﻿namespace DestallMaterials.Blazor.Components
 {
     public interface IListComponentTModel<TModel> : IModelComponent<TModel>
-        where TModel : IModelBase
+
     {
     }
 }

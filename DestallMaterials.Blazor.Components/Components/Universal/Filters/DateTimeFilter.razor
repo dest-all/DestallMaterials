@@ -1,69 +1,55 @@
-﻿@using Protocol.Models.Filters.DateTimeFilter;
-@using Client.Web.View.Components.Universal.Inputs;
+﻿@using DestallMaterials.Blazor.Components.Universal.Inputs
 
-@inherits LeftRightLimitPropertyFilter<DateTime, DateTimeFilterModel>
+@inherits LeftRightLimitPropertyFilter<DateTime>
 
-<DateTimeInput OnValueSet="v => { Value.Left = v; OnLimitChanged(); }" InputLabel="fromLabel" InvalidityCondition="s => invalidityConditionForInputs(LimitErrored.Left)" Value="Value.Left">
-    <Flag disabled="@(LimitErrored.Left)" Value="Filters.Left" OnValueSet="v=>{ Filters.Left = v; OnFilterChange(ValueWithFlag, GetResult()); }" />
-</DateTimeInput>
+<Flag disabled="@(LimitErrored)" Value="Filters" OnValueSet="v=>{ Filters = v; OnFilterChange(ValueWithFlag); }" />
 
-<DateTimeInput OnValueSet="v => {Value.Right = v; OnLimitChanged(); }" InvalidityCondition="s => invalidityConditionForInputs(LimitErrored.Right)" InputLabel="toLabel" Value="Value.Right">
-    <Flag disabled="@(LimitErrored.Right)" Value="Filters.Right" OnValueSet="v=>{ Filters.Right = v; OnFilterChange(ValueWithFlag, GetResult()); }" />
-</DateTimeInput>
+<DateTimeInput 
+    OnValueSet="v => { Value = new(Value) { Left = v }; OnLimitChanged(); }" 
+    InputLabel="fromLabel" 
+    InvalidityCondition="s => invalidityConditionForInputs(LimitErrored)" 
+    Value="Value.Left" />
+
+<DateTimeInput 
+    OnValueSet="v => { Value = new(Value) { Right = v }; OnLimitChanged(); }" 
+    InvalidityCondition="s => invalidityConditionForInputs(LimitErrored)" 
+    InputLabel="toLabel" 
+    Value="Value.Right" />
+
 
 @code {
-    protected override DateTimeFilterModel GetResult()
-    {
-        if (!Filters.Left && !Filters.Right || LimitErrored.Left || LimitErrored.Right)
-        {
-            return null;
-        }
-        DateTimeFilterModel result = new DateTimeFilterModel()
-            {
-                LeftLimit = Filters.Left ? Value.Left : DateTime.MinValue,
-                RightLimit = Filters.Right ? Value.Right : DateTime.MaxValue,
-            };
-        return result;
-    }
-
     void OnLimitChanged()
     {
-        if (Value.Left == default(DateTime))
+        if (Value.Left == default && Value.Right == default)
         {
-            Filters.Left = false;
-            LimitErrored.Left = false;
-            Value.Left = DateTime.MinValue;
-        }
-        else
-        {
-            Filters.Left = true;
-            LimitErrored.Left = false;
+            Filters = false;
+            LimitErrored = new();
+            return;
         }
 
-        if (Value.Right == default(DateTime))
+        if (Value.Right == default)
         {
-            Filters.Right = false;
-            LimitErrored.Right = false;
-            Value.Right = DateTime.MinValue;
+            LimitErrored = false;
+            Value = new(Value) { Right = default };
         }
-        else
+        else if (Value.Left == default)
         {
-            Filters.Right = true;
-            LimitErrored.Right = false;
+            LimitErrored = false;
+            Value = new(Value) { Left = default };
         }
 
-        checkLeftLessThanRight(Value.Left, Value.Right);
+        CheckLeftLessThanRight(Value.Left, Value.Right);
 
-        OnFilterChange(ValueWithFlag, GetResult());
+        OnFilterChange(new() { Filters = Filters, Value = Value });
 
     }
 
-    void checkLeftLessThanRight(DateTime left, DateTime right)
+    void CheckLeftLessThanRight(DateTime left, DateTime right)
     {
         if (right < left)
         {
-            LimitErrored.Right = true;
-            Filters.Right = false;
+            LimitErrored = true;
+            Filters = false;
         }
         StateHasChanged();
     }

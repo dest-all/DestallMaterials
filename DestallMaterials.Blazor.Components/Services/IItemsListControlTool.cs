@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Client.Web.View.Services
+namespace DestallMaterials.Blazor.Services
 {
     public interface IItemsListControlTool<TItem>
     {
@@ -17,7 +17,7 @@ namespace Client.Web.View.Services
     public class ItemsListControlTool<TItem> : IItemsListControlTool<TItem>
     {
         readonly Func<Task<TItem>> _add;
-        readonly Func<Task> _refresh;       
+        readonly Func<Task> _refresh;
         readonly Func<IReadOnlyCollection<uint>> _getSelected;
         public ItemsListControlTool(
             Func<Task<TItem>> add,

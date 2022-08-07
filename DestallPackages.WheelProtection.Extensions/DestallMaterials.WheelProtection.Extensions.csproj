@@ -11,4 +11,8 @@
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\DestallMaterials.DataStructures\DestallMaterials.WheelProtection.DataStructures.csproj" />
+  </ItemGroup>
+
 </Project>

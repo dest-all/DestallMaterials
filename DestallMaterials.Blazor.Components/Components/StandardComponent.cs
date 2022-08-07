@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Client.Web.View.Components
+namespace DestallMaterials.Blazor.Components
 {
     public abstract class StandardItemComponent<TModel>
     {
@@ -14,7 +14,7 @@ namespace Client.Web.View.Components
     }
 
     public abstract class ViewTableStandardComponent<TModel, TFilter> : StandardItemComponent<IList<TModel>>
-    { 
+    {
         public abstract TFilter Filter { get; set; }
     }
 

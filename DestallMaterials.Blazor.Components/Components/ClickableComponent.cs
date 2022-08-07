@@ -1,4 +1,4 @@
-﻿using Client.Web.View.Services;
+﻿using DestallMaterials.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using System;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Client.Web.View.Components
+namespace DestallMaterials.Blazor.Components
 {
     public abstract class ClickableComponent : ViewComponent
     {
@@ -21,7 +21,7 @@ namespace Client.Web.View.Components
         {
         }
         protected virtual void OnOuterClick(MouseEventArgs mouseEventArgs)
-        { 
+        {
         }
 
         protected void OnGlobalClick(MouseEventArgs mouseEventArgs)
@@ -30,7 +30,7 @@ namespace Client.Web.View.Components
             {
                 OnInnerClick(mouseEventArgs);
             }
-            else 
+            else
             {
                 OnOuterClick(mouseEventArgs);
             }

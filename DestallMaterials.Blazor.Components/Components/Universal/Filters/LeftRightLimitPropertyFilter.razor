@@ -1,20 +1,15 @@
-﻿@using Common.AdvancedDataStructures;
-@using Client.Web.View.Components.Universal.Inputs;
-
-@inherits ViewComponent
+﻿@inherits ViewComponent
 
 @typeparam TValue where TValue : IComparable<TValue>
-@typeparam TReturn
-
 
 @code {
 
     [Parameter]
-    public Action<FilterWithFlag<LeftRightValuePair<TValue>, LeftRightValuePair<bool>>, TReturn> OnFilterChange { get; set; } = (v, s) => { };
+    public Action<ValueWithFlag<LeftRightValuePair<TValue>>> OnFilterChange { get; set; } = (v) => { };
 
     [Parameter]
-    public LeftRightValuePair<bool> Filters { get; set; } = new();
-    
+    public bool Filters { get; set; }
+
     [Parameter]
     public Action<TValue> OnValueSet { get; set; } = s => { };
 
@@ -33,21 +28,14 @@
     [Parameter]
     public bool Disabled { get; set; }
 
-    protected virtual TReturn GetResult()
-    {
-        throw new NotImplementedException();
-    }
-
-    protected readonly LeftRightValuePair<bool> LimitErrored = new();
+    protected bool LimitErrored;
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        Value = Value ?? new();
-        Filters = Filters ?? new();
     }
 
-    protected FilterWithFlag<LeftRightValuePair<TValue>, LeftRightValuePair<bool>> ValueWithFlag => new()
+    protected ValueWithFlag<LeftRightValuePair<TValue>> ValueWithFlag => new()
         {
             Filters = Filters,
             Value = Value
@@ -58,8 +46,9 @@
         base.OnAfterRender(firstRender);
         if (firstRender)
         {
-            OnFilterChange(ValueWithFlag, GetResult());
+            OnFilterChange(ValueWithFlag);
         }
     }
+
 
 }

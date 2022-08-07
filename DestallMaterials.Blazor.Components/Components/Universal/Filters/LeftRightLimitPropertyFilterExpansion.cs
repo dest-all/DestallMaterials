@@ -1,9 +1,11 @@
 ﻿using System;
 
-namespace Web.Client.Components.Universal.Filters
+namespace DestallMaterials.Blazor.Components.Universal.Filters
 {
-    public partial class LeftRightLimitPropertyFilter<TValue, TReturn>
+    public partial class LeftRightLimitPropertyFilter<TValue>
         where TValue : IComparable<TValue>
     {
+        protected ValueWithFlag<LeftRightValuePair<TValue>> FilterValue 
+            => new ValueWithFlag<LeftRightValuePair<TValue>>() { Filters = Filters, Value = Value };
     }
 }

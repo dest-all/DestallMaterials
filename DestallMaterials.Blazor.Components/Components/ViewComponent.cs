@@ -1,4 +1,5 @@
-﻿using Client.Web.View.Services;
+﻿using DestallMaterials.Blazor.Services;
+using DestallMaterials.WheelProtection.DataStructures;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -6,11 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Client.Web.View.Components
+namespace DestallMaterials.Blazor.Components
 {
     public abstract class ViewComponent : ComponentBase, IDisposable
     {
-        protected DisposableCollection Callbacks = new();
+        protected DisposableList<IDisposable> Callbacks = new();
 
         protected DisposableCallback Subscribe(DisposableCallback callback)
         {
@@ -27,7 +28,7 @@ namespace Client.Web.View.Components
             }
             result[0] = callback1;
             result[1] = callback2;
-            Callbacks.Add(result);
+            Callbacks.AddRange(result);
             return result;
         }
 

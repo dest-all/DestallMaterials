@@ -70,5 +70,13 @@ namespace DestallMaterials.WheelProtection.DataStructures
         {
             return _items.GetEnumerator();
         }
+
+        public void AddRange(IEnumerable<TItem> items)
+        {
+            foreach (var item in items.Where(i => !_items.Contains(i)))
+            {
+                _items.Add(item);
+            }
+        }
     }
 }

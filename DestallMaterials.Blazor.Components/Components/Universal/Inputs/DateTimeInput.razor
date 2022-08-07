@@ -1,10 +1,9 @@
-﻿@using Common.Extensions.Object;
-@using Client.Web.View.Services;
+﻿@using DestallMaterials.Blazor.Services
 
 @inherits BaseInput<DateTime>
 @inject IGlobalClickCatcher globalClickCatcher;
 
-<StringInput InputLabel="@InputLabel" InvalidityCondition="v => _invalidityCondition(v)" Value="@Value.ToString()" OnValueSet="@_onValueSet" />
+<StringInput InputLabel="@InputLabel" InvalidityCondition="v => _invalidityCondition(v)" Value="@Value.ToString()" OnValueSet="@_onValueSet"/>
 
 @code{
 

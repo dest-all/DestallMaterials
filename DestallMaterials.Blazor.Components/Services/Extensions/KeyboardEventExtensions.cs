@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Client.Web.View.Services.Extensions
+namespace DestallMaterials.Blazor.Services.Extensions
 {
     public enum Key
     {

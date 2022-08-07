@@ -1,68 +1,59 @@
-﻿@using Protocol.Models.Filters.NumberFilter;
-@using Client.Web.View.Components.Universal.Inputs;
+﻿@using DestallMaterials.Blazor.Components.Universal.Inputs
 
-@inherits LeftRightLimitPropertyFilter<float, NumberFilterModel>
+@inherits LeftRightLimitPropertyFilter<float>
 
-<NumberInput OnValueSet="v => { Value.Left = v; OnLimitChanged(); }" InputLabel="@fromLabel" InvalidityCondition="s => invalidityConditionForInputs(LimitErrored.Left)" Value="Value.Left">
-    <Flag Disabled="@(LimitErrored.Left)" Value="Filters.Left" OnValueSet="v=>{ Filters.Left = v; OnFilterChange(ValueWithFlag, GetResult()); }" />
-</NumberInput>
+<Flag 
+    Disabled="@(LimitErrored)" 
+    Value="Filters" 
+    OnValueSet="v=>{ Filters = v; OnFilterChange(FilterValue); }" />
 
-<NumberInput OnValueSet="v => {Value.Right = v; OnLimitChanged(); }" InvalidityCondition="s => invalidityConditionForInputs(LimitErrored.Right)" InputLabel="@toLabel" Value="Value.Right">
-    <Flag Disabled="@(LimitErrored.Right)" Value="Filters.Right" OnValueSet="v=>{ Filters.Right = v; OnFilterChange(ValueWithFlag, GetResult()); }" />
-</NumberInput>
+<NumberInput 
+    OnValueSet="v => { Value = new(Value) {Left = v}; OnLimitChanged(); }" 
+    InputLabel="@fromLabel" 
+    InvalidityCondition="s => invalidityConditionForInputs(LimitErrored)" 
+    Value="Value.Left" />
+
+<NumberInput 
+    OnValueSet="v => {Value = new(Value) {Right = v}; OnLimitChanged(); }" 
+    InvalidityCondition="s => invalidityConditionForInputs(LimitErrored)" 
+    InputLabel="@toLabel" 
+    Value="Value.Right" />
+
 @code {        
-    protected override NumberFilterModel GetResult()
-    {
-        if (!Filters.Left && !Filters.Right || LimitErrored.Left || LimitErrored.Right)
-        {
-            return null;
-        }
-        NumberFilterModel result = new NumberFilterModel()
-        {
-            LeftLimit = Filters.Left ? Value.Left : float.MinValue,
-            RightLimit = Filters.Right ? Value.Right : float.MaxValue,
-        };
-        return result;
-    }
-        
+
    void OnLimitChanged()
     {
-        if (Value.Left == default(float))
+        if (Value.Left == default && Value.Right == default)
         {
-            Filters.Left = false;
-            LimitErrored.Left = false;
-            Value.Left = float.MinValue;
-        }
-        else
-        {
-            Filters.Left = true;
-            LimitErrored.Left = false;
+            Filters = false;
+            LimitErrored = new();
+            return;
         }
 
-        if (Value.Right == default(float))
+        if (Value.Right == default)
         {
-            Filters.Right = false;
-            LimitErrored.Right = false;
-            Value.Right = float.MinValue;
+            LimitErrored = false;
+            Value = new(Value) { Right = default };
         }
-        else
+        else if (Value.Left == default)
         {
-            Filters.Right = true;
-            LimitErrored.Right = false;
+            LimitErrored = false;
+            Value = new(Value) { Left = default };
         }
 
-        checkLeftLessThanRight(Value.Left, Value.Right);
+        CheckLeftLessThanRight(Value.Left, Value.Right);
 
-        OnFilterChange(ValueWithFlag, GetResult());
+        OnFilterChange(new() { Filters = Filters, Value = Value });
 
     }
 
-    void checkLeftLessThanRight(float left, float right)
+
+    void CheckLeftLessThanRight(float left, float right)
     {
         if (right < left)
         {
-            LimitErrored.Right = true;
-            Filters.Right = false;
+            LimitErrored = true;
+            Filters = false;
         }
         StateHasChanged();
     }

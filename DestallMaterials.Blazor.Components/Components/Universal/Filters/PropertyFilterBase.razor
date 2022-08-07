@@ -1,37 +1,27 @@
-﻿@using Protocol.Models.Filters.DateTimeFilter;
-@using Client.Web.View.Components.Universal.Inputs;
-@using Common.AdvancedDataStructures;
+﻿@typeparam TValue
 
-@typeparam TValue
-@typeparam TReturn
-
-@inherits BaseInput<TValue>
+@inherits DestallMaterials.Blazor.Components.Universal.Inputs.BaseInput<TValue>
 
 @code {
     [Parameter]
-    public Action<FilterWithFlag<TValue, bool>, TReturn> OnFilterChange { get; set; } = (v, s) => { };
+    public Action<ValueWithFlag<TValue>> OnFilterChange { get; set; } = (v) => { };
 
     [Parameter]
     public bool Filters { get; set; }
 
-    protected FilterWithFlag<TValue, bool> ValueWithFlag => new FilterWithFlag<TValue, bool>() { Filters = Filters, Value = Value };
+    protected ValueWithFlag<TValue> FilterValue => new ValueWithFlag<TValue>() { Filters = Filters, Value = Value };
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
     }
 
-    protected virtual TReturn GetResult()
-    {
-        throw new NotImplementedException();
-    }
-
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
-        if (firstRender)
+        if (firstRender && OnFilterChange != null)
         {
-            OnFilterChange(ValueWithFlag, GetResult());
+            OnFilterChange(FilterValue);
         }
     }
 }

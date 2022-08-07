@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Client.Web.View.Components.Universal.Dropdowns
+namespace DestallMaterials.Blazor.Components.Universal.Dropdowns
 {
     public abstract class DropdownMenuOption
     {
