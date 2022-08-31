@@ -1,0 +1,20 @@
+﻿.selection-list {
+    height: 300px;
+    min-width: 100px;
+    width: fit-content;
+    -ms-overflow-style: none;
+
+    overflow: scroll;
+}
+
+    .selection-list::-webkit-scrollbar {
+        display: none;
+    }
+
+    .selection-list li {
+        background-color: lightgrey;
+    }
+
+    .selection-list .selected {
+        background-color: grey;
+    }

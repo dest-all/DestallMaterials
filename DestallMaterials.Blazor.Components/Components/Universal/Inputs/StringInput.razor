@@ -4,11 +4,15 @@
 @inherits BaseInput<string>
 @inject IGlobalClickCatcher globalClickCatcher;
 
-<div class="edit-field" @onmouseover="OnMouseOver" @onmouseout="OnMouseOut">
+<div class="edit-field" @onmouseover="OnMouseOver" @onmouseout="OnMouseOut" @onfocus=OnFocus>
     <input @bind="Value" class="@(InputClass())" @oninput="s => _onTextInput(s.Value.ToString())" />
     @if (InputLabel.HasContent())
     {
         <span>@InputLabel</span>
+    }
+    @if (HasError)
+    {
+        <span class="errored">@ErrorMessage</span>
     }
     @if (ChildContent != null)
     {
@@ -23,9 +27,12 @@
 
     [Parameter]
     public EventCallback OnMouseOver { get; set; }
-    
+
     [Parameter]
     public EventCallback OnMouseOut { get; set; }
+
+    [Parameter]
+    public Action OnFocus { get; set; } = () => { };
 
     private void _onTextInput(string s)
     {

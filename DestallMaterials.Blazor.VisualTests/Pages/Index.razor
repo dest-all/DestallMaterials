@@ -1,11 +1,22 @@
 ﻿@page "/"
 
 @using DestallMaterials.Blazor.Components.Universal.Filters;
+@using DestallMaterials.Blazor.Components.Universal.Inputs
+@using DestallMaterials.WheelProtection.Extensions.String
 
-<NumberFilter OnValueSet="v => Console.WriteLine(v.Value.Left.ToString())"></NumberFilter>
+<input />
+
+<SelectionList 
+    TItem="string" 
+    ItemsCountTotal="Items.Count" 
+    GetBatch="async page => Items.Skip(_batchSize * (int)(page - 1)).Take(_batchSize).ToList()" 
+    OnItemClicked="item => Console.WriteLine(item.ToString())" 
+    MaxItemsShown="20"
+    />
+
 
 @code {
     private string inp = "basic";
-
-    
+    const int _batchSize = 10;
+    readonly List<string> Items = Enumerable.Range(0, 100).Select(i => i.ToString()).ToList();
 }

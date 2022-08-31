@@ -1,23 +1,25 @@
 ﻿@using Client.Web.View.Services;
 
 @typeparam TItem
-@inherits SearchSelectorBase<TItem>;
 
 @using DestallMaterials.Blazor.Services
 @using DestallMaterials.Blazor.Services.Extensions
+@using DestallMaterials.WheelProtection.Extensions.String
 @using Microsoft.AspNetCore.Components.Web
+
+@inherits SearchSelectorBase<TItem>
 
 @inject IGlobalClickCatcher globalClickCatcher;
 
 <StringInput
-    InputLabel=InputLabel
+    InputLabel=@InputLabel
     OnValueSet="async s => await OnFilterChange(s)"
-    Value=_filterString
-    OnMouseOut=_onMouseOut
-    OnMouseOver=_onMouseIn>
+    Value=@_filterString
+    OnMouseOut=@_onMouseOut
+    OnMouseOver=@_onMouseIn>
     @if (_showList)
     {
-        string listClass = $"referrables-list " + (!string.IsNullOrEmpty(InputLabel) ? "with-label" : "");
+        string listClass = $"referrables-list " + (InputLabel.HasContent() ? "with-label" : "");
         <ul class="@listClass">
             @foreach (var item in _currentBatch)
             {
@@ -58,49 +60,9 @@
         ToggleList(false);
     }
 
-    protected override void ConfigureClickHandlers()
+    protected override void OnEnterClicked(TItem currentItem)
     {
-        Subscribe(
-            globalClickCatcher.OnKeyPressed(Key.ArrowDown, e =>
-            {
-                if (_currentBatch.Any())
-                {
-                    int selectedIndex = SelectedItem != null ? _currentBatch.IndexOf(SelectedItem) : (-1);
-                    if (selectedIndex < _currentBatch.Count - 1)
-                    {
-                        _onItemSelect(_currentBatch[selectedIndex + 1]);
-                    }
-                    else
-                    {
-                        _onItemSelect(_currentBatch.First());
-                    }
-                }
-            }),
-            globalClickCatcher.OnKeyPressed(Key.ArrowUp, e =>
-            {
-                if (_currentBatch.Any())
-                {
-                    int selectedIndex = SelectedItem != null ? _currentBatch.IndexOf(SelectedItem) : (_currentBatch.Count - 1);
-                    if (selectedIndex > 0)
-                    {
-                        _onItemSelect(_currentBatch[selectedIndex - 1]);
-                    }
-                    else
-                    {
-                        _onItemSelect(_currentBatch[_currentBatch.Count - 1]);
-                    }
-                }
-            }),
-            globalClickCatcher.OnKeyPressed(Key.Enter, e =>
-            {
-                if (_currentBatch.Any())
-                {
-                    _onItemSelect(SelectedItem);
-                }
-                ToggleList(false);
-                StateHasChanged();
-            })
-            );
+        SelectedItem = currentItem;
     }
 
 }

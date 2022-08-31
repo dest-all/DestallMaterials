@@ -1,6 +1,7 @@
 ﻿using DestallMaterials.Blazor.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace DestallMaterials.Blazor.Components
 {
-    public abstract class ClickableComponent : ViewComponent
+    public abstract partial class ClickableComponent : ViewComponent
     {
         [Inject]
-        IGlobalClickCatcher _globalClickCatcher { get; set; }
+        protected IGlobalClickCatcher globalClickCatcher { get; private set; }
 
         [Parameter]
         public bool Disabled { get; set; }
@@ -49,12 +50,13 @@ namespace DestallMaterials.Blazor.Components
             base.OnAfterRender(firstRender);
             if (firstRender)
             {
-                Subscribe(_globalClickCatcher.SubscribeForGlobalClick(OnGlobalClick));
+                Subscribe(globalClickCatcher.SubscribeForGlobalClick(OnGlobalClick));
             }
         }
 
         protected readonly Action _onMouseIn;
         protected readonly Action _onMouseOut;
 
+        
     }
 }

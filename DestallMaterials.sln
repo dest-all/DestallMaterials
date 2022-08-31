@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.WheelProte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.Blazor.VisualTests", "DestallMaterials.Blazor.VisualTests\DestallMaterials.Blazor.VisualTests.csproj", "{135BA53E-7D33-4BF8-BABC-CAE251FBD8C4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.FileManager.Interface", "DestallMaterials.FileManager.Interface\DestallMaterials.FileManager.Interface.csproj", "{3E78CDD1-DE82-4F71-9AF1-48139925087F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{135BA53E-7D33-4BF8-BABC-CAE251FBD8C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{135BA53E-7D33-4BF8-BABC-CAE251FBD8C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{135BA53E-7D33-4BF8-BABC-CAE251FBD8C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E78CDD1-DE82-4F71-9AF1-48139925087F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E78CDD1-DE82-4F71-9AF1-48139925087F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E78CDD1-DE82-4F71-9AF1-48139925087F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E78CDD1-DE82-4F71-9AF1-48139925087F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +96,7 @@ Global
 		{DA8AEA36-B559-4697-8122-91C69325D38D} = {F1780A35-75A9-47EB-A195-A1B7349E9057}
 		{40C599D5-792D-438B-A80A-337B356F2B09} = {023EFA56-3D87-402E-A854-2D74FE19A4E2}
 		{135BA53E-7D33-4BF8-BABC-CAE251FBD8C4} = {F1780A35-75A9-47EB-A195-A1B7349E9057}
+		{3E78CDD1-DE82-4F71-9AF1-48139925087F} = {023EFA56-3D87-402E-A854-2D74FE19A4E2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F0F81FA6-ADDA-4AC5-A926-AC32F3A47ABD}

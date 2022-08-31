@@ -1,0 +1,21 @@
+﻿
+input {
+    border-top: none;
+    border-right: none;
+    border-left: none;
+    border-bottom-color: grey;
+    color: black;
+}
+
+    input:focus {
+        outline: none;
+        border-bottom-color: black;
+    }
+
+    input.errored {
+        border-bottom-color: red;
+    }
+
+span.errored {
+    color: red;
+}

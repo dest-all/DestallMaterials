@@ -7,17 +7,30 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Content Remove="Components\ViewComponent.razor" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Include="Components\ViewComponent.razor" />
+	</ItemGroup>
+
 
 	<ItemGroup>
 		<SupportedPlatform Include="browser" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="6.0.2" />
+		<PackageReference Include="MudBlazor" Version="6.0.13" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\DestallPackages.WheelProtection.Extensions\DestallMaterials.WheelProtection.Extensions.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Components\Universal\Containers\" />
+	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 
 </Project>

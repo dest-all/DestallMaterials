@@ -9,7 +9,7 @@ namespace DestallMaterials.Blazor.Services.Extensions
 {
     public enum Key
     {
-        Alt, Enter, Shift, ArrowUp, ArrowDown
+        Alt, Enter, Shift, ArrowUp, ArrowDown, Space
     }
     public static class KeyboardEventExtensions
     {
@@ -17,7 +17,8 @@ namespace DestallMaterials.Blazor.Services.Extensions
         {
             [Key.ArrowUp] = "ArrowUp",
             [Key.ArrowDown] = "ArrowDown",
-            [Key.Enter] = "Enter"
+            [Key.Enter] = "Enter",
+            [Key.Space] = "Space"
         };
         public static DisposableCallback OnKeyPressed(this IGlobalClickCatcher globalClickCatcher, Key key, Action<KeyboardEventArgs> action)
         {
