@@ -30,5 +30,16 @@ namespace DestallMaterials.Blazor.Services.Extensions
                 }
             });
         }
+
+        public static DisposableCallback OnKeyPressed(this IGlobalClickCatcher globalClickCatcher, Key key, Func<KeyboardEventArgs, Task> action)
+        {
+            return globalClickCatcher.SubscribeForKeyClick(async e =>
+            {
+                if (e.Key == KeysAndNames[key])
+                {
+                    await action(e);
+                }
+            });
+        }
     }
 }

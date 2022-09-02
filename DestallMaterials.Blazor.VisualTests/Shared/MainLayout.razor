@@ -3,7 +3,10 @@
 
 @inject IGlobalClickInvoker clickInvoker
 
-<div class="page uu" @onkeydown="e => OnKeyDown(e)" @onclick="e => clickInvoker.FireGlobalMouseClickEvent(e)">
+<div class="page" 
+    @onkeydown="async e => await clickInvoker.FireKeyClickEvent(e)" 
+    @onclick="async e => await clickInvoker.FireGlobalMouseClickEvent(e)">
+
     <div class="sidebar">
         <NavMenu />
     </div>
@@ -18,11 +21,3 @@
         </article>
     </main>
 </div>
-
-@code {
-    void OnKeyDown(KeyboardEventArgs args)
-    {
-        Console.WriteLine("Click");
-        clickInvoker.FireKeyClickEvent(args);
-    }
-}

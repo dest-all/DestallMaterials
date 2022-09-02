@@ -25,11 +25,15 @@ namespace DestallMaterials.Blazor.Services
     {
         DisposableCallback SubscribeForGlobalClick(Action<MouseEventArgs> onMouseClick);
         DisposableCallback SubscribeForKeyClick(Action<KeyboardEventArgs> onKeyClick);
+
+
+        DisposableCallback SubscribeForGlobalClick(Func<MouseEventArgs, Task> onMouseClick);
+        DisposableCallback SubscribeForKeyClick(Func<KeyboardEventArgs, Task> onKeyClick);
     }
 
     public interface IGlobalClickInvoker
     {
-        void FireGlobalMouseClickEvent(MouseEventArgs eventArgs);
-        void FireKeyClickEvent(KeyboardEventArgs eventArgs);
+        Task FireGlobalMouseClickEvent(MouseEventArgs eventArgs);
+        Task FireKeyClickEvent(KeyboardEventArgs eventArgs);
     }
 }

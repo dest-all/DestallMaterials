@@ -1,6 +1,8 @@
 ﻿@using DestallMaterials.Blazor.Functions
 @using DestallMaterials.Blazor.Services.Extensions
+@using DestallMaterials.Blazor.Services.UI
 @using MudBlazor
+@using DestallMaterials.Blazor.Services.UI.Extensions
 
 @inherits ClickableComponent
 
@@ -11,18 +13,36 @@
 <ul class="selection-list"
     @ref=_listElement
     @onmouseover="() => OnMouseIn()"
-    @onmouseout="() => OnMouserOut()">
-
+    @onmouseout="() => OnMouserOut()"
+    id="@_elementId">
     @{
         int i = 0;
+        bool added = false;
+        VirtualizerNumbers numbers = null;
     }
-    <Virtualize ItemsProvider="async r => await ProvideItems(r)" TItem="TItem" Context="item">
+    <Virtualize ItemsProvider="async r => await ProvideItems(r)" TItem="TItem" Context="item" @ref=Virtualize>
         @{
+            if (VirtualizerController == null && Virtualize != null)
+            {
+                VirtualizerController = VirtualizerController ?? new VirtualizerController<TItem>(
+                    uiManipulator,
+                    Virtualize,
+                    _elementId,
+                    () => ItemsCountTotal
+                );
+            }
+            if (VirtualizerController != null && !added)
+            {
+                numbers = VirtualizerController.Numbers;
+                i += numbers.ItemsBefore;
+                added = true;
+            }
             bool selected = _selectedItemIndex == i++;
             string representation = GetItemRepresentation(item);
             string cssClass = selected ? "selected" : "";
+            var id = $"{_elementId}_{i}";
         }
-        <li class="@cssClass" @onclick="() => ClickItem(item)">
+        <li class="@cssClass" @onclick="() => ClickItem(item)" id=@id>
             @representation
         </li>
     </Virtualize>
@@ -65,6 +85,16 @@
 
     [Parameter]
     public Action OnListClick { get; set; } = null;
+
+    [Parameter]
+    public bool IsActive { get; set; }
+
+    [Parameter]
+    public Action<TItem> OnArrowSelect { get; set; } = item => { };
+
+    Virtualize<TItem> Virtualize;
+
+    readonly string _elementId = Guid.NewGuid().ToString();
 
     public TItem SelectedItem
     {
@@ -115,7 +145,6 @@
     void ClickItem(TItem item)
     {
         OnItemClicked(item);
-        Console.WriteLine($"Item {GetItemRepresentation(item)} clicked.");
         StateHasChanged();
     }
 
@@ -140,8 +169,13 @@
         _mouseIn = false;
     }
 
-    void ArrowUp()
+    async Task ArrowUp()
     {
+        if (!IsActive)
+        {
+            return;
+        }
+
         if (_selectedItemIndex > _topIndex)
         {
             _selectedItemIndex--;
@@ -158,12 +192,15 @@
             _selectedItemIndex = (int)_bottomIndex;
             StateHasChanged();
         }
-        Console.WriteLine("Arrow up.");
-
+        //await FitScrollAsync();
     }
 
-    void ArrowDown()
+    async Task ArrowDown()
     {
+        if (!IsActive)
+        {
+            return;
+        }
 
         if (_selectedItemIndex < _bottomIndex)
         {
@@ -181,16 +218,20 @@
             _selectedItemIndex = (int)_topIndex;
             StateHasChanged();
         }
-        Console.WriteLine("Arrow down.");
+        //await FitScrollAsync();
+    }
 
+    async Task FitScrollAsync()
+    {
+        await uiManipulator.ScrollToFit_Y($"{_elementId}_{_selectedItemIndex}", _elementId);
     }
 
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            Subscribe(globalClickCatcher.OnKeyPressed(Key.ArrowUp, e => ArrowUp()));
-            Subscribe(globalClickCatcher.OnKeyPressed(Key.ArrowDown, e => ArrowDown()));
+            Subscribe(globalClickCatcher.OnKeyPressed(Key.ArrowUp, async e => await ArrowUp()));
+            Subscribe(globalClickCatcher.OnKeyPressed(Key.ArrowDown, async e => await ArrowDown()));
             Subscribe(globalClickCatcher.OnKeyPressed(Key.Space, e => SpacePressed()));
             Subscribe(globalClickCatcher.OnKeyPressed(Key.Enter, e => SpacePressed()));
         }
@@ -205,10 +246,9 @@
     {
         _topIndex = 0;
         _bottomIndex = _topIndex + MaxItemsShown;
-        Items = await CalculateItemsListAsync();
-
-        await uiManipulator.SayHi("Igor");
     }
+
+    VirtualizerController<TItem> VirtualizerController;
 
     ElementReference _listElement;
 

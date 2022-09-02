@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DestallMaterials.Blazor.Components;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +10,11 @@ namespace DestallMaterials.Blazor.Services.UI
 {
     public interface IUiManipulator
     {
-        void ScrollItem_XAxis(string id, double deltaX);
-        void ScrollItem_YAxis(string id, double deltaY);
+        Task<uint> Y_Deviation(string itemId, string containerId);
+        Task<uint> X_Deviation(string itemId, string containerId);
+        Task ScrollItem_X(string id, double XPosition);
+        Task ScrollItem_Y(string id, double YPosition);
+        Task ScrollToFit_Y(string itemId, string containerId);
 
-        Task SayHi(string name);
     }
 }

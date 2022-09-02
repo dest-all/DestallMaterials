@@ -12,19 +12,30 @@ namespace DestallMaterials.Blazor.Services
         readonly List<Action<KeyboardEventArgs>> _keyClickCallbacks = new();
         readonly List<Action<MouseEventArgs>> _mouseClickCallbacks = new();
 
-        public void FireGlobalMouseClickEvent(MouseEventArgs eventArgs)
+        readonly List<Func<KeyboardEventArgs, Task>> _keyClickCallbacksAsync = new();
+        readonly List<Func<MouseEventArgs, Task>> _mouseClickCallbacksAsync = new();
+
+        public async Task FireGlobalMouseClickEvent(MouseEventArgs eventArgs)
         {
             foreach (var callback in _mouseClickCallbacks)
             {
                 callback(eventArgs);
             }
+            foreach (var callback in _mouseClickCallbacksAsync)
+            {
+                await callback(eventArgs);
+            }
         }
 
-        public void FireKeyClickEvent(KeyboardEventArgs eventArgs)
+        public async Task FireKeyClickEvent(KeyboardEventArgs eventArgs)
         {
             foreach (var callback in _keyClickCallbacks)
             {
                 callback(eventArgs);
+            }
+            foreach (var callback in _keyClickCallbacksAsync)
+            {
+                await callback(eventArgs);
             }
         }
 
@@ -39,6 +50,20 @@ namespace DestallMaterials.Blazor.Services
         {
             var dc = new DisposableCallback(e => _keyClickCallbacks.Remove(onKeyClick));
             _keyClickCallbacks.Add(onKeyClick);
+            return dc;
+        }
+
+        public DisposableCallback SubscribeForKeyClick(Func<KeyboardEventArgs, Task> onKeyClick)
+        {
+            var dc = new DisposableCallback(e => _keyClickCallbacksAsync.Remove(onKeyClick));
+            _keyClickCallbacksAsync.Add(onKeyClick);
+            return dc;
+        }
+
+        public DisposableCallback SubscribeForGlobalClick(Func<MouseEventArgs, Task> onMouseClick)
+        {
+            var dc = new DisposableCallback(e => _mouseClickCallbacksAsync.Remove(onMouseClick));
+            _mouseClickCallbacksAsync.Add(onMouseClick);
             return dc;
         }
     }
