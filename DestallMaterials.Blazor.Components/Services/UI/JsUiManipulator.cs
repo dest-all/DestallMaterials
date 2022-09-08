@@ -44,5 +44,24 @@ namespace DestallMaterials.Blazor.Services.UI
             const string command = "Y_scrollToFit";
             await _runtime.InvokeVoidAsync(command, itemId, containerId);
         }
+
+        public async Task SetCssVariableValue(string elementId, string variableName, string value)
+        {
+            const string command = $"setCssVariableValue";
+            await _runtime.InvokeVoidAsync(command, elementId, variableName, value);
+        }
+
+        public async Task<double> GetItemScroll_Y(string elementId)
+        {
+            const string command = "getItemScroll_Y";
+            var result = await _runtime.InvokeAsync<double>(command, elementId);
+            return result;
+        }
+
+        public async Task DisableDefaultEventHandling(string elementId, string eventType)
+        {
+            const string command = "disableDefaultHandling";
+            await _runtime.InvokeVoidAsync(command, elementId, eventType);
+        }
     }
 }

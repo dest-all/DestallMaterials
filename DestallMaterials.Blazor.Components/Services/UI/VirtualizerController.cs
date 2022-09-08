@@ -22,12 +22,24 @@ namespace DestallMaterials.Blazor.Services.UI
         readonly Virtualize<TVirtualize> _virtualize;
         readonly string _containerId;
         readonly Func<int> _itemsCount;
-        public VirtualizerController(IUiManipulator uiManipulator, Virtualize<TVirtualize> virtualize, string containerId, Func<int> itemsTotalCount)
+        private readonly int _itemsShown;
+        private readonly int _lineHeightPixels;
+
+        public VirtualizerController(
+                IUiManipulator uiManipulator,
+                Virtualize<TVirtualize> virtualize,
+                string containerId,
+                Func<int> itemsTotalCount,
+                int itemsShown,
+                int lineHeightPixels
+            )
         {
             _uiManipulator = uiManipulator;
             _virtualize = virtualize;
             _containerId = containerId;
             _itemsCount = itemsTotalCount;
+            _itemsShown = itemsShown;
+            _lineHeightPixels = lineHeightPixels;
         }
 
         public async Task ScrollToItem(int itemIndex)
@@ -36,5 +48,51 @@ namespace DestallMaterials.Blazor.Services.UI
             await _uiManipulator.ScrollItem_Y(_containerId, scrollTo);
         }
         public VirtualizerNumbers Numbers => GetVirtualizerNumbers(_virtualize);
+
+        public async Task<TopBottomIndexPair> GetTopAndBottomIndexesAsync()
+        {
+            var currentScroll = await _uiManipulator.GetItemScroll_Y(_containerId);
+
+            var topIndex = (int)Math.Round(currentScroll / _lineHeightPixels);
+
+            var result = new TopBottomIndexPair
+            {
+                Top = topIndex,
+                Bottom = topIndex + _itemsShown - 1
+            };
+
+            return result;
+        }
+
+
+        /// <summary>
+        /// Scroll and set position of indexed line to certain position.
+        /// </summary>
+        /// <param name="lineNumber">Starts with 0.</param>
+        /// <param name="scrollDestination"></param>
+        /// <returns></returns>
+        public async Task ScrollToLineAsync(int lineNumber, ScrollDestination scrollDestination)
+        {
+            var resultantScrollPosition = scrollDestination switch
+            {
+                ScrollDestination.Top => lineNumber,
+                ScrollDestination.Bottom => lineNumber - _itemsShown + 1,
+                ScrollDestination.Center => lineNumber - _itemsShown/2 + 1,
+                _ => throw new NotImplementedException()
+            } * _lineHeightPixels;
+
+            await _uiManipulator.ScrollItem_Y(_containerId, resultantScrollPosition);
+        }
+    }
+
+    public enum ScrollDestination
+    {
+        Top, Bottom, Center
+    }
+
+    public struct TopBottomIndexPair 
+    {
+        public int Top { get; init; }
+        public int Bottom { get; init; }
     }
 }

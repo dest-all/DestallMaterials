@@ -8,11 +8,11 @@ namespace DestallMaterials.Blazor.Services.UI.Extensions
         
     }
 
-    public class VirtualizerNumbers
+    public struct VirtualizerNumbers
     {
-        public readonly int ItemsBefore;
-        public readonly int VisibleItemCapacity;
-        public readonly int ItemsCount;
+        public int ItemsBefore { get; init; }
+        public int VisibleItemCapacity { get; init; }
+        public int ItemsCount { get; init; }
 
         public VirtualizerNumbers(int itemsBefore, int visibleItemCapacity, int itemsCount)
         {

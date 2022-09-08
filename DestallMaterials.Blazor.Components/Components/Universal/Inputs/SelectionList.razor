@@ -1,8 +1,8 @@
 ﻿@using DestallMaterials.Blazor.Functions
 @using DestallMaterials.Blazor.Services.Extensions
 @using DestallMaterials.Blazor.Services.UI
-@using MudBlazor
 @using DestallMaterials.Blazor.Services.UI.Extensions
+@using DestallMaterials.WheelProtection.Extensions.String
 
 @inherits ClickableComponent
 
@@ -10,263 +10,74 @@
 
 @typeparam TItem
 
+<input @ref=_distracter id="list-distracter"/>
 <ul class="selection-list"
-    @ref=_listElement
-    @onmouseover="() => OnMouseIn()"
-    @onmouseout="() => OnMouserOut()"
-    id="@_elementId">
+    id=@_elementId
+    style=@ListStyle
+    @ref=_listReference
+    @onfocus=_onFocus
+    @onclick="async () => await _distracter.FocusAsync()"
+    @onscroll="async () => await OnScroll()"
+    >
     @{
         int i = 0;
         bool added = false;
-        VirtualizerNumbers numbers = null;
+        VirtualizerNumbers numbers = default;
     }
     <Virtualize ItemsProvider="async r => await ProvideItems(r)" TItem="TItem" Context="item" @ref=Virtualize>
         @{
             if (VirtualizerController == null && Virtualize != null)
             {
-                VirtualizerController = VirtualizerController ?? new VirtualizerController<TItem>(
+                VirtualizerController = new VirtualizerController<TItem>(
                     uiManipulator,
                     Virtualize,
                     _elementId,
-                    () => ItemsCountTotal
+                    () => ItemsCountTotal,
+                    (int)Math.Min(MaxItemsShown, ItemsCountTotal),
+                    _listLineHeight
                 );
             }
+
             if (VirtualizerController != null && !added)
             {
                 numbers = VirtualizerController.Numbers;
                 i += numbers.ItemsBefore;
                 added = true;
             }
-            bool selected = _selectedItemIndex == i++;
+
+            var selectedItemBoundaries = SelectedItemBoundaries;
+
+            bool selected = SelectedItemIndex == i;
             string representation = GetItemRepresentation(item);
             string cssClass = selected ? "selected" : "";
-            var id = $"{_elementId}_{i}";
+            string id = $"{_elementId}_{i}";
+            var onClick = () => ClickItem(item);
+
+            i++;
+
+            if (numbers.ItemsCount == i - numbers.ItemsBefore)
+            {
+                i = 0;
+                added = false;
+            }
         }
-        <li class="@cssClass" @onclick="() => ClickItem(item)" id=@id>
+        <li class=@cssClass @onclick=onClick id=@id>
             @representation
         </li>
     </Virtualize>
-
 </ul>
 
-
 @code {
-    [Parameter]
-    public uint MaxItemsShown { get; set; } = 10;
+    ElementReference _distracter;
 
-    [Parameter]
-    public Action<TItem> OnItemClicked { get; set; } = i => { };
-
-    [Parameter]
-    public Action<TItem> OnItemExcluded { get; set; } = i => { };
-
-    [Parameter]
-    [EditorRequired]
-    public int ItemsCountTotal { get; set; }
-
-    [Parameter]
-    [EditorRequired]
-    public Func<uint, Task<IList<TItem>>> GetBatch { get; set; }
-
-    [Parameter]
-    public uint BatchSize { get; set; } = 10;
-
-    [Parameter]
-    public Func<TItem, string> GetItemRepresentation { get; set; } = i => i.ToString();
-
-    [Parameter]
-    public Func<TItem, TItem, bool> ItemsComparison { get; set; } = (i1, i2) => i1.Equals(i2);
-
-    [Parameter]
-    public string InputLabel { get; set; }
-
-    [Parameter]
-    public Func<TItem, bool> ItemIsEmpty { get; set; } = i => i == null;
-
-    [Parameter]
-    public Action OnListClick { get; set; } = null;
-
-    [Parameter]
-    public bool IsActive { get; set; }
-
-    [Parameter]
-    public Action<TItem> OnArrowSelect { get; set; } = item => { };
-
-    Virtualize<TItem> Virtualize;
-
-    readonly string _elementId = Guid.NewGuid().ToString();
-
-    public TItem SelectedItem
+    async Task OnScroll() 
     {
-        get
-        {
-            {
-                if (_currentBatch == null)
-                {
-                    return default;
-                }
-                if (_currentBatch.Count <= _selectedItemIndex)
-                {
-                    _selectedItemIndex = -1;
-                    return default;
-                }
-                var result = _currentBatch[_selectedItemIndex];
-                return result;
-            }
-        }
-    }
-
-    async Task<IEnumerable<TItem>> DownloadItemsOnDemandAsync(uint startIndex, uint count, uint pageSize)
-    {
-        return await DynamicLoading.LoadForVirtualizationInPagesAsync(
-            (int)startIndex,
-            (int)count,
-            pageSize,
-            async p => await GetBatch(p)
-        );
-    }
-
-    async Task<ItemsProviderResult<TItem>> ProvideItems(ItemsProviderRequest request)
-    {
-        var items = await DownloadItemsOnDemandAsync((uint)request.StartIndex, (uint)request.Count, BatchSize);
-        if (!items.Any())
-        {
-            _selectedItemIndex = -1;
-        }
-        return new(items, ItemsCountTotal);
-    }
-
-    int _currentPage;
-
-    private IList<TItem> _currentBatch;
-
-    int _selectedItemIndex = -1;
-
-    void ClickItem(TItem item)
-    {
-        OnItemClicked(item);
-        StateHasChanged();
-    }
-
-    void SpacePressed()
-    {
-        if (_selectedItemIndex != -1)
-        {
-            var selectedItem = SelectedItem;
-            if (!ItemIsEmpty(selectedItem))
-            {
-                OnItemClicked(SelectedItem);
-            }
-        }
-    }
-
-    void OnMouseIn()
-    {
-        _mouseIn = true;
-    }
-    void OnMouserOut()
-    {
-        _mouseIn = false;
-    }
-
-    async Task ArrowUp()
-    {
-        if (!IsActive)
+        if (VirtualizerController == null)
         {
             return;
         }
-
-        if (_selectedItemIndex > _topIndex)
-        {
-            _selectedItemIndex--;
-            StateHasChanged();
-        }
-        else if (_topIndex > 0)
-        {
-            _topIndex--;
-            _selectedItemIndex--;
-            StateHasChanged();
-        }
-        else if (ItemsCountTotal <= BatchSize)
-        {
-            _selectedItemIndex = (int)_bottomIndex;
-            StateHasChanged();
-        }
-        //await FitScrollAsync();
+        TopBottomIndexes = await VirtualizerController.GetTopAndBottomIndexesAsync();
     }
 
-    async Task ArrowDown()
-    {
-        if (!IsActive)
-        {
-            return;
-        }
-
-        if (_selectedItemIndex < _bottomIndex)
-        {
-            _selectedItemIndex++;
-            StateHasChanged();
-        }
-        else if (_bottomIndex < ItemsCountTotal - 1)
-        {
-            _bottomIndex++;
-            _selectedItemIndex++;
-            StateHasChanged();
-        }
-        else if (ItemsCountTotal <= BatchSize)
-        {
-            _selectedItemIndex = (int)_topIndex;
-            StateHasChanged();
-        }
-        //await FitScrollAsync();
-    }
-
-    async Task FitScrollAsync()
-    {
-        await uiManipulator.ScrollToFit_Y($"{_elementId}_{_selectedItemIndex}", _elementId);
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            Subscribe(globalClickCatcher.OnKeyPressed(Key.ArrowUp, async e => await ArrowUp()));
-            Subscribe(globalClickCatcher.OnKeyPressed(Key.ArrowDown, async e => await ArrowDown()));
-            Subscribe(globalClickCatcher.OnKeyPressed(Key.Space, e => SpacePressed()));
-            Subscribe(globalClickCatcher.OnKeyPressed(Key.Enter, e => SpacePressed()));
-        }
-    }
-
-    protected override void OnParametersSet()
-    {
-        OnListClick = OnListClick ?? (() => _listElement.FocusAsync());
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        _topIndex = 0;
-        _bottomIndex = _topIndex + MaxItemsShown;
-    }
-
-    VirtualizerController<TItem> VirtualizerController;
-
-    ElementReference _listElement;
-
-    uint _topIndex;
-    uint _bottomIndex;
-
-    IList<TItem> Items = new List<TItem>();
-
-    async Task<IList<TItem>> CalculateItemsListAsync()
-    {
-        var itemsToLoad = _bottomIndex - _topIndex + 1;
-        var items = await DynamicLoading.LoadForVirtualizationInPagesAsync(
-            (int)_topIndex,
-            (int)itemsToLoad,
-            BatchSize,
-            page => GetBatch(page)
-        );
-
-        return items;
-    }
+    TopBottomIndexPair SelectedItemBoundaries;
 }

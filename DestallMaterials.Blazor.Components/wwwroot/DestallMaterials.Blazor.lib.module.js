@@ -75,3 +75,22 @@ window.Y_scrollToFit = function (elemId, containerId) {
         container.scrollTo(0, rect.top);
     }
 }
+
+window.setCssVariableValue = function (elemId, variableName, value) {
+    const elem = document.getElementById(elemId);
+    elem.style.setProperty(variableName, value);
+}
+
+window.getItemScroll_Y = function (elementId) {
+    const elem = document.getElementById(elementId);
+    const result = elem.scrollTop;
+    return result;
+}
+
+window.disableDefaultHandling = function (elemId, eventType) {
+    const elem = document.getElementById(elemId);
+    elem[eventType] = event => {
+        event.preventDefault();
+    }
+    elem.removeEventListener(eventType, elem[eventType]);
+}

@@ -16,5 +16,8 @@ namespace DestallMaterials.Blazor.Services.UI
         Task ScrollItem_Y(string id, double YPosition);
         Task ScrollToFit_Y(string itemId, string containerId);
 
+        Task SetCssVariableValue(string elementId, string variableName, string value);
+        Task<double> GetItemScroll_Y(string elementId);
+        Task DisableDefaultEventHandling(string elementId, string eventType);
     }
 }
