@@ -61,8 +61,8 @@
             };
 
             i++;
-
-            if (numbers.ItemsCount == i - numbers.ItemsBefore)
+            bool isLast = numbers.ItemsCount == i - numbers.ItemsBefore;
+            if (isLast)
             {
                 i = 0;
                 added = false;
