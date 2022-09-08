@@ -51,7 +51,14 @@
             string representation = GetItemRepresentation(item);
             string cssClass = selected ? "selected" : "";
             string id = $"{_elementId}_{i}";
-            var onClick = () => ClickItem(item);
+
+            var indexContainer = new { i };
+
+            var onClick = async () =>
+            {
+                await ClickItem(item);
+                SelectedItemIndex = indexContainer.i;
+            };
 
             i++;
 

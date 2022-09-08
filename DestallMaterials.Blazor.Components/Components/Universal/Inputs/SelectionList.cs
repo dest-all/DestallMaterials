@@ -98,12 +98,6 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
         async Task ClickItem(TItem item)
         {
             OnItemClicked(item);
-
-            Console.WriteLine(new
-            {
-                CurrentSelected = SelectedItemIndex,
-                Indexes = await VirtualizerController.GetTopAndBottomIndexesAsync()
-            }.ToJson());
             StateHasChanged();
         }
 
