@@ -98,7 +98,6 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
         async Task ClickItem(TItem item)
         {
             OnItemClicked(item);
-            StateHasChanged();
         }
 
         void SpacePressed()
@@ -182,10 +181,6 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             await base.OnAfterRenderAsync(firstRender);
-            if (firstRender)
-            {
-                await uiManipulator.DisableDefaultEventHandling(_elementId, "onkeydown");
-            }
         }
 
         protected override void OnParametersSet()

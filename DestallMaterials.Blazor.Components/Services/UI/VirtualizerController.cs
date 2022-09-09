@@ -79,7 +79,7 @@ namespace DestallMaterials.Blazor.Services.UI
                 ScrollDestination.Bottom => lineNumber - _itemsShown + 1,
                 ScrollDestination.Center => lineNumber - _itemsShown/2 + 1,
                 _ => throw new NotImplementedException()
-            } * _lineHeightPixels;
+            } * _lineHeightPixels + 1;
 
             await _uiManipulator.ScrollItem_Y(_containerId, resultantScrollPosition);
         }

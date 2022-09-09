@@ -11,7 +11,7 @@
     ItemsCountTotal="Items.Length" 
     GetBatch="async page => Items.Skip(_batchSize * (int)(page - 1)).Take(_batchSize).ToList()" 
     OnItemClicked="item => Console.WriteLine(item.ToString())" 
-    MaxItemsShown="20"
+    MaxItemsShown="10"
     IsActive=true
     />
 

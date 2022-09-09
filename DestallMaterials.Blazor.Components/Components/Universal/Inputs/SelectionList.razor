@@ -10,13 +10,14 @@
 
 @typeparam TItem
 
-<input @ref=_distracter id="list-distracter"/>
+<input @ref=_distractor class="list-distractor"/>
+
 <ul class="selection-list"
     id=@_elementId
     style=@ListStyle
     @ref=_listReference
     @onfocus=_onFocus
-    @onclick="async () => await _distracter.FocusAsync()"
+    @onclick="async () => await _distractor.FocusAsync()"
     @onscroll="async () => await OnScroll()"
     >
     @{
@@ -50,14 +51,13 @@
             bool selected = SelectedItemIndex == i;
             string representation = GetItemRepresentation(item);
             string cssClass = selected ? "selected" : "";
-            string id = $"{_elementId}_{i}";
-
-            var indexContainer = new { i };
+            
+            var indexContainer = (object)i;
 
             var onClick = async () =>
             {
                 await ClickItem(item);
-                SelectedItemIndex = indexContainer.i;
+                SelectedItemIndex = (int)indexContainer;
             };
 
             i++;
@@ -68,14 +68,14 @@
                 added = false;
             }
         }
-        <li class=@cssClass @onclick=onClick id=@id>
+        <li class=@cssClass @onclick=onClick>
             @representation
         </li>
     </Virtualize>
 </ul>
 
 @code {
-    ElementReference _distracter;
+    ElementReference _distractor;
 
     async Task OnScroll() 
     {
