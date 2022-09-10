@@ -26,7 +26,7 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
 
         [Parameter]
         [EditorRequired]
-        public int ItemsCountTotal { get; set; }
+        public Task<int> ItemsCountTotal { get; set; }
 
         [Parameter]
         [EditorRequired]
@@ -59,6 +59,16 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
         [Parameter]
         public Action OnFocus { get; set; } = () => { };
 
+        public async Task RerenderAsync()
+        {
+            if (Virtualize == null)
+            {
+                return;
+            }
+            SelectedItemIndex = 0;
+            await Virtualize.RefreshDataAsync();
+        }
+
         private void _onFocus()
         {
             if (OnFocus != null)
@@ -90,7 +100,11 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
             {
                 SelectedItemIndex = -1;
             }
-            return new(items, ItemsCountTotal);
+
+            var listHeight = _listLineHeight * Math.Min(MaxItemsShown, await ItemsCountTotal);
+            ListStyle = $"height: {listHeight}px; line-height: {_listLineHeight}px";
+
+            return new(items, await ItemsCountTotal);
         }
 
         public int SelectedItemIndex { get; private set; } = -1;
@@ -158,14 +172,13 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
 
         async Task ArrowDown()
         {
-            if (SelectedItemIndex < ItemsCountTotal - 1)
+            if (SelectedItemIndex < await ItemsCountTotal - 1)
             {
                 SelectedItemIndex++;
                 await ArrowClicked(ArrowDirection.Down);
                 StateHasChanged();
             }
         }
-
 
         protected override void OnAfterRender(bool firstRender)
         {
@@ -190,11 +203,11 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
                 TopBottomIndexes = new TopBottomIndexPair
                 {
                     Top = 0,
-                    Bottom = (int)Math.Min(MaxItemsShown, ItemsCountTotal)
+                    Bottom = (int)MaxItemsShown
                 };
             }
 
-            var listHeight = _listLineHeight * Math.Min(MaxItemsShown, ItemsCountTotal);
+            var listHeight = _listLineHeight * MaxItemsShown;
             ListStyle = $"height: {listHeight}px; line-height: {_listLineHeight}px";
         }
 

@@ -4,6 +4,9 @@
 
 @code {
     [Parameter]
+    public Func<TValue, Task> OnValueSetAsync { get; set; } = async s => { };
+
+    [Parameter]
     public Action<TValue> OnValueSet { get; set; } = s => { };
 
     [Parameter]
@@ -20,5 +23,23 @@
 
     [Parameter]
     public bool Disabled { get; set; }
-    
+
+    protected virtual async Task OnInput(TValue value)
+    {
+        Value = value;
+        Task onValueSetTask = null;
+        if (OnValueSetAsync != null)
+        {
+            onValueSetTask = OnValueSetAsync(value);
+        }
+        if (OnValueSet != null)
+        {
+            OnValueSet(value);
+        }
+        if (onValueSetTask != null)
+        {
+            await onValueSetTask;
+        }
+    }
+
 }

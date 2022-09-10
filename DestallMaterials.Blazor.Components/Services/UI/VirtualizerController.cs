@@ -21,7 +21,6 @@ namespace DestallMaterials.Blazor.Services.UI
         readonly IUiManipulator _uiManipulator;
         readonly Virtualize<TVirtualize> _virtualize;
         readonly string _containerId;
-        readonly Func<int> _itemsCount;
         private readonly int _itemsShown;
         private readonly int _lineHeightPixels;
 
@@ -29,7 +28,6 @@ namespace DestallMaterials.Blazor.Services.UI
                 IUiManipulator uiManipulator,
                 Virtualize<TVirtualize> virtualize,
                 string containerId,
-                Func<int> itemsTotalCount,
                 int itemsShown,
                 int lineHeightPixels
             )
@@ -37,7 +35,6 @@ namespace DestallMaterials.Blazor.Services.UI
             _uiManipulator = uiManipulator;
             _virtualize = virtualize;
             _containerId = containerId;
-            _itemsCount = itemsTotalCount;
             _itemsShown = itemsShown;
             _lineHeightPixels = lineHeightPixels;
         }

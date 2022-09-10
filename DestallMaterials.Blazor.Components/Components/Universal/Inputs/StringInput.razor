@@ -5,7 +5,7 @@
 @inject IGlobalClickCatcher globalClickCatcher;
 
 <div class="edit-field" @onmouseover="OnMouseOver" @onmouseout="OnMouseOut" @onfocus=OnFocus>
-    <input @bind="Value" class="@(InputClass())" @oninput="s => _onTextInput(s.Value.ToString())" />
+    <input @bind="Value" class="@(InputClass())" @oninput="async s => await OnInput(s.Value.ToString())" />
     @if (InputLabel.HasContent())
     {
         <span>@InputLabel</span>
@@ -33,12 +33,6 @@
 
     [Parameter]
     public Action OnFocus { get; set; } = () => { };
-
-    private void _onTextInput(string s)
-    {
-        Value = s;
-        OnValueSet(s);
-    }
 
     public bool HasError => ErrorMessage.HasContent();
 

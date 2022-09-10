@@ -33,8 +33,7 @@
                     uiManipulator,
                     Virtualize,
                     _elementId,
-                    () => ItemsCountTotal,
-                    (int)Math.Min(MaxItemsShown, ItemsCountTotal),
+                    (int)Math.Min(MaxItemsShown, ItemsCountTotal.Result),
                     _listLineHeight
                 );
             }
@@ -49,9 +48,14 @@
             var selectedItemBoundaries = SelectedItemBoundaries;
 
             bool selected = SelectedItemIndex == i;
+
+            if (selected)
+            {
+                SelectedItem = item;
+            }
             string representation = GetItemRepresentation(item);
             string cssClass = selected ? "selected" : "";
-            
+
             var indexContainer = (object)i;
 
             var onClick = async () =>
