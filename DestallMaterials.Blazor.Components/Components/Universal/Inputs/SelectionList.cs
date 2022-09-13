@@ -16,7 +16,7 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
     public partial class SelectionList<TItem> : ClickableComponent
     {
         [Parameter]
-        public uint MaxItemsShown { get; set; } = 10;
+        public int MaxItemsShown { get; set; } = 10;
 
         [Parameter]
         public Action<TItem> OnItemClicked { get; set; } = i => { };
@@ -30,10 +30,10 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
 
         [Parameter]
         [EditorRequired]
-        public Func<uint, Task<IList<TItem>>> GetBatch { get; set; }
+        public Func<int, Task<IList<TItem>>> GetBatch { get; set; }
 
         [Parameter]
-        public uint BatchSize { get; set; } = 10;
+        public int BatchSize { get; set; } = 10;
 
         [Parameter]
         public Func<TItem, string> GetItemRepresentation { get; set; } = i => i.ToString();
@@ -81,13 +81,13 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
 
         readonly string _elementId = Guid.NewGuid().ToString();
 
-        async Task<IEnumerable<TItem>> DownloadItemsOnDemandAsync(uint startIndex, uint count, uint pageSize)
+        async Task<IEnumerable<TItem>> DownloadItemsOnDemandAsync(int startIndex, int count, int pageSize)
         {
-            return await DynamicLoading.LoadForVirtualizationInPagesAsync(
-                (int)startIndex,
-                (int)count,
-                pageSize,
-                async p => await GetBatch(p)
+            return await DynamicLoading.LoadForVirtualizationInPagesAsync<TItem>(
+                startIndex,
+                count,
+                (uint)pageSize,
+                async p => await GetBatch((int)p)
             );
         }
 
@@ -95,7 +95,7 @@ namespace DestallMaterials.Blazor.Components.Universal.Inputs
 
         async Task<ItemsProviderResult<TItem>> ProvideItems(ItemsProviderRequest request)
         {
-            var items = await DownloadItemsOnDemandAsync((uint)request.StartIndex, (uint)request.Count, BatchSize);
+            var items = await DownloadItemsOnDemandAsync(request.StartIndex, request.Count, BatchSize);
             if (!items.Any())
             {
                 SelectedItemIndex = -1;

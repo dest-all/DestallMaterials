@@ -5,6 +5,15 @@
     overflow: scroll;
     list-style: none;
     padding-left: 0;
+    position: absolute;
+}
+
+.material-icons {
+    display: inline;
+}
+
+.edit-field {
+    display: inline;
 }
 
 .selection-list::-webkit-scrollbar {
@@ -29,4 +38,7 @@
 .list-distractor {
     opacity: 0;
     position: absolute;
+
+    width:0.1px;
+    height:0.1px;
 }

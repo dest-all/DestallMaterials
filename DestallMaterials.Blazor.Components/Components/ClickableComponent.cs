@@ -18,22 +18,23 @@ namespace DestallMaterials.Blazor.Components
         [Parameter]
         public bool Disabled { get; set; }
 
-        protected virtual void OnInnerClick(MouseEventArgs mouseEventArgs)
+        protected virtual async Task OnInnerClickAsync(MouseEventArgs mouseEventArgs)
         {
         }
-        protected virtual void OnOuterClick(MouseEventArgs mouseEventArgs)
-        {
+
+        protected virtual async Task OnOuterClickAsync(MouseEventArgs mouseEventArgs)
+        { 
         }
 
         protected void OnGlobalClick(MouseEventArgs mouseEventArgs)
         {
             if (_mouseIn)
             {
-                OnInnerClick(mouseEventArgs);
+                OnInnerClickAsync(mouseEventArgs);
             }
             else
             {
-                OnOuterClick(mouseEventArgs);
+                OnOuterClickAsync(mouseEventArgs);
             }
         }
 
@@ -56,7 +57,5 @@ namespace DestallMaterials.Blazor.Components
 
         protected readonly Action _onMouseIn;
         protected readonly Action _onMouseOut;
-
-        
     }
 }

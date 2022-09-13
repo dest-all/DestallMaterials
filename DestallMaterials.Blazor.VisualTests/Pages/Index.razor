@@ -4,48 +4,43 @@
 @using DestallMaterials.Blazor.Components.Universal.Inputs
 @using DestallMaterials.WheelProtection.Extensions.String
 
-<StringInput OnValueSetAsync="async v => { Filter = v; await RerenderSelectionListAsync(); StateHasChanged(); }" />
+<h1>sdfdsfdsf</h1>
+<h1>sdfdsfdsf</h1>
+<h1>sdfdsfdsf</h1>
+<h1>sdfdsfdsf</h1>
+<h1>sdfdsfdsf</h1>
+<h1>sdfdsfdsf</h1>
+<h1>sdfdsfdsf</h1>
+<h1>sdfdsfdsf</h1>
+<h1>sdfdsfdsf</h1>
+<h1>sdfdsfdsf</h1>
 
-@if (ListShown)
-{
-    <SelectionList TItem="string"
-               ItemsCountTotal="Task.FromResult(Items.Count(i => Filter.IsEmpty() || i.ToLower().Contains(Filter.ToLower())))"
-               GetBatch="async page => GetActualItems(page)"
-               OnItemClicked="item => Console.WriteLine(item.ToString())"
-               MaxItemsShown="10"
-               IsActive=true 
-               @ref=SelectionList
-               />
-}
+<SearchSelectorSingular 
+    TItem="string"
+    GetItemRepresentation="i => i"
+    GetItemsCount="async filter => Items.Count(i => filter.IsEmpty() || i.ToLower().Contains(filter.ToLower()))"
+    GetPage="async (filter, page) => GetActualItems(page, filter)"
+    ItemsAreEqual="(i1, i2) => i1 == i2"
+    MaxItemsShown="10"
+    />
+
+<h1>sdfdsfdsf</h1>
 
 @code {
     private string inp = "basic";
     const int _batchSize = 10;
     readonly string[] Items = CreateItems();
 
-    bool ListShown = true;
-
-    string Filter { get; set; }
-
-    List<string> GetActualItems(uint page) => Items.Where(i => Filter.IsEmpty() || i.ToLower().Contains(Filter.ToLower())).Skip(_batchSize * (int)(page - 1)).Take(_batchSize).ToList();
-
-    SelectionList<string> SelectionList;
+    List<string> GetActualItems(int page, string filter) => Items
+        .Where(i => filter.IsEmpty() || i.ToLower().Contains(filter.ToLower()))
+        .Skip(_batchSize * (int)(page - 1))
+        .Take(_batchSize)
+        .ToList();
 
     static string[] CreateItems()
     {
         var nameGen = new NameGenerator.Generators.RealNameGenerator();
-
         var result = Enumerable.Range(0, 100).Select(i => nameGen.Generate()).OrderBy(s => s).ToArray();
-
         return result;
-    }
-
-    async Task RerenderSelectionListAsync()
-    {
-        ListShown = false;
-        await Task.Delay(10);
-        StateHasChanged();
-        ListShown = true;
-        StateHasChanged();
     }
 }

@@ -50,7 +50,7 @@
     [Parameter]
     public IEnumerable<DropdownMenuOption> Options { get; set; }
 
-    protected override void OnOuterClick(MouseEventArgs mouseEventArgs)
+    protected override async Task OnOuterClickAsync(MouseEventArgs mouseEventArgs)
     {
         Toggle(false);
     }

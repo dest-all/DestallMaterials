@@ -1,6 +1,6 @@
 ﻿@typeparam TValue
 
-@inherits ViewComponent
+@inherits ClickableComponent
 
 @code {
     [Parameter]
@@ -22,7 +22,16 @@
     public RenderFragment ChildContent { get; set; }
 
     [Parameter]
-    public bool Disabled { get; set; }
+    public Action OnBlur { get; set; } = () => { };
+
+    [Parameter]
+    public Func<Task> OnMouseIn { get; set; } = async () => { };
+
+    [Parameter]
+    public Func<Task> OnMouseOut { get; set; } = async () => { };
+
+    [Parameter]
+    public Func<Task> OnClickOutside { get; set; } = async () => { };
 
     protected virtual async Task OnInput(TValue value)
     {
@@ -39,6 +48,15 @@
         if (onValueSetTask != null)
         {
             await onValueSetTask;
+        }
+    }
+
+    protected override async Task OnOuterClickAsync(MouseEventArgs mouseEventArgs)
+    {
+        await base.OnOuterClickAsync(mouseEventArgs);
+        if (OnClickOutside != null)
+        {
+            await OnClickOutside();
         }
     }
 

@@ -13,7 +13,7 @@
 <DateTimeInput 
     OnValueSet="v => { Value = new(Value) { Right = v }; OnLimitChanged(); }" 
     InvalidityCondition="s => invalidityConditionForInputs(LimitErrored)" 
-    InputLabel="toLabel" 
+    InputLabel="toLabel"
     Value="Value.Right" />
 
 
@@ -44,7 +44,7 @@
 
     string invalidityConditionForInputs(bool error) => error ? "Invalid input." : "";
 
-    string fromLabel => $"{InputLabel}: from";
-    string toLabel => $"{InputLabel}: to";
+    string FromLabel => $"{InputLabel}: from";
+    string ToLabel => $"{InputLabel}: to";
 
 }

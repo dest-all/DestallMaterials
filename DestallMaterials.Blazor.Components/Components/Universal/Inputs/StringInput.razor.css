@@ -19,3 +19,7 @@ input {
 span.errored {
     color: red;
 }
+
+.edit-field {
+    display: inline;
+}

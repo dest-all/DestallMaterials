@@ -21,10 +21,7 @@ namespace DestallMaterials.Blazor.Services
             {
                 callback(eventArgs);
             }
-            foreach (var callback in _mouseClickCallbacksAsync)
-            {
-                await callback(eventArgs);
-            }
+            await Task.WhenAll(_mouseClickCallbacksAsync.Select(c => c(eventArgs)).ToArray());
         }
 
         public async Task FireKeyClickEvent(KeyboardEventArgs eventArgs)
@@ -33,10 +30,7 @@ namespace DestallMaterials.Blazor.Services
             {
                 callback(eventArgs);
             }
-            foreach (var callback in _keyClickCallbacksAsync)
-            {
-                await callback(eventArgs);
-            }
+            await Task.WhenAll(_keyClickCallbacksAsync.Select(c => c(eventArgs)).ToArray());
         }
 
         public DisposableCallback SubscribeForGlobalClick(Action<MouseEventArgs> onMouseClick)
