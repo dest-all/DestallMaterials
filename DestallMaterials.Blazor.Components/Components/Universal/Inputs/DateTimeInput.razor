@@ -1,48 +1,71 @@
 ﻿@using DestallMaterials.Blazor.Services
+@using MudBlazor
 
-@inherits BaseInput<DateTime>
-@inject IGlobalClickCatcher globalClickCatcher;
+@inherits BaseInput<DateTime?>
+@*@inject IGlobalClickCatcher globalClickCatcher;*@
 
-<StringInput InputLabel="@InputLabel" InvalidityCondition="v => _invalidityCondition(v)" Value=@ValueString OnValueSet="@_onValueSet"/>
+<MudDatePicker PickerVariant="PickerVariant.Inline" Label=@InputLabel @bind-Date="Date" Culture="System.Globalization.CultureInfo.CurrentCulture" Class="d-inline-flex" />
+<MudTimePicker @bind-Time=Time Culture="System.Globalization.CultureInfo.CurrentCulture" Class="d-inline-flex" />
 
-@code{
+@code {
 
-    string _invalidityCondition(string value)
+    //string _invalidityCondition(string value)
+    //{
+    //    if (!DateTime.TryParse(value, out var date))
+    //    {
+    //        return "Not a valid date";
+    //    }
+    //    else
+    //    {
+    //        return InvalidityCondition(date);
+    //    }
+    //}
+
+    //[Parameter]
+    //public Func<DateTime, string> InvalidityCondition { get; set; } = s => "";
+
+    //void _onValueSet(string value)
+    //{
+    //    if (value == "∞")
+    //    {
+    //        Value = DateTime.MaxValue;
+    //        OnValueSet(Value);
+    //        return;
+    //    }
+    //    if (DateTime.TryParse(value, out var x))
+    //    {
+    //        Value = x;
+    //        OnValueSet(x);
+    //    }
+    //}
+
+    protected override void OnParametersSet()
     {
-        if (!DateTime.TryParse(value, out var date))
-        {
-            return "Not a valid date";
-        }
-        else
-        {
-            return InvalidityCondition(date);
-        }
+        base.OnParametersSet();
+        _value = Value;
     }
 
-    [Parameter]
-    public Func<DateTime, string> InvalidityCondition { get; set; } = s => "";
+    //public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
 
-    void _onValueSet(string value)
-    {
-        if (value == "∞")
-        {
-            Value = DateTime.MaxValue;
-            OnValueSet(Value);
-            return;
-        }
-        if (DateTime.TryParse(value, out var x))
-        {
-            Value = x;
-            OnValueSet(x);
-        }
-    }
+    //public string ErrorMessage => InvalidityCondition(Value ?? default);
 
-    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
-
-    public string ErrorMessage => InvalidityCondition(Value);
-
-    private string InputClass() => HasError ? "errored" : "";
+    //private string InputClass() => HasError ? "errored" : "";
 
     string ValueString => Value == DateTime.MaxValue ? "∞" : Value.ToString();
 
+    TimeSpan? Time
+    {
+        get => Value.HasValue ? Value.Value.TimeOfDay : default;
+        set { Value = (Date ?? default) + (value ?? default); }
+    }
+    DateTime? Date
+    {
+        get => Value.HasValue ? Value.Value.Date : default;
+        set { Value = (value ?? default) + (Time ?? default); }
+    }
+
+    public DateTimeInput()
+    {
+        Value = DateTime.Now;
+    }
 }

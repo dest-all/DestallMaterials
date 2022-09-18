@@ -1,37 +1,23 @@
 ﻿@using DestallMaterials.Blazor.Services
 @using DestallMaterials.WheelProtection.Extensions.String
+@using MudBlazor
 
 @inherits BaseInput<string>
-@inject IGlobalClickCatcher globalClickCatcher;
 
-<div class="edit-field" @onmouseover="async () => { _onMouseIn(); await OnMouseIn(); }" @onmouseout="async () => { _onMouseOut(); await OnMouseOut(); }">
-    <input @bind="Value" class="@(InputClass())" @oninput="async s => await OnInput(s.Value.ToString())" @onblur=OnBlur @onfocus=OnFocus />
-    @if (InputLabel.HasContent())
-    {
-        <span>@InputLabel</span>
-    }
-    @if (HasError)
-    {
-        <span class="errored">@ErrorMessage</span>
-    }
-    @if (ChildContent != null)
-    {
-        @ChildContent
-    }
-</div>
+<MudTextField T="string" TextChanged="v=>Value = v" Label=InputLabel Variant="Variant.Text" Value="Value"></MudTextField>
 
 @code {
 
-    [Parameter]
-    public Func<string, string> InvalidityCondition { get; set; } = s => "";
+    //[Parameter]
+    //public Func<string, string> InvalidityCondition { get; set; } = s => "";
 
-    [Parameter]
-    public Action OnFocus { get; set; } = () => { };
+    //[Parameter]
+    //public Action OnFocus { get; set; } = () => { };
 
-    public bool HasError => ErrorMessage.HasContent();
+    //public bool HasError => ErrorMessage.HasContent();
 
-    public string ErrorMessage => InvalidityCondition(Value);
+    //public string ErrorMessage => InvalidityCondition(Value);
 
-    private string InputClass() => HasError ? "errored" : "";
+    //private string InputClass() => HasError ? "errored" : "";
 
 }

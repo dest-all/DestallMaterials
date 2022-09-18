@@ -1,7 +1,8 @@
-using DestallMaterials.Blazor.Services;
-using DestallMaterials.Blazor.VisualTests;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MyApplication;
+using MudBlazor.Services;
+using DestallMaterials.Blazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -13,5 +14,6 @@ var clickCatcher = new GlobalClickCatcher();
 
 builder.Services.AddSingleton<IGlobalClickCatcher>(clickCatcher);
 builder.Services.AddSingleton<IGlobalClickInvoker>(clickCatcher);
+builder.Services.AddMudServices();
 
 await builder.Build().RunAsync();

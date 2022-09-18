@@ -1,54 +1,41 @@
-﻿@using Client.Web.View.Services;
-@using DestallMaterials.Blazor.Services
+﻿@using DestallMaterials.Blazor.Services
+@using DestallMaterials.WheelProtection.Linq
 
-@inherits BaseInput<float>
-@inject IGlobalClickCatcher globalClickCatcher;
+@typeparam TNumber
+@inherits BaseInput<TNumber>
 
-<StringInput InputLabel="@InputLabel" InvalidityCondition="v => _invalidityCondition(v)" Value="@valueString" OnValueSet="_onValueSet" />
+@if (IsFraction)
+{
+    <MudBlazor.MudNumericField Format=Format T="TNumber" ValueChanged="v => OnValueSet(v)" Value="_value" HideSpinButtons />
+}
+else if (IsWholeNumber)
+{
+    <MudBlazor.MudNumericField T="TNumber" ValueChanged="v => OnValueSet(v)" Value=_value HideSpinButtons />
+}
+else
+{
+    throw new InvalidOperationException($"Invalid number type {typeof(TNumber).FullName}.");
+}
 
 @code {
-
-    string _invalidityCondition(string value)
-    {
-        if (!float.TryParse(value, out var number))
-        {
-            return "Not a valid number";
-        }
-        else
-        {
-            return InvalidityCondition(number);
-        }
-    }
-
     [Parameter]
-    public Func<float, string> InvalidityCondition { get; set; } = s => "";
+    public byte Accuracy { get; set; } = 2;
 
-    void _onValueSet(string value)
+    string Format => $"F{Accuracy}";
+
+    static readonly IEnumerable<Type> WholeNumbers = new Type[]
     {
-        if (value == "∞")
-        {
-            Value = float.MaxValue;
-            OnValueSet(Value);
-            return;
-        }
-        if (value == "-∞")
-        {
-            Value = float.MinValue;
-            OnValueSet(Value);
-            return;
-        }
-        if (float.TryParse(value, out var x))
-        {
-            Value = x;
-            OnValueSet(x);
-        }
-    }
+        typeof(byte), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(short), typeof(ushort),
+        typeof(byte?), typeof(int?), typeof(uint?), typeof(long?), typeof(ulong?), typeof(short?), typeof(ushort?)
+    };
 
-    public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+    static readonly IEnumerable<Type> FractionalNumbers = new Type[]
+    {
+        typeof(float), typeof(double), typeof(decimal),
+        typeof(float?), typeof(double?), typeof(decimal?)
+    };
 
-    public string ErrorMessage => InvalidityCondition(Value);
+    static readonly bool IsFraction = typeof(TNumber).IsOneOf(FractionalNumbers);
+    static readonly bool IsWholeNumber = typeof(TNumber).IsOneOf(WholeNumbers);
 
-    string valueString => Value == float.MinValue ? "-∞" : Value == float.MaxValue ? "+∞" : Value.ToString();
-
-    private string InputClass() => HasError ? "errored" : "";
 }

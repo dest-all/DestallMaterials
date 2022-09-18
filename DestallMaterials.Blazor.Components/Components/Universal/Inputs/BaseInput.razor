@@ -33,6 +33,8 @@
     [Parameter]
     public Func<Task> OnClickOutside { get; set; } = async () => { };
 
+    protected TValue _value;
+
     protected virtual async Task OnInput(TValue value)
     {
         Value = value;
@@ -60,4 +62,9 @@
         }
     }
 
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        _value = Value;
+    }
 }

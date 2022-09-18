@@ -157,5 +157,9 @@ namespace DestallMaterials.WheelProtection.Linq
                 }
             }
         }
+
+        public static bool IsOneOf<T>(this T item, IEnumerable<T> items) => items.Contains(item);
+        public static bool IsOneOf<T>(this T item, params T[] items) => items.Contains(item);
+        
     }
 }

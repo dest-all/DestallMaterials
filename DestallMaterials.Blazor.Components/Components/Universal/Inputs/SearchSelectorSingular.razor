@@ -1,41 +1,24 @@
-﻿@typeparam TItem
+﻿@using MudBlazor
+@typeparam TItem
 
-<div>
-    <span class="material-icons" style="display: inline">chevron_right</span>
-    <StringInput OnValueSetAsync="async v => { Filter = v; await RerenderSelectionListAsync(); StateHasChanged(); }"
-                 OnClickOutside="async () => await OnClickOutside()"
-                 OnFocus="() => { ListShown = true; StateHasChanged(); }"
-                 Value=@_inputValue
-                 OnBlur="async () => await OnBlur()">
-        @if (ListShown)
-        {
-            <SelectionList TItem="TItem"
-                       ItemsCountTotal="GetItemsCount(Filter)"
-                       GetBatch="async page => await GetPage(Filter, page)"
-                       OnItemClicked="OnItemPressed"
-                       MaxItemsShown=MaxItemsShown
-                       IsActive=true
-                       @ref=SelectionList />
-        }
-    </StringInput>
-</div>
+<MudAutocomplete T="TItem"
+                 Label=@Label
+                 SearchFunc="async filter => await GetItemsByFilter(filter)"
+                 ResetValueOnEmptyText="true"
+                 CoerceText="true"
+                 CoerceValue="true" ToStringFunc="GetItemRepresentation"
+                 MaxItems="50"
+                 ValueChanged="v => {OnValueSet(v); Value = v; StateHasChanged();}"
+                 Value=Value 
+                 />
 
 @code {
     [Parameter]
     [EditorRequired]
-    public Func<string, int, Task<IList<TItem>>> GetPage { get; set; }
+    public Func<string, Task<IEnumerable<TItem>>> GetItemsByFilter { get; set; }
 
     [Parameter]
-    [EditorRequired]
-    public Func<string, Task<int>> GetItemsCount { get; set; }
-
-    [Parameter]
-    [EditorRequired]
-    public Func<TItem, string> GetItemRepresentation { get; set; }
-
-    [Parameter]
-    [EditorRequired]
-    public Func<TItem, TItem, bool> ItemsAreEqual { get; set; }
+    public Func<TItem, string> GetItemRepresentation { get; set; } = item => item.ToString();
 
     [Parameter]
     public int MaxItemsShown { get; set; }
@@ -43,48 +26,10 @@
     [Parameter]
     public TItem Value { get; set; }
 
-    public string _inputValue;
+    [Parameter]
+    public Action<TItem> OnValueSet { get; set; } = i => { };
 
-    async Task RerenderSelectionListAsync()
-    {
-        ListShown = false;
-        StateHasChanged();
-        await Task.Delay(5);
-        ListShown = true;
-        StateHasChanged();
-    }
+    [Parameter]
+    public string Label { get; set; }
 
-    bool ListShown = false;
-
-    string Filter;
-
-    SelectionList<TItem> SelectionList;
-
-    async Task OnClickOutside()
-    {
-        ListShown = false;
-        StateHasChanged();
-    }
-
-    async Task OnBlur()
-    {
-        await Task.Delay(100);
-        await OnClickOutside();
-    }
-
-    void OnItemPressed(TItem item)
-    {
-        Value = item;
-        ListShown = false;
-        _inputValue = GetItemRepresentation(item);
-        StateHasChanged();
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            _inputValue = GetItemRepresentation(Value);
-        }
-    }
 }

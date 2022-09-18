@@ -1,0 +1,30 @@
+﻿@page "/"
+@using DestallMaterials.Blazor.Components.Universal.Inputs
+@using DestallMaterials.WheelProtection.Extensions.String
+
+@*<PageTitle>Index</PageTitle>*@
+
+@*<SearchSelectorSingular TItem="string" Label="Select string" GetItemsByFilter="async filter => FilterItems(filter)"
+                        OnValueSet="v=>_selectedValue = v" Value="_selectedValue"></SearchSelectorSingular>*@
+@*
+<SearchSelectorPlural></SearchSelectorPlural>
+
+<DateTimeInput OnValueSet="d => Console.WriteLine(d)"></DateTimeInput>
+*@
+
+<SearchSelectorPlural TItem="string" Label="Select string" GetItemsByFilter="async filter => FilterItems(filter)"
+                      OnValueSet="v=>{_selectedValues = v; Console.WriteLine(_selectedValues.Count());}" Value="_selectedValues"></SearchSelectorPlural>
+@code {
+    static string[] GetItems()
+    {
+        var namegen = new NameGenerator.Generators.RealNameGenerator();
+        var result = Enumerable.Range(0, 100).Select(i => namegen.Generate()).Distinct().ToArray();
+        return result;
+    }
+
+    readonly IEnumerable<string> Items = GetItems();
+
+    IEnumerable<string> FilterItems(string filter) => Items.Where(i => filter.IsEmpty() || i.ToLower().Contains(filter.ToLower())).OrderBy(s => s);
+
+    IEnumerable<string> _selectedValues = new List<string>() { "Default Man" };
+}

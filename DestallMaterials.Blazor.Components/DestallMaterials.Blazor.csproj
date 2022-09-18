@@ -38,7 +38,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Components\Universal\Containers\" />
 	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 

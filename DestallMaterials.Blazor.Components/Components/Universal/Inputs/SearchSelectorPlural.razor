@@ -1,0 +1,80 @@
+﻿@using MudBlazor
+@typeparam TItem
+
+<MudAutocomplete T="TItem"
+                 Label=@Label
+                 SearchFunc="async filter => await GetItemsByFilter(filter)"
+                 ResetValueOnEmptyText="true"
+                 CoerceText="true"
+                 CoerceValue="true"
+                 ToStringFunc="GetItemRepresentation"
+                 MaxItems="50"
+                 ValueChanged="async v => await OnValueChanged(v)"
+                 @ref=_autocomplete />
+
+@foreach (var selectedItem in _value ?? Enumerable.Empty<TItem>())
+{
+    <MudChip OnClose="() => RemoveItem(selectedItem)">@(GetItemRepresentation(selectedItem))</MudChip>
+}
+
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public Func<string, Task<IEnumerable<TItem>>> GetItemsByFilter { get; set; }
+
+    [Parameter]
+    public Func<TItem, string> GetItemRepresentation { get; set; } = item => item?.ToString();
+
+    [Parameter]
+    public int MaxItemsShown { get; set; }
+
+    [Parameter]
+    public IEnumerable<TItem> Value { get; set; }
+
+    [Parameter]
+    public Action<TItem[]> OnValueSet { get; set; } = i => { };
+
+    [Parameter]
+    public string Label { get; set; }
+
+    [Parameter]
+    public Func<TItem, bool> ItemIsEmpty { get; set; } = item => item == null;
+
+    TItem _currentItemInAutocomplete;
+
+    List<TItem> _value;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        _value = Value?.ToList() ?? new List<TItem>();
+    }
+
+    MudAutocomplete<TItem> _autocomplete;
+
+    void FireValueChanged()
+    {
+        OnValueSet(_value.ToArray());
+    }
+
+    void RemoveItem(TItem item)
+    {
+        _value.Remove(item);
+        FireValueChanged();
+        StateHasChanged();
+    }
+
+    async Task OnValueChanged(TItem value)
+    {
+        if (!ItemIsEmpty(value))
+        {
+            _value.Add(value);
+            FireValueChanged();
+            if (_autocomplete != null)
+            {
+                await _autocomplete.Clear();
+            }
+        }
+    }
+}

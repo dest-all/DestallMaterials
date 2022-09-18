@@ -5,13 +5,13 @@
 <Flag disabled="@(LimitErrored)" Value="Filters" OnValueSet="v=>{ Filters = v; OnFilterChange(); }" />
 
 <DateTimeInput 
-    OnValueSet="v => { Value = new(Value) { Left = v }; OnLimitChanged(); }" 
+    OnValueSet="v => { Value = new(Value) { Left = v ?? default }; OnLimitChanged(); }" 
     InputLabel="fromLabel" 
     InvalidityCondition="s => invalidityConditionForInputs(LimitErrored)" 
     Value="Value.Left" />
 
 <DateTimeInput 
-    OnValueSet="v => { Value = new(Value) { Right = v }; OnLimitChanged(); }" 
+    OnValueSet="v => { Value = new(Value) { Right = v ?? default }; OnLimitChanged(); }" 
     InvalidityCondition="s => invalidityConditionForInputs(LimitErrored)" 
     InputLabel="toLabel"
     Value="Value.Right" />
