@@ -1,6 +1,0 @@
-﻿@using DestallMaterials.Blazor.Components.Universal.Inputs
-@inherits PropertyFilterBase<bool>
-
-<Flag OnValueSet="v => { Value = v; OnFilterChange(FilterValue); }" InputLabel="@InputLabel" Value="@Value">
-    <Flag OnValueSet="v => { Filters = v; OnFilterChange(FilterValue); }" Value="@Filters" />
-</Flag>

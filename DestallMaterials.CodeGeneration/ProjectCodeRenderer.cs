@@ -157,7 +157,7 @@ namespace DestallMaterials.CodeGeneration
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error occured during rendering.", ex);
+                _logger.LogError($"Error occured during rendering. {ex.Message}\n {ex.StackTrace}.", ex);
                 return new SourceFileData[0];
             }
 

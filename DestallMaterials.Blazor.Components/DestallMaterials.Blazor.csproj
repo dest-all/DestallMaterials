@@ -5,6 +5,8 @@
 		<RootNamespace>DestallMaterials.Blazor</RootNamespace>
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>Destall's-Blazor</Title>
 	</PropertyGroup>
 
 	<ItemGroup>

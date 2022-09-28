@@ -1,4 +1,5 @@
 ﻿using DestallMaterials.CodeGeneration.Environment;
+using DestallMaterials.WheelProtection.Extensions.String;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace DestallMaterials.CodeGeneration.Text
         private static readonly Regex _directoryPath = new Regex(@"(.*)\\(^\\)*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private readonly SolutionPathFinder _pathFinder;
         private readonly ILogger _logger;
-        private static readonly Regex _outpuFilesParser = new Regex(@"<(\s)*File(\s)*Path(\s)*=(\s)*""(?<Path>.*)"".*>(?<Content>(.|\s)*?)<(\s)*/(\s)*File(\s)*>", RegexOptions.Compiled);
+        public static readonly Regex _outpuFilesParser = new Regex(@"<(\s)*File(\s)*Path(\s)*=(\s)*""(?<Path>.*?)"".*?>(?<Content>(.|\s)*?)<(\s)*/(\s)*File(\s)*>", RegexOptions.Compiled);
 
         private static readonly string[] ExceptionsForUnicode = { "proto" };
 
@@ -117,7 +118,7 @@ namespace DestallMaterials.CodeGeneration.Text
 
 
 
-        internal IReadOnlyList<SourceFileData> SplitIntoFiles(string content, string source = null)
+        public IReadOnlyList<SourceFileData> SplitIntoFiles(string content, string source = null)
         {
             var matches = _outpuFilesParser.Matches(content);
 
@@ -183,7 +184,7 @@ namespace DestallMaterials.CodeGeneration.Text
             if (writingException.Any())
             {
                 var agex = new AggregateException("Error(s) writing files", writingException);
-                _logger.LogError("", agex);
+                _logger.LogError($"{agex.Message}: {agex.InnerExceptions.Select(ex => ex.Message).Join("\n")}", agex);
             }
             return i;
         }

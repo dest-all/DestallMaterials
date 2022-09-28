@@ -10,7 +10,8 @@
                  ToStringFunc="GetItemRepresentation"
                  MaxItems="50"
                  ValueChanged="async v => await OnValueChanged(v)"
-                 @ref=_autocomplete />
+                 @ref=_autocomplete 
+                 Disabled=Disabled/>
 
 @foreach (var selectedItem in _value ?? Enumerable.Empty<TItem>())
 {
@@ -40,6 +41,9 @@
 
     [Parameter]
     public Func<TItem, bool> ItemIsEmpty { get; set; } = item => item == null;
+
+    [Parameter]
+    public bool Disabled { get; set; }
 
     TItem _currentItemInAutocomplete;
 

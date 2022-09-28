@@ -1,6 +1,7 @@
-﻿@typeparam TValue
+﻿@using Microsoft.AspNetCore.Components.Web
+@typeparam TValue
 
-@inherits ClickableComponent
+@*@inherits ClickableComponent*@
 
 @code {
     [Parameter]
@@ -53,9 +54,9 @@
         }
     }
 
-    protected override async Task OnOuterClickAsync(MouseEventArgs mouseEventArgs)
+    protected async Task OnOuterClickAsync(MouseEventArgs mouseEventArgs)
     {
-        await base.OnOuterClickAsync(mouseEventArgs);
+        //await base.OnOuterClickAsync(mouseEventArgs);
         if (OnClickOutside != null)
         {
             await OnClickOutside();
