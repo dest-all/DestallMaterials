@@ -5,8 +5,10 @@
 @inherits BaseInput<DateTime?>
 @*@inject IGlobalClickCatcher globalClickCatcher;*@
 
-<MudDatePicker PickerVariant="PickerVariant.Inline" Label=@InputLabel @bind-Date="Date" Culture="System.Globalization.CultureInfo.CurrentCulture" Class="d-inline-flex" />
-<MudTimePicker @bind-Time=Time Culture="System.Globalization.CultureInfo.CurrentCulture" Class="d-inline-flex" />
+<MudItem>
+    <MudDatePicker PickerVariant="PickerVariant.Inline" Label=@InputLabel @bind-Date="Date" Culture="System.Globalization.CultureInfo.CurrentCulture" Class="d-inline-flex" />
+    <MudTimePicker @bind-Time=Time Culture="System.Globalization.CultureInfo.CurrentCulture" Class="d-inline-flex" />
+</MudItem>
 
 @code {
 
