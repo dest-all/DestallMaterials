@@ -1,35 +1,35 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-namespace DestallMaterials.WheelProtection.ActionPoints
+namespace DestallMaterials.WheelProtection.Caching
 {
 
-    public abstract class ActionPoint
+    public abstract class Cacher
     {
         public abstract void InvalidateCache();
 
 
-        public static ActionPoint<TParameter, TResult> Create<TParameter, TResult>(Func<TParameter, TResult> source, Func<TParameter, CachingSettings> getCachingSettings, Func<TParameter, int> computeCheckSum)
+        public static Cacher<TParameter, TResult> Create<TParameter, TResult>(Func<TParameter, TResult> source, Func<TParameter, CachingSettings> getCachingSettings, Func<TParameter, int> computeCheckSum)
         {
-            var result = new ActionPoint<TParameter, TResult>(source, getCachingSettings, computeCheckSum);
+            var result = new Cacher<TParameter, TResult>(source, getCachingSettings, computeCheckSum);
             return result;
         }
 
-        public static ActionPoint<TResult> Create<TResult>(Func<TResult> source, Func<TimeSpan> getCacheLifetime)
+        public static Cacher<TResult> Create<TResult>(Func<TResult> source, Func<TimeSpan> getCacheLifetime)
         {
-            var result = new ActionPoint<TResult>(source, getCacheLifetime);
+            var result = new Cacher<TResult>(source, getCacheLifetime);
             return result;
         }
     }
 
-    public class ActionPoint<TParameter, TResult>
+    public class Cacher<TParameter, TResult>
     {
         readonly Func<TParameter, TResult> _source;
         readonly Func<TParameter, CachingSettings> _getCachingSettings;
-        
+
         readonly IDictionary<TParameter, CachedValue<TResult>> _caches;
 
-        public ActionPoint(Func<TParameter, TResult> source, Func<TParameter, CachingSettings> getCachingSettings, Func<TParameter, int> computeCheckSum)
+        public Cacher(Func<TParameter, TResult> source, Func<TParameter, CachingSettings> getCachingSettings, Func<TParameter, int> computeCheckSum)
         {
             _getCachingSettings = getCachingSettings;
             _source = source;
@@ -51,7 +51,7 @@ namespace DestallMaterials.WheelProtection.ActionPoints
             return RunDirectly(parameter);
         }
         public TResult RunDirectly(TParameter parameter)
-        { 
+        {
             var result = _source.Invoke(parameter);
             _caches[parameter] = new(result, DateTime.UtcNow + _getCachingSettings(parameter).Validity);
             return result;
@@ -74,13 +74,13 @@ namespace DestallMaterials.WheelProtection.ActionPoints
         }
     }
 
-    public class ActionPoint<TResult>
+    public class Cacher<TResult>
     {
         readonly Func<TimeSpan> _getCachingSettings;
         readonly Func<TResult> _source;
         CachedValue<TResult>? _lastCallResult;
 
-        public ActionPoint(Func<TResult> source, Func<TimeSpan> getCachingSettings)
+        public Cacher(Func<TResult> source, Func<TimeSpan> getCachingSettings)
         {
             _getCachingSettings = getCachingSettings;
             _source = source;

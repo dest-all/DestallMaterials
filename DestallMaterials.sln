@@ -35,7 +35,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.WheelProte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.WheelProtection.Executions", "DestallMaterials.WheelProtection.Executions\DestallMaterials.WheelProtection.Executions.csproj", "{703EAAA2-42C0-4017-8833-C22D12D05A9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DestallMaterials.WheelProtection.ActionPoints", "DestallMaterials.WheelProtection.ActionPoints\DestallMaterials.WheelProtection.ActionPoints.csproj", "{498A2AD0-485B-463F-8426-13856A5510F8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.WheelProtection.Caching", "DestallMaterials.WheelProtection.Caching\DestallMaterials.WheelProtection.Caching.csproj", "{498A2AD0-485B-463F-8426-13856A5510F8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

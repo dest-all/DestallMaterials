@@ -1,4 +1,4 @@
-﻿namespace DestallMaterials.WheelProtection.ActionPoints
+﻿namespace DestallMaterials.WheelProtection.Caching
 {
     internal struct CachedValue<TValue>
     {
