@@ -10,7 +10,7 @@ namespace DestallMaterials.WheelProtection.Linq
     public static class EnumerableExtensions
     {
         public static IAsyncEnumerable<TResult> SelectAsync<T, TResult>(this IEnumerable<T> items, Func<T, Task<TResult>> selector)
-            => items.Select(selector).SelectResultsAsync();        
+            => items.Select(selector).SelectResultsAsync();
 
         public static async IAsyncEnumerable<T> SelectResultsAsync<T>(this IEnumerable<Task<T>> tasks)
         {
@@ -28,11 +28,25 @@ namespace DestallMaterials.WheelProtection.Linq
             }
         }
 
+        public static async Task<TResult[]> ToArrayAsync<T, TResult>(this IEnumerable<T> items, Func<T, Task<TResult>> selector)
+        {
+            var itemsStarted = items.Select(i => selector(i)).ToArray();
+            await Task.WhenAll(itemsStarted);
+            return itemsStarted.Select(t => t.Result).ToArray();
+        }
+
         public static async Task<T[]> ToArrayAsync<T>(this IEnumerable<Task<T>> items)
         {
             var itemsStarted = items.ToArray();
             await Task.WhenAll(itemsStarted);
             return itemsStarted.Select(t => t.Result).ToArray();
+        }
+
+        public static async Task<List<T>> ToListAsync<T>(this IEnumerable<Task<T>> items)
+        {
+            var itemsStarted = items.ToArray();
+            await Task.WhenAll(itemsStarted);
+            return itemsStarted.Select(t => t.Result).ToList();
         }
 
         public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TIn, TKey, TValue>(this IEnumerable<TIn> ins, Func<TIn, Task<TKey>> asyncKeySelector, Func<TIn, TValue> valueSelector)
@@ -160,6 +174,39 @@ namespace DestallMaterials.WheelProtection.Linq
 
         public static bool IsOneOf<T>(this T item, IEnumerable<T> items) => items.Contains(item);
         public static bool IsOneOf<T>(this T item, params T[] items) => items.Contains(item);
-        
+
+
+        public static IEnumerable<T> Union<T>(this IEnumerable<T> items, T another)
+        {
+            bool met = false;
+            int hash = another.GetHashCode();
+            foreach (var item in items)
+            {
+                met = met || item.GetHashCode() == hash;
+                yield return item;
+            }
+            if (!met)
+            {
+                yield return another;
+            }
+        }
+
+        public static IEnumerable<T> Prepend<T>(this IEnumerable<T> items, T itemToPrepend)
+        {
+            yield return itemToPrepend;
+            foreach (var item in items)
+            {
+                yield return item;
+            }
+        }
+
+        public static IEnumerable<T> Append<T>(this IEnumerable<T> items, T itemToAppend)
+        {
+            foreach (var item in items)
+            {
+                yield return item;
+            }
+            yield return itemToAppend;
+        }
     }
 }

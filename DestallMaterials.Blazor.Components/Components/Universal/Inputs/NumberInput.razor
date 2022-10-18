@@ -1,20 +1,20 @@
 ﻿@using DestallMaterials.Blazor.Services
 @using DestallMaterials.WheelProtection.Linq
 
-@typeparam TNumber
-@inherits BaseInput<TNumber>
+@typeparam T
+@inherits BaseInput<T>
 
 @if (IsFraction)
 {
-    <MudBlazor.MudNumericField Format=Format T="TNumber" ValueChanged="v => OnValueSet(v)" Value="_value" HideSpinButtons />
+    <MudBlazor.MudNumericField Format=Format T="T" ValueChanged="v => OnValueSet(v)" Value="_value" HideSpinButtons />
 }
 else if (IsWholeNumber)
 {
-    <MudBlazor.MudNumericField T="TNumber" ValueChanged="v => OnValueSet(v)" Value=_value HideSpinButtons />
+    <MudBlazor.MudNumericField T="T" ValueChanged="v => OnValueSet(v)" Value=_value HideSpinButtons />
 }
 else
 {
-    throw new InvalidOperationException($"Invalid number type {typeof(TNumber).FullName}.");
+    throw new InvalidOperationException($"Invalid number type {typeof(T).FullName}.");
 }
 
 @code {
@@ -35,7 +35,7 @@ else
         typeof(float?), typeof(double?), typeof(decimal?)
     };
 
-    static readonly bool IsFraction = typeof(TNumber).IsOneOf(FractionalNumbers);
-    static readonly bool IsWholeNumber = typeof(TNumber).IsOneOf(WholeNumbers);
+    static readonly bool IsFraction = typeof(T).IsOneOf(FractionalNumbers);
+    static readonly bool IsWholeNumber = typeof(T).IsOneOf(WholeNumbers);
 
 }

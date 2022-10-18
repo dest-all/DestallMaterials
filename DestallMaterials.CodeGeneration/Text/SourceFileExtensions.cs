@@ -30,6 +30,7 @@ namespace DestallMaterials.CodeGeneration.Text
 
         public static string MinimizeFrontLines(string code)
         {
+            return code;
             string str = code.Replace("\t", "    ");
             var lines = str.Split("\r\n".ToCharArray()).Where(str => !string.IsNullOrEmpty(str));
             var minSpaces = lines.Min(s => s.CalculateSymbolsInFront(' '));

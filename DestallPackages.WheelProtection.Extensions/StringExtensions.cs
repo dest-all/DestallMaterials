@@ -26,54 +26,6 @@ namespace DestallMaterials.WheelProtection.Extensions.String
             return str.PadLeft(padLeft, padChar).PadRight(totalLength, padChar);
         }
 
-        public static bool IsDigitsOnly(this string str)
-        {
-            foreach (char c in str)
-            {
-                if (c < '0' || c > '9')
-                    return false;
-            }
-            return true;
-        }
-
-        /// <summary> Заменить подряд идущие символы </summary>
-        /// <param name="str"></param>
-        /// <param name="consecutiveChar">Подряд идущий символ</param>
-        /// <param name="placeholderStr">Последовательность символов, на которую следует заменить подряд идущие символы</param>
-        /// <param name="minСonsecutiveChars">Минимальная длина подряд идущих символов</param>
-        /// <param name="maxСonsecutiveChars">Максимальная длина подряд идущих символов</param>
-        /// <returns></returns>
-        public static string ReplaceСonsecutiveChars(this string str, char consecutiveChar, string placeholderStr, int minСonsecutiveChars, int maxСonsecutiveChars)
-        {
-            for (int currentCountSpace = minСonsecutiveChars; currentCountSpace <= maxСonsecutiveChars; currentCountSpace++)
-            {
-                str = str.Replace(string.Empty.PadLeft(currentCountSpace, consecutiveChar), placeholderStr);
-            }
-
-            return str;
-        }
-
-        public static string AsRegionCode(this string str)
-        {
-            return str.Length == 1 ? str.Insert(0, "0") : str;
-        }
-
-        public static string AsColumnNumber(this string str)
-        {
-            return str.Length == 1 ? str.Insert(0, "0") : str;
-        }
-
-        /// <summary> Приведение кода города к формату ### </summary>у
-        public static string AsCityCode(this string str)
-        {
-            while (str.Length < 3)
-            {
-                str = str.Insert(0, "0");
-            }
-
-            return str;
-        }
-
         public static string MustStartWith(this string input, string desiredBeginning)
         {
             if (string.IsNullOrEmpty(input))
