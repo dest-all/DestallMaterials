@@ -37,6 +37,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.WheelProte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.WheelProtection.Caching", "DestallMaterials.WheelProtection.Caching\DestallMaterials.WheelProtection.Caching.csproj", "{498A2AD0-485B-463F-8426-13856A5510F8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DestallMaterials.WheelProtection.PublishLast", "DestallMaterials.WheelProtection.PublishLast\DestallMaterials.WheelProtection.PublishLast.csproj", "{3B59D4F5-D094-4207-84C8-20AC3F762DC1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -99,6 +101,10 @@ Global
 		{498A2AD0-485B-463F-8426-13856A5510F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{498A2AD0-485B-463F-8426-13856A5510F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{498A2AD0-485B-463F-8426-13856A5510F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B59D4F5-D094-4207-84C8-20AC3F762DC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B59D4F5-D094-4207-84C8-20AC3F762DC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B59D4F5-D094-4207-84C8-20AC3F762DC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B59D4F5-D094-4207-84C8-20AC3F762DC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +124,7 @@ Global
 		{8CD107DA-6AA2-4A77-ABFB-70A19B6D5B1C} = {023EFA56-3D87-402E-A854-2D74FE19A4E2}
 		{703EAAA2-42C0-4017-8833-C22D12D05A9F} = {023EFA56-3D87-402E-A854-2D74FE19A4E2}
 		{498A2AD0-485B-463F-8426-13856A5510F8} = {023EFA56-3D87-402E-A854-2D74FE19A4E2}
+		{3B59D4F5-D094-4207-84C8-20AC3F762DC1} = {023EFA56-3D87-402E-A854-2D74FE19A4E2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F0F81FA6-ADDA-4AC5-A926-AC32F3A47ABD}

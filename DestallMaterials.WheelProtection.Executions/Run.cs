@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Stm.Kkt.Utils.Common
+namespace DestallMaterials.WheelProtection.Executions
 {
     public static class Run
     {
@@ -111,11 +111,23 @@ namespace Stm.Kkt.Utils.Common
             }
         }
 
-        public static async Task<TResult> ReturnOnErrorAsync<TResult, TException>(this Func<Task<TResult>> func, Func<Exception, TResult> onError)
+        public static async Task<TResult> ReturnOnErrorAsync<TResult>(this Func<Task<TResult>> func, Func<Exception, TResult> onError)
         {
             try
             {
                 return await func();
+            }
+            catch (Exception ex)
+            {
+                return onError(ex);
+            }
+        }
+
+        public static TResult ReturnOnError<TResult>(this Func<TResult> func, Func<Exception, TResult> onError)
+        {
+            try
+            {
+                return func();
             }
             catch (Exception ex)
             {

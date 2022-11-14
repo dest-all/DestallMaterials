@@ -159,6 +159,12 @@ namespace DestallMaterials.WheelProtection.Linq
 
         public static bool HasContent<T>(this IEnumerable<T> items) => items?.Any() == true;
 
+        public static bool IsEmpty<T>(this IEnumerable<T> items)
+            => !HasContent(items);
+
+        public static IEnumerable<T> WhereNot<T>(this IEnumerable<T> items, Func<T, bool> condition)
+            => items.Where(i => !condition(i));
+
         public static IEnumerable<T> DistinctBy<T>(this IEnumerable<T> source, Func<T, T, bool> areSame)
         {
             List<T> items = new List<T>();
