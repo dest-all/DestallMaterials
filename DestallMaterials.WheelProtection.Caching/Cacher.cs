@@ -49,7 +49,7 @@ namespace DestallMaterials.WheelProtection.Caching
 
         public TOut Run(TIn parameter)
         {
-            if (_caches.TryGetValue(parameter, out var result) && result.ValidUntil < DateTime.UtcNow)
+            if (_caches.TryGetValue(parameter, out var result) && result.ValidUntil > DateTime.UtcNow)
             {
                 return result.Value;
             }
@@ -98,7 +98,7 @@ namespace DestallMaterials.WheelProtection.Caching
 
         public TOut Run()
         {
-            if (_lastCallResult != null && _lastCallResult.Value.ValidUntil >= DateTime.UtcNow)
+            if (_lastCallResult != null && _lastCallResult.Value.ValidUntil > DateTime.UtcNow)
             {
                 return _lastCallResult.Value.Value;
             }

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
@@ -19,6 +19,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\DestallMaterials.CodeGeneration\DestallMaterials.CodeGeneration.csproj" />
+		<ProjectReference Include="..\DestallMaterials.WheelProtection.Caching\DestallMaterials.WheelProtection.Caching.csproj" />
 		<ProjectReference Include="..\DestallPackages.WheelProtection.Queues\DestallMaterials.WheelProtection.Queues.csproj" />
 		<ProjectReference Include="..\TestComponents\TestComponents.csproj" />
 	</ItemGroup>

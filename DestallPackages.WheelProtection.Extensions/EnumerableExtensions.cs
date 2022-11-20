@@ -214,5 +214,16 @@ namespace DestallMaterials.WheelProtection.Linq
             }
             yield return itemToAppend;
         }
+
+        public static IEnumerable<T> And<T>(this T item, T another)
+        {
+            yield return item;
+            yield return another;
+        }
+
+        public static IEnumerable<T> Yield<T>(this T item) 
+        { 
+            yield return item; 
+        }
     }
 }

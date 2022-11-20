@@ -6,11 +6,11 @@
 
 @if (IsFraction)
 {
-    <MudBlazor.MudNumericField Format=Format T="T" ValueChanged="v => OnValueSet(v)" Value="_value" HideSpinButtons />
+    <MudBlazor.MudNumericField Format=Format T="T" ValueChanged="v => OnValueSet(v)" Value="_value" HideSpinButtons Label="@Label" />
 }
 else if (IsWholeNumber)
 {
-    <MudBlazor.MudNumericField T="T" ValueChanged="v => OnValueSet(v)" Value=_value HideSpinButtons />
+    <MudBlazor.MudNumericField T="T" ValueChanged="v => OnValueSet(v)" Value=_value HideSpinButtons Label="@Label" />
 }
 else
 {

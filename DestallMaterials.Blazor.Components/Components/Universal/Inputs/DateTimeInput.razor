@@ -6,7 +6,7 @@
 @*@inject IGlobalClickCatcher globalClickCatcher;*@
 
 <MudItem>
-    <MudDatePicker PickerVariant="PickerVariant.Inline" Label=@InputLabel @bind-Date="Date" Culture="System.Globalization.CultureInfo.CurrentCulture" Class="d-inline-flex" />
+    <MudDatePicker PickerVariant="PickerVariant.Inline" Label=@Label @bind-Date="Date" Culture="System.Globalization.CultureInfo.CurrentCulture" Class="d-inline-flex" />
     <MudTimePicker @bind-Time=Time Culture="System.Globalization.CultureInfo.CurrentCulture" Class="d-inline-flex" />
 </MudItem>
 

@@ -1,19 +1,19 @@
-﻿using DestallMaterials.WheelProtection.Queues.QueueProcessors;
+﻿using DestallMaterials.WheelProtection.Caching;
 
-var processor = new DestallMaterials.WheelProtection.Queues.QueueProcessors.CallInQueueAsynchronousProcessor<string, bool>(async str =>
+var cachingSettings = new CachingSettings()
 {
-    Console.WriteLine(str);
-    return true;
-},
-    new QueueConfiguration(TimeSpan.FromSeconds(250), new Dictionary<TimeSpan, int>
-    {
-        { TimeSpan.FromSeconds(1), 1 },
-        { TimeSpan.FromSeconds(10), 5 }
-    })
-    );
+    MaxSize = 100,
+    Validity = TimeSpan.FromSeconds(3)
+};
+var cacher = new Cacher<int, Task<int>>(async n =>
+{
+    Console.WriteLine($"Launched calculation of square {n}.");
+    await Task.Delay(1000);
+    return n * n;
+}, n => n, n => cachingSettings);
 
-var tasks = Enumerable.Range(0, 100).Select(i => processor.RequestForExecution($"{i}.")).ToArray();
-
-await Task.WhenAll(tasks);
-
-var a = 55;
+for (int i = 0; i < 100; i++)
+{
+    await Task.Delay(300);
+    Console.WriteLine(await cacher.Run(3));
+}
