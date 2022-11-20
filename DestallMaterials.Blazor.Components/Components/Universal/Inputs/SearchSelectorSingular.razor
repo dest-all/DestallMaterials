@@ -4,12 +4,10 @@
 <MudAutocomplete T="TItem"
                  Label=@Label
                  SearchFunc="async filter => await GetItemsByFilter(filter)"
-                 ResetValueOnEmptyText="true"
-                 CoerceText="true"
-                 CoerceValue="true" ToStringFunc="GetItemRepresentation"
+                 ToStringFunc="GetItemRepresentation"
                  MaxItems="50"
-                 ValueChanged="v => {OnValueSet(v); Value = v; StateHasChanged();}"
-                 Value=Value 
+                 Value="Value"
+                 ValueChanged="OnValueSet"
                  Disabled=Disabled
                  />
 

@@ -1,6 +1,6 @@
 ﻿@inherits Button
 
-<button @o:has(:hover)overclick="async e => await onClickAsync()" style="@style" disabled="@(Disabled)">
+<button @onclick="OnClickAsync" style="@style" disabled="@(Disabled)">
     <i class="material-icons" style="color:grey; font-size:40px">@MaterialIconName</i>
 </button>
 

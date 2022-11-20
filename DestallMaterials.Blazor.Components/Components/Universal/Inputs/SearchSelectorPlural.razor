@@ -5,13 +5,13 @@
                  Label=@Label
                  SearchFunc="async filter => await GetItemsByFilter(filter)"
                  ResetValueOnEmptyText="true"
-                 CoerceText="true"
-                 CoerceValue="true"
                  ToStringFunc="GetItemRepresentation"
                  MaxItems="50"
                  ValueChanged="async v => await OnValueChanged(v)"
                  @ref=_autocomplete 
-                 Disabled=Disabled/>
+                 Disabled=Disabled
+                 
+                 />
 
 @foreach (var selectedItem in _value ?? Enumerable.Empty<TItem>())
 {
