@@ -1,26 +1,43 @@
-﻿using DestallMaterials.WheelProtection.Extensions.String;
-using DestallMaterials.WheelProtection.Linq;
+﻿using DestallMaterials.WheelProtection.Extensions;
+using DestallMaterials.WheelProtection.Extensions.Enumerable;
+using DestallMaterials.WheelProtection.Extensions.String;
+using DestallMaterials.WheelProtection.PublishLast;
 using System.Security;
 
-const string apiKeyVariableName = "NugetPublishingApiKey";
+string dir = Environment.CurrentDirectory;
 
-string? nugetApiKey = Environment.GetEnvironmentVariable(apiKeyVariableName);
+Do(dir);
+Console.ReadKey();
 
-if (nugetApiKey.IsEmpty())
+static void Do(string directory)
 {
-    Console.WriteLine($"Api key for nuget should be set in environment variable {apiKeyVariableName}.");
-    Console.WriteLine($"Aborted");
-    return;
+    const string apiKeyVariableName = "NugetPublishingApiKey";
+
+    string? nugetApiKey = Environment.GetEnvironmentVariable(apiKeyVariableName);
+
+    if (nugetApiKey.IsEmpty())
+    {
+        Console.WriteLine($"Api key for nuget should be set in environment variable {apiKeyVariableName}.");
+        Console.WriteLine($"Aborted");
+        return;
+    }
+
+    var packages = Directory.GetFiles(directory, "*.nupkg");
+
+    if (packages.IsEmpty())
+    {
+        Console.WriteLine($"No *.nupkg found.");
+        return;
+    }
+
+    var packagesFromNewestToOldest = packages.OrderDescending();
+
+    var packageToPush = packagesFromNewestToOldest.First();
+
+    string command = $"dotnet nuget push {packageToPush} --api-key {nugetApiKey} --source https://api.nuget.org/v3/index.json";
+
+    Console.WriteLine(@$"Running command:
+{command}");
+
+    CmdRunner.Run(command);
 }
-
-var curDir = Directory.GetCurrentDirectory();
-var packages = Directory.GetFiles(curDir, "*.nupkg");
-
-if (!packages.HasContent())
-{
-    Console.WriteLine($"");
-}
-
-var packagesFromNewestToOldest = packages.OrderByDescending(p => p);
-
-var packageToPush = packagesFromNewestToOldest.First

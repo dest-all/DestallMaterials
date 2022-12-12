@@ -1,19 +1,20 @@
-﻿using DestallMaterials.WheelProtection.Caching;
+﻿using DestallMaterials.WheelProtection.Queues;
 
-var cachingSettings = new CachingSettings()
+
+var constraints = new Dictionary<TimeSpan, int>
 {
-    MaxSize = 100,
-    Validity = TimeSpan.FromSeconds(3)
+    {
+        TimeSpan.FromSeconds(0.5), 3
+    }
 };
-var cacher = new Cacher<int, Task<int>>(async n =>
-{
-    Console.WriteLine($"Launched calculation of square {n}.");
-    await Task.Delay(1000);
-    return n * n;
-}, n => n, n => cachingSettings);
 
+var rateController = new RateController(constraints);
+
+var rand = new Random();
 for (int i = 0; i < 100; i++)
 {
-    await Task.Delay(300);
-    Console.WriteLine(await cacher.Run(3));
+    using (await rateController.WaitNext())
+    {
+        Console.WriteLine(DateTime.Now);
+    }
 }

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DestallMaterials.WheelProtection.Linq
+namespace DestallMaterials.WheelProtection.Extensions.Enumerable
 {
     public static class EnumerableExtensions
     {
@@ -28,19 +28,10 @@ namespace DestallMaterials.WheelProtection.Linq
             }
         }
 
-        public static async Task<TResult[]> ToArrayAsync<T, TResult>(this IEnumerable<T> items, Func<T, Task<TResult>> selector)
-        {
-            var itemsStarted = items.Select(i => selector(i)).ToArray();
-            await Task.WhenAll(itemsStarted);
-            return itemsStarted.Select(t => t.Result).ToArray();
-        }
+        public static Task<TResult[]> ToArrayAsync<T, TResult>(this IEnumerable<T> items, Func<T, Task<TResult>> selector) => Task.WhenAll(items.Select(i => selector(i)));
 
-        public static async Task<T[]> ToArrayAsync<T>(this IEnumerable<Task<T>> items)
-        {
-            var itemsStarted = items.ToArray();
-            await Task.WhenAll(itemsStarted);
-            return itemsStarted.Select(t => t.Result).ToArray();
-        }
+        public static Task<T[]> ToArrayAsync<T>(this IEnumerable<Task<T>> items)
+            => Task.WhenAll(items);
 
         public static async Task<List<T>> ToListAsync<T>(this IEnumerable<Task<T>> items)
         {
@@ -160,7 +151,7 @@ namespace DestallMaterials.WheelProtection.Linq
         public static bool HasContent<T>(this IEnumerable<T> items) => items?.Any() == true;
 
         public static bool IsEmpty<T>(this IEnumerable<T> items)
-            => !HasContent(items);
+            => !items.HasContent();
 
         public static IEnumerable<T> WhereNot<T>(this IEnumerable<T> items, Func<T, bool> condition)
             => items.Where(i => !condition(i));
@@ -180,7 +171,6 @@ namespace DestallMaterials.WheelProtection.Linq
 
         public static bool IsOneOf<T>(this T item, IEnumerable<T> items) => items.Contains(item);
         public static bool IsOneOf<T>(this T item, params T[] items) => items.Contains(item);
-
 
         public static IEnumerable<T> Union<T>(this IEnumerable<T> items, T another)
         {
@@ -213,17 +203,6 @@ namespace DestallMaterials.WheelProtection.Linq
                 yield return item;
             }
             yield return itemToAppend;
-        }
-
-        public static IEnumerable<T> And<T>(this T item, T another)
-        {
-            yield return item;
-            yield return another;
-        }
-
-        public static IEnumerable<T> Yield<T>(this T item) 
-        { 
-            yield return item; 
         }
     }
 }

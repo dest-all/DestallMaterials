@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DestallMaterials.WheelProtection.Extensions
+namespace DestallMaterials.WheelProtection.Extensions.Object
 {
     public static class ObjectExtensions
     {
@@ -23,6 +23,17 @@ namespace DestallMaterials.WheelProtection.Extensions
                 }
             }
             return false;
+        }
+
+        public static IEnumerable<T> Yield<T>(this T item)
+        {
+            yield return item;
+        }
+
+        public static IEnumerable<T> And<T>(this T item1, T item2)
+        {
+            yield return item1;
+            yield return item2;
         }
     }
 }

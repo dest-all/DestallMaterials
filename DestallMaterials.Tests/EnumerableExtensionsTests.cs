@@ -1,5 +1,4 @@
-using DestallMaterials.WheelProtection.Linq;
-using DestallMaterials.WheelProtection.Queues.QueueProcessors;
+using DestallMaterials.WheelProtection.Extensions.Enumerable;
 
 namespace DestallMaterials.Tests
 {

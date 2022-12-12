@@ -18,7 +18,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\DestallMaterials.CodeGeneration\DestallMaterials.CodeGeneration.csproj" />
 		<ProjectReference Include="..\DestallMaterials.WheelProtection.Caching\DestallMaterials.WheelProtection.Caching.csproj" />
 		<ProjectReference Include="..\DestallPackages.WheelProtection.Queues\DestallMaterials.WheelProtection.Queues.csproj" />
 		<ProjectReference Include="..\TestComponents\TestComponents.csproj" />
