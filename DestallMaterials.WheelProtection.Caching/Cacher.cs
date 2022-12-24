@@ -27,12 +27,16 @@ namespace DestallMaterials.WheelProtection.Caching
         readonly Func<TIn, TOut> _source;
         readonly Func<TIn, CachingSettings> _getCachingSettings;
 
-        readonly IDictionary<TIn, CachedValue<TOut>> _caches;
+        IDictionary<TIn, CachedValue<TOut>> _caches;
+
+        readonly Func<TIn, int> _computeCheckSum;
 
         public Cacher(Func<TIn, TOut> source, Func<TIn, int> computeCheckSum, Func<TIn, CachingSettings> getCachingSettings)
         {
             _getCachingSettings = getCachingSettings;
             _source = source;
+
+            _computeCheckSum = computeCheckSum;
 
             _caches = new ConcurrentDictionary<TIn, CachedValue<TOut>>(new ByChecksumEqualityComparer(computeCheckSum));
         }
@@ -59,6 +63,7 @@ namespace DestallMaterials.WheelProtection.Caching
         {
             var result = _source.Invoke(parameter);
             _caches[parameter] = new(result, DateTime.UtcNow + _getCachingSettings(parameter).Validity);
+            EnsureRightCapacity(parameter);
             return result;
         }
 
@@ -76,6 +81,18 @@ namespace DestallMaterials.WheelProtection.Caching
 
             public int GetHashCode([DisallowNull] TIn obj)
                 => _getChecksum(obj);
+        }
+
+        void EnsureRightCapacity(TIn parameter)
+        {
+            var capacity = _getCachingSettings(parameter).MaxSize;
+            if (_caches.Count >= capacity * 2)
+            {
+                _caches = new ConcurrentDictionary<TIn, CachedValue<TOut>>(
+                    _caches.Where(c => c.Value.ValidUntil > DateTime.UtcNow).Take(capacity),
+                    new ByChecksumEqualityComparer(_computeCheckSum)
+                );
+            }
         }
     }
 

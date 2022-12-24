@@ -3,80 +3,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Threading.Tasks.Task;
 
-namespace DestallMaterials.WheelProtection.Extensions.Tasks
+namespace DestallMaterials.WheelProtection.Extensions
 {
     public static class TaskExtensions
     {
-        /// <summary>
-        /// Последовательно обрабатывает завершающиеся асинхронные задачи и ожидает завершения обработки всех задач.
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="tasks"></param>
-        /// <param name="action"></param>
-        /// <returns></returns>
-        public static async Task ExecuteInQueue<TTask>(this IEnumerable<TTask> tasks, Action<TTask> action) where TTask : Task
-        {
-            var tasksList = tasks.ToList();
-            await Task.WhenAny(tasksList);
-            foreach (var task in tasksList.Where(t => t.IsCompleted).ToArray())
+        public static Task<T> DefaultOnError<T>(this Task<T> task)
+            => task.ContinueWith(t => t.IsFaulted ? default : t.Result);
+
+        public static Task IgnoreError(this Task task)
+            => task.ContinueWith(t => { });
+
+        public static Task<T> WithinDeadline<T>(this Task<T> task, TimeSpan deadline) => WhenAny(task, Delay(deadline))
+            .ContinueWith(t => !t.IsCompleted ? throw new TimeoutException($"Task is not completed within period of {deadline}.") : task.Result);
+
+        public static Task WithinDeadline(this Task task, TimeSpan deadline)
+            => WhenAny(task, Delay(deadline))
+            .ContinueWith(t =>
             {
-                if (task.IsCompleted)
+                if (!t.IsCompleted)
                 {
-                    action(task);
-                    tasksList.Remove(task);
+                    throw new TimeoutException($"Task is not completed within period of {deadline}.");
                 }
-            }
-            if (tasksList.Any())
-            {
-                await tasksList.ExecuteInQueue(action);
-            }
-        }
+            });
 
-        public static async Task<T> WithinDeadline<T>(this Task<T> task, TimeSpan deadline, string message)
-        {
-            await Task.WhenAny(task, Task.Delay(deadline));
 
-            if (task.IsCompleted)
-            {
-                return task.Result;
-            }
-            else
-            {
-                throw new TimeoutException(message);
-            }
-        }
-
-        public static async Task WithinDeadline(this Task task, TimeSpan deadline, string message)
-        {
-            await Task.WhenAny(task, Task.Delay(deadline));
-
-            if (!task.IsCompleted)
-            {
-                throw new TimeoutException(message);
-            }
-        }
-
-        public static async Task WithinDeadline(this ValueTask task, TimeSpan deadline)
-        {
-            await Task.WhenAny(task.AsTask(), Task.Delay(deadline));
-
-            if (!task.IsCompleted)
-            {
-                throw new TimeoutException();
-            }
-        }
-
-        public static TResult GetResultWithDisposition<TResult>(this Task<TResult> task)
-        {
-            try
-            {
-                return task.Result;
-            }
-            finally
-            {
-                task.Dispose();
-            }
-        }
     }
 }

@@ -8,7 +8,6 @@ namespace DestallMaterials.WheelProtection.Extensions.Collections
 {
     public static class CollectionExtensions
     {
-
         public static T WithdrawUntil<T>(this ConcurrentQueue<T> queue, Func<T, bool> condition)
         {
             while (queue.TryDequeue(out var item))
@@ -20,9 +19,5 @@ namespace DestallMaterials.WheelProtection.Extensions.Collections
             }
             return default;
         }
-
-        
     }
-
-
 }

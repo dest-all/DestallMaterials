@@ -33,12 +33,7 @@ namespace DestallMaterials.WheelProtection.Extensions.Enumerable
         public static Task<T[]> ToArrayAsync<T>(this IEnumerable<Task<T>> items)
             => Task.WhenAll(items);
 
-        public static async Task<List<T>> ToListAsync<T>(this IEnumerable<Task<T>> items)
-        {
-            var itemsStarted = items.ToArray();
-            await Task.WhenAll(itemsStarted);
-            return itemsStarted.Select(t => t.Result).ToList();
-        }
+        public static async Task<List<T>> ToListAsync<T>(this IEnumerable<Task<T>> items) => new List<T>(await Task.WhenAll(items));
 
         public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TIn, TKey, TValue>(this IEnumerable<TIn> ins, Func<TIn, Task<TKey>> asyncKeySelector, Func<TIn, TValue> valueSelector)
         {
@@ -91,13 +86,6 @@ namespace DestallMaterials.WheelProtection.Extensions.Enumerable
                 result.Add(item.Key, item.Value);
             }
 
-            return result;
-        }
-
-        public static bool MoveNext<T>(this IEnumerator<T> enumerator, out T current)
-        {
-            var result = enumerator.MoveNext();
-            current = enumerator.Current;
             return result;
         }
 
