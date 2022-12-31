@@ -53,9 +53,13 @@ namespace DestallMaterials.WheelProtection.Caching
 
         public TOut Run(TIn parameter)
         {
-            if (_caches.TryGetValue(parameter, out var result) && result.ValidUntil > DateTime.UtcNow)
+            if (_caches.TryGetValue(parameter, out var result) )
             {
-                return result.Value;
+                var now = DateTime.UtcNow;
+                if (result.ValidUntil > now)
+                {
+                    return result.Value;
+                }
             }
             return RunDirectly(parameter);
         }
