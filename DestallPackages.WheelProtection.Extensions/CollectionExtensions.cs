@@ -32,6 +32,6 @@ namespace DestallMaterials.WheelProtection.Extensions.Collections
         }
 
         public static bool AddIfNot<TItem, TCollection>(this TCollection source, TItem item, bool condition)
-            where TCollection : ICollection<TItem> => source.AddIfNot(item, !condition);
+            where TCollection : ICollection<TItem> => source.AddIf(item, !condition);
     }
 }
