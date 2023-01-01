@@ -19,5 +19,19 @@ namespace DestallMaterials.WheelProtection.Extensions.Collections
             }
             return default;
         }
+
+        public static bool AddIf<TItem, TCollection>(this TCollection source, TItem item, bool condition)
+            where TCollection : ICollection<TItem>
+        {
+            if (condition)
+            {
+                source.Add(item);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool AddIfNot<TItem, TCollection>(this TCollection source, TItem item, bool condition)
+            where TCollection : ICollection<TItem> => source.AddIfNot(item, !condition);
     }
 }
