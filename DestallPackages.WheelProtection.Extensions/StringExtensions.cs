@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
-namespace DestallMaterials.WheelProtection.Extensions.String
+namespace DestallMaterials.WheelProtection.Extensions.Strings
 {
     public static class StringExtensions
     {

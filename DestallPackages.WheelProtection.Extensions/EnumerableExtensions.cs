@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DestallMaterials.WheelProtection.Extensions.Enumerable
+namespace DestallMaterials.WheelProtection.Extensions.Enumerables
 {
     public static class EnumerableExtensions
     {

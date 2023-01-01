@@ -1,11 +1,11 @@
-﻿using DestallMaterials.WheelProtection.Extensions.Enumerable;
+﻿using DestallMaterials.WheelProtection.Extensions.Enumerables;
 using DestallMaterials.WheelProtection.Extensions.SpecialDataTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace DestallMaterials.WheelProtection.Extensions
+namespace DestallMaterials.WheelProtection.Extensions.Dictionaries
 {
     public static class DictionaryExtensions
     {

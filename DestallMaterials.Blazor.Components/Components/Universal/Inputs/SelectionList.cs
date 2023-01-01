@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DestallMaterials.WheelProtection.Extensions.String;
+using DestallMaterials.WheelProtection.Extensions.Strings;
 
 namespace DestallMaterials.Blazor.Components.Universal.Inputs
 {

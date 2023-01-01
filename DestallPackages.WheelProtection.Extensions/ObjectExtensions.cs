@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DestallMaterials.WheelProtection.Extensions
+namespace DestallMaterials.WheelProtection.Extensions.Objects
 {
     public static class ObjectExtensions
     {

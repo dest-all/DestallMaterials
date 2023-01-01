@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Threading.Tasks.Task;
 
-namespace DestallMaterials.WheelProtection.Extensions
+namespace DestallMaterials.WheelProtection.Extensions.Tasks
 {
     public static class TaskExtensions
     {
