@@ -33,5 +33,20 @@ namespace DestallMaterials.WheelProtection.Extensions.Collections
 
         public static bool AddIfNot<TItem, TCollection>(this TCollection source, TItem item, bool condition)
             where TCollection : ICollection<TItem> => source.AddIf(item, !condition);
+
+        /// <summary>
+        /// Removes items from collection by a predicate.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="items"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public static void RemoveAll<T>(this ICollection<T> items, Func<T, bool> condition)
+        {
+            foreach (var item in items.Where(i => condition(i)).ToArray())
+            {
+                items.Remove(item);
+            }
+        }
     }
 }

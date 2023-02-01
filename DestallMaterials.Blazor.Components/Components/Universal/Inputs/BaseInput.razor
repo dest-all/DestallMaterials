@@ -34,6 +34,9 @@
     [Parameter]
     public Func<Task> OnClickOutside { get; set; } = async () => { };
 
+    [Parameter]
+    public bool Disabled { get; set; }
+
     protected TValue _value;
 
     protected virtual async Task OnInput(TValue value)

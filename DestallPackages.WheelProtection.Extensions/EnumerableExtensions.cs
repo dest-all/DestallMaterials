@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections;
 
 namespace DestallMaterials.WheelProtection.Extensions.Enumerables
 {
@@ -28,7 +23,8 @@ namespace DestallMaterials.WheelProtection.Extensions.Enumerables
             }
         }
 
-        public static Task<TResult[]> ToArrayAsync<T, TResult>(this IEnumerable<T> items, Func<T, Task<TResult>> selector) => Task.WhenAll(items.Select(i => selector(i)));
+        public static Task<TResult[]> ToArrayAsync<T, TResult>(this IEnumerable<T> items, Func<T, Task<TResult>> selector) 
+            => Task.WhenAll(items.Select(i => selector(i)));
 
         public static Task<T[]> ToArrayAsync<T>(this IEnumerable<Task<T>> items)
             => Task.WhenAll(items);
