@@ -28,6 +28,63 @@ namespace DestallMaterials.WheelProtection.Extensions.Tasks
                 }
             });
 
+        public static async Task<TOut> Then<TIn, TOut>(this Task<TIn> task, Func<TIn, Task<TOut>> asyncSelector)
+        {
+            var res1 = await task;
+            var res2 = await asyncSelector(res1);
+
+            return res2;
+        }
+
+        public static async Task<TOut> Then<TIn, TOut>(this Task<TIn> task, Func<TIn, TOut> selector)
+        {
+            var res1 = await task;
+            var res2 = selector(res1);
+
+            return res2;
+        }
+
+        public static async Task Then<TIn, TOut>(this Task<TIn> task, Action<TIn> action)
+        {
+            var res1 = await task;
+            action(res1);
+        }
+
+        public static async Task Then<TIn, TOut>(this Task<TIn> task, Func<TIn, Task<TIn>> asyncAction)
+        {
+            var res1 = await task;
+            await asyncAction(res1);
+        }
+
+
+
+        public static async Task<TOut> Then<TIn, TOut>(this Task task, Func<Task<TOut>> asyncSelector)
+        {
+            await task;
+            var res2 = await asyncSelector();
+
+            return res2;
+        }
+
+        public static async Task<TOut> Then<TOut>(this Task task, Func<TOut> selector)
+        {
+            await task;
+            var res2 = selector();
+
+            return res2;
+        }
+
+        public static async Task Then<TOut>(this Task task, Action action)
+        {
+            await task;
+            action();
+        }
+
+        public static async Task Then<TOut>(this Task task, Func<Task> asyncAction)
+        {
+            await task;
+            await asyncAction();
+        }
 
     }
 }
