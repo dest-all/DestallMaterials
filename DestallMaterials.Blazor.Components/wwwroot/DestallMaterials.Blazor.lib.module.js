@@ -63,17 +63,9 @@ window.X_elementDeviation = function (elemId, containerId) {
 }
 
 window.Y_scrollToFit = function (elemId, containerId) {
-    const elem = document.getElementById(elemId);
-    const container = document.getElementById(containerId);
+    const element = document.getElementById(elemId);
 
-    const rect = elem.getBoundingClientRect();
-
-    const deviation = Y_elementDeviation(elemId, containerId);
-    if (deviation > 0) {
-        container.scrollTo(0, rect.bottom);
-    } else if (deviation < 0) {
-        container.scrollTo(0, rect.top);
-    }
+    element.scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
 }
 
 window.setCssVariableValue = function (elemId, variableName, value) {
