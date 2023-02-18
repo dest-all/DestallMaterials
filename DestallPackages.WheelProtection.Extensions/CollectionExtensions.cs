@@ -48,5 +48,13 @@ namespace DestallMaterials.WheelProtection.Extensions.Collections
                 items.Remove(item);
             }
         }
+
+        public static void AddRange<T>(this ICollection<T> items, IEnumerable<T> newItems)
+        {
+            foreach (var item in newItems)
+            {
+                items.Add(item);
+            }
+        }
     }
 }
