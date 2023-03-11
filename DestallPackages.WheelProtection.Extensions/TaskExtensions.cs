@@ -44,6 +44,12 @@ namespace DestallMaterials.WheelProtection.Extensions.Tasks
             return res2;
         }
 
+        public static async Task Then<TIn>(this Task<TIn> task, Action<TIn> selector)
+        {
+            var res1 = await task;
+            selector(res1);
+        }
+
         public static async Task Then<TIn, TOut>(this Task<TIn> task, Action<TIn> action)
         {
             var res1 = await task;

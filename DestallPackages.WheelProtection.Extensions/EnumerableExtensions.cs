@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using DestallMaterials.WheelProtection.Extensions.Tasks;
+using System.Collections;
 
 namespace DestallMaterials.WheelProtection.Extensions.Enumerables
 {
@@ -187,6 +188,28 @@ namespace DestallMaterials.WheelProtection.Extensions.Enumerables
                 yield return item;
             }
             yield return itemToAppend;
+        }
+
+        public static Task<IOrderedEnumerable<T>> OrderByAsync<T, TSelector>(this IEnumerable<Task<T>> source, Func<T, TSelector> selector)
+            => Task.WhenAll(source).Then(items => items.OrderBy(selector));
+
+        public static Task<IOrderedEnumerable<T>> OrderByDescendingAsync<T, TSelector>(this IEnumerable<Task<T>> source, Func<T, TSelector> selector)
+            => Task.WhenAll(source).Then(items => items.OrderByDescending(selector));
+
+        public static IReadOnlyList<T> EnsureMaterialized<T>(this IEnumerable<T> source) => source as IReadOnlyList<T> ?? source.ToArray();
+
+        public static int MetAt<T>(this IEnumerable<T> items, Func<T, bool> stopWhen)
+        {
+            int i = 0;
+            foreach (var item in items) 
+            {
+                if (stopWhen(item)) 
+                {
+                    return i;
+                }
+                i++;
+            }
+            return -1;
         }
     }
 }

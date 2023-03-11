@@ -4,7 +4,7 @@
 
 @inherits BaseInput<bool>
 
-<MudCheckBox CheckedChanged="v => OnValueSet(v)" T="bool" Label="@Label" Disabled=Disabled Checked="Value" />
+<MudCheckBox CheckedChanged="v => OnValueSet(v)" T="bool" Label="@Label" Disabled=Disabled Checked="@Value" Class="@Class" />
 
 @code {
     void onClick(bool value)
@@ -12,4 +12,7 @@
         Value = value;
         OnValueSet(value);
     }
+
+    [Parameter]
+    public string Class { get; set; }
 }
