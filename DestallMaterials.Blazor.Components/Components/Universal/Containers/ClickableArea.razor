@@ -1,0 +1,15 @@
+﻿<div @onclick="OnClick">
+    @ChildContent
+</div>
+
+
+@code {
+
+    [Parameter]
+    [EditorRequired]
+    public Func<MouseEventArgs, Task> OnClick { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+}

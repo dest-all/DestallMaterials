@@ -65,7 +65,7 @@ window.X_elementDeviation = function (elemId, containerId) {
 window.Y_scrollToFit = function (elemId, containerId) {
     const element = document.getElementById(elemId);
 
-    element.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+    element.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 window.setCssVariableValue = function (elemId, variableName, value) {
