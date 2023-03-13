@@ -80,13 +80,13 @@ namespace DestallMaterials.WheelProtection.Extensions.Tasks
             return res2;
         }
 
-        public static async Task Then<TOut>(this Task task, Action action)
+        public static async Task Then(this Task task, Action action)
         {
             await task;
             action();
         }
 
-        public static async Task Then<TOut>(this Task task, Func<Task> asyncAction)
+        public static async Task Then(this Task task, Func<Task> asyncAction)
         {
             await task;
             await asyncAction();
