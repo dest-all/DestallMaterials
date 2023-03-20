@@ -2,13 +2,14 @@
 
 <PageTitle>Index</PageTitle>
 
+<MudBlazor.MudCheckBox @bind-Checked=BoundToWindow Label="Bound to window"/>
 
 <DestallMaterials.Blazor.Components.Universal.LoadedTable PortionSize="@_portionSize"
                                                           Source="async portion => Enumerable.Range(0, 1000).Skip((portion - 1) * _portionSize).Take(_portionSize).ToArray()"
                                                           TLineModel="int"
                                                           Context="line"
                                                           TableClass="table"
-                                                          BoundToWindow=true>
+                                                          BoundToWindow=@BoundToWindow>
     <Head>
     <td>Number</td>
     <td>Remainder 2</td>
@@ -27,4 +28,5 @@
 @code {
     const int _portionSize = 50;
 
+    bool BoundToWindow = false;
 }

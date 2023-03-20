@@ -118,7 +118,7 @@ else
         await LoadAnotherAsync();
     }
 
-    bool? _boundAsWindow = false;
+    bool? _boundAsWindow;
     IDisposable callback;
     protected override async Task OnParametersSetAsync()
     {
