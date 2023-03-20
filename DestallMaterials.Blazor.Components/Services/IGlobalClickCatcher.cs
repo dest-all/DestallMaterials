@@ -16,6 +16,11 @@ namespace DestallMaterials.Blazor.Services
             _onDisposed = onDisposed;
         }
 
+        public DisposableCallback(Action onDisposed)
+        {
+            _onDisposed = th => onDisposed();
+        }
+
         public void Dispose()
         {
             _onDisposed(this);

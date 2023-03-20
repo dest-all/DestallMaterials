@@ -86,3 +86,106 @@ window.disableDefaultHandling = function (elemId, eventType) {
     }
     elem.removeEventListener(eventType, elem[eventType]);
 }
+
+const gatherWindowScrollState = () => {
+    const height = window.innerHeight;
+    const width = window.innerWidth;
+
+    const scrolledVertically = elem.scrollY;
+    const scrolledHorizontally = elem.scrollX;
+
+    const maxVerticalScroll = elem.scrollHeight;
+    const maxHorizontalScroll = elem.scrollWidth;
+
+    return { height, width, scrolledVertically, scrolledHorizontally, maxVerticalScroll, maxHorizontalScroll };
+};
+
+const getWindowScrollState = () => {
+    const windowScrollState = {
+        height: window.innerHeight,
+        width: window.innerWidth,
+        scrolledVertically: window.screenY,
+        scrolledHorizontally: window.screenX,
+        maxVerticalScroll: window.innerHeight,
+        maxHorizontalScroll: window.innerWidth
+    };
+
+    return [
+        windowScrollState.height,
+        windowScrollState.width,
+        windowScrollState.scrolledVertically,
+        windowScrollState.scrolledHorizontally,
+        windowScrollState.maxVerticalScroll,
+        windowScrollState.maxHorizontalScroll,
+        0,
+        0
+    ];
+}
+
+
+const destallMaterials = {
+    sensors: {
+        scroll: {
+            subscribe: (elemId, service) => {
+
+                if (elemId === '__window') {
+                    const elem = window;
+                    const initialCallback = elem.onscroll || (() => { });
+                    const addedCallback = async () => {
+                        await service.invokeMethodAsync('ReactToScrollEventAsync',
+                            elemId,
+                            getWindowScrollState()
+                        );
+                    };
+
+                    window.onscroll = async () => {
+                        initialCallback();
+                        await addedCallback();
+                    };
+                }
+                else {
+                    const elem = document.getElementById(elemId);
+                    const formerOnScroll = elem.onscroll || (() => { });
+                    elem.onscroll = async () => {
+                        formerOnScroll();
+
+                        const rect = elem.getBoundingClientRect();
+
+                        const height = elem.clientHeight;
+                        const width = elem.clientWidth;
+
+                        const scrolledVertically = elem.scrollTop;
+                        const scrolledHorizontally = elem.scrollLeft;
+
+                        const maxVerticalScroll = elem.scrollHeight;
+                        const maxHorizontalScroll = elem.scrollWidth;
+
+                        await service.invokeMethodAsync('ReactToScrollEventAsync',
+                            elemId,
+                            [
+                                height,
+                                width,
+                                scrolledVertically,
+                                scrolledHorizontally,
+                                maxVerticalScroll,
+                                maxHorizontalScroll,
+                                rect.left,
+                                rect.top
+                            ]
+                        );
+                    }
+                }
+            }
+        }
+    },
+    uiManipulation: {
+        getBoundingRectangle: (elemId) => {
+            const elem = document.getElementById(elemId);
+            const r = elem.getBoundingClientRect();
+
+            return [r.top, r.bottom, r.left, r.right, r.width, r.height];
+        }
+    }
+};
+
+window.destallMaterials = destallMaterials;

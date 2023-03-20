@@ -1,24 +1,25 @@
 ﻿@page "/"
-@using DestallMaterials.Blazor.Components.Universal.Inputs
 
+<PageTitle>Index</PageTitle>
 
 
 <DestallMaterials.Blazor.Components.Universal.LoadedTable PortionSize="@_portionSize"
                                                           Source="async portion => Enumerable.Range(0, 1000).Skip((portion - 1) * _portionSize).Take(_portionSize).ToArray()"
                                                           TLineModel="int"
+                                                          Context="line"
                                                           TableClass="table"
-                                                          Context="line">
+                                                          BoundToWindow=true>
     <Head>
-        <td>Number</td>
-        <td>Remainder 2</td>
-        <td>Remainder 3</td>
-        <td>Remainder 4</td>
+    <td>Number</td>
+    <td>Remainder 2</td>
+    <td>Remainder 3</td>
+    <td>Remainder 4</td>
     </Head>
     <Line>
-        <td>Number</td>
-        <td>@(line % 2)</td>
-        <td>@(line % 3)</td>
-        <td>@(line % 4)</td>
+    <td>@line</td>
+    <td>@(line % 2)</td>
+    <td>@(line % 3)</td>
+    <td>@(line % 4)</td>
     </Line>
 </DestallMaterials.Blazor.Components.Universal.LoadedTable>
 

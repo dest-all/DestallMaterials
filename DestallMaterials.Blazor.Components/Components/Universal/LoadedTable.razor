@@ -1,0 +1,166 @@
+﻿@using DestallMaterials.Blazor.Services.UI;
+@typeparam TLineModel
+
+@inherits DisposableComponent
+
+@inject IScrollSensor scrollSensor
+@inject IUiManipulator ui
+
+@if (BoundToWindow)
+{
+    <table class="@ResultantTableClass" style="@TableStyle" id="@_tableId">
+        <thead>
+            @Head
+        </thead>
+        <tbody>
+            @foreach (var item in _items)
+            {
+                <tr>
+                    @Line(item)
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <table class="@ResultantTableClass" style="@TableStyle">
+        <thead>
+            @Head
+        </thead>
+    </table>
+    <div style="@ResultantContainerStyle" id="@_tableId" class="@ResultantContainerClass">
+        <table class="@ResultantTableClass" style="@TableStyle">
+            <thead style="visibility:hidden !important; display:table-footer-group">
+                @Head
+            </thead>
+            <tbody>
+                @foreach (var item in _items)
+                {
+                    <tr>
+                        @Line(item)
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    [EditorRequired]
+    public RenderFragment Head { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public RenderFragment<TLineModel> Line { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public Func<int, Task<IReadOnlyList<TLineModel>>> Source { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public int PortionSize { get; set; }
+
+    [Parameter]
+    public string TableClass { get; set; }
+    string ResultantTableClass => $"{TableClass} loaded-table";
+
+    [Parameter]
+    public string ContainerClass { get; set; }
+    string ResultantContainerClass => $"{ContainerClass} loaded-table-container";
+
+    [Parameter]
+    public string TableStyle { get; set; }
+
+    [Parameter]
+    public string ContainerStyle { get; set; }
+
+    [Parameter]
+    public bool BoundToWindow { get; set; } = false;
+
+    string ResultantContainerStyle => $"overflow:hidden; overflow-y: scroll; height: 800px; {ContainerStyle}";
+
+    readonly List<TLineModel> _items = new();
+
+    readonly string _tableId = Guid.NewGuid().ToString();
+
+    bool _reachedEnd = false;
+    int _loadedPages = 0;
+
+    bool _loading;
+    async Task LoadAnotherAsync()
+    {
+        if (!_reachedEnd)
+        {
+            _loading = true;
+            Console.WriteLine("Loading another portion of items.");
+            var newItems = await Source(++_loadedPages);
+            if (newItems.Any())
+            {
+                _items.AddRange(newItems);
+                StateHasChanged();
+            }
+            if (newItems.Count < PortionSize)
+            {
+                _reachedEnd = true;
+            }
+            await Task.Delay(100);
+            _loading = false;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await LoadAnotherAsync();
+    }
+
+    bool? _boundAsWindow = false;
+    IDisposable callback;
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+
+        if (_boundAsWindow == BoundToWindow)
+        {
+            return;
+        }
+        callback?.Dispose();
+        if (BoundToWindow)
+        {
+            callback = await scrollSensor.SubscribeForWindowScrollAsync(async scrollState =>
+            {
+                if (_loading)
+                {
+                    return;
+                }
+                var itemRectangle = await ui.GetElementBoungingRectangle(_tableId);
+                if ((itemRectangle.Bottom - scrollState.VisibleHeight) / scrollState.VisibleHeight < 0.15)
+                {
+                    await LoadAnotherAsync();
+                }
+            });
+        }
+        else
+        {
+            callback = await scrollSensor.SubscribeForElementScrollAsync(_tableId, async elementScrollState =>
+            {
+                if (_loading)
+                {
+                    return;
+                }
+                if ((elementScrollState.ScrolledVertically + elementScrollState.VisibleHeight) / (elementScrollState.MaxVerticalScroll) >= 0.85)
+                {
+                    await LoadAnotherAsync();
+                }
+            });
+
+        }
+
+        BindToLifetime(callback);
+
+    }
+}

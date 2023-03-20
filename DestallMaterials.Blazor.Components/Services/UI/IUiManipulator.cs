@@ -8,6 +8,16 @@ using System.Threading.Tasks;
 
 namespace DestallMaterials.Blazor.Services.UI
 {
+    public struct ElementBoungingRectangle
+    {
+        public double Top { get; init; }
+        public double Left { get; init; }
+        public double Right { get; init; }
+        public double Bottom { get; init; }
+
+        public double Width { get; init; }
+        public double Height { get; init; }
+    }
     public interface IUiManipulator
     {
         Task<uint> Y_Deviation(string itemId, string containerId);
@@ -19,5 +29,7 @@ namespace DestallMaterials.Blazor.Services.UI
         Task SetCssVariableValue(string elementId, string variableName, string value);
         Task<double> GetItemScroll_Y(string elementId);
         Task DisableDefaultEventHandling(string elementId, string eventType);
+
+        Task<ElementBoungingRectangle> GetElementBoungingRectangle(string elementId);
     }
 }

@@ -63,5 +63,23 @@ namespace DestallMaterials.Blazor.Services.UI
             const string command = "disableDefaultHandling";
             await _runtime.InvokeVoidAsync(command, elementId, eventType);
         }
+
+        public async Task<ElementBoungingRectangle> GetElementBoungingRectangle(string elementId)
+        {
+            const string command = "destallMaterials.uiManipulation.getBoundingRectangle";
+            var numbers = await _runtime.InvokeAsync<double[]>(command, elementId);
+
+            var result = new ElementBoungingRectangle
+            {
+                Top = numbers[0],
+                Bottom = numbers[1],
+                Left = numbers[2],
+                Right = numbers[3],
+                Width = numbers[4],
+                Height = numbers[5]
+            };
+
+            return result;
+        }
     }
 }
