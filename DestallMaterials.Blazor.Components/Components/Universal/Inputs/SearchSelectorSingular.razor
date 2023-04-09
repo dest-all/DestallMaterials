@@ -41,12 +41,16 @@
     [Parameter]
     public string Class { get; set; }
 
+    [Parameter]
+    public Action OnClear { get; set; } = () => { };
+
     string cssClass => $"search-selector-singular {Class}";
 
     void Clear()
     {
         Value = default;
         OnValueSet(Value);
+        OnClear();
     }
 
 }
