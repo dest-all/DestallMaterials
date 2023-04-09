@@ -81,6 +81,28 @@ else
     [Parameter]
     public bool BoundToWindow { get; set; } = false;
 
+    [Parameter]
+    public double LoadAtScrollRatio { get; set; } = 0.25;
+
+    public void AddInFront(IEnumerable<TLineModel> items)
+    {
+        _items.InsertRange(0, items);
+        StateHasChanged();
+    }
+
+    public void Remove(IEnumerable<TLineModel> items)
+    {
+        _items.RemoveAll(one => items.Contains(one));
+        StateHasChanged();
+    }
+
+    public async Task RefreshAsync()
+    {
+        _items.Clear();
+        await LoadAnotherAsync();
+        StateHasChanged();
+    }
+
     string ResultantContainerStyle => $"overflow:hidden; overflow-y: scroll; height: 800px; {ContainerStyle}";
 
     readonly List<TLineModel> _items = new();
@@ -96,7 +118,6 @@ else
         if (!_reachedEnd)
         {
             _loading = true;
-            Console.WriteLine("Loading another portion of items.");
             var newItems = await Source(++_loadedPages);
             if (newItems.Any())
             {
@@ -138,7 +159,7 @@ else
                     return;
                 }
                 var itemRectangle = await ui.GetElementBoungingRectangle(_tableId);
-                if ((itemRectangle.Bottom - scrollState.VisibleHeight) / scrollState.VisibleHeight < 0.15)
+                if ((itemRectangle.Bottom - scrollState.VisibleHeight) / scrollState.VisibleHeight < LoadAtScrollRatio)
                 {
                     await LoadAnotherAsync();
                 }
@@ -152,7 +173,7 @@ else
                 {
                     return;
                 }
-                if ((elementScrollState.ScrolledVertically + elementScrollState.VisibleHeight) / (elementScrollState.MaxVerticalScroll) >= 0.85)
+                if ((elementScrollState.ScrolledVertically + elementScrollState.VisibleHeight) / (elementScrollState.MaxVerticalScroll) >= (1 - LoadAtScrollRatio))
                 {
                     await LoadAnotherAsync();
                 }

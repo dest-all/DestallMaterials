@@ -9,8 +9,15 @@ public class DisposableComponent : ComponentBase, IDisposable
 
     public void Dispose()
     {
+        BeforeDispose();
         BoundItems.Dispose();
     }
+
+    protected virtual void BeforeDispose()
+    {
+        
+    }
+
 
     protected void BindToLifetime(IDisposable disposable) => BoundItems.Add(disposable);
 }

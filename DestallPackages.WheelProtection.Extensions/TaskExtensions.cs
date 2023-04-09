@@ -92,5 +92,8 @@ namespace DestallMaterials.WheelProtection.Extensions.Tasks
             await asyncAction();
         }
 
+        public static void Forget(this Task _) 
+        {
+        }
     }
 }
