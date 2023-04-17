@@ -1,5 +1,6 @@
 ﻿@page "/"
 
+
 <PageTitle>Index</PageTitle>
 
 <MudBlazor.MudCheckBox @bind-Checked=BoundToWindow Label="Bound to window"/>
@@ -9,7 +10,8 @@
                                                           TLineModel="int"
                                                           Context="line"
                                                           TableClass="table"
-                                                          BoundToWindow=@BoundToWindow>
+                                                          BoundToWindow=@BoundToWindow
+                                                          OnLineRightClick="Clicked">
     <Head>
     <td>Number</td>
     <td>Remainder 2</td>
@@ -29,4 +31,9 @@
     const int _portionSize = 50;
 
     bool BoundToWindow = false;
+
+    async Task Clicked(int line)
+    {
+        Console.WriteLine($"Clicked {line}...");
+    }
 }

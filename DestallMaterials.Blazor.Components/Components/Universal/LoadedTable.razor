@@ -1,4 +1,5 @@
-﻿@using DestallMaterials.Blazor.Services.UI;
+﻿@using DestallMaterials.Blazor.Components.Universal.Containers
+@using DestallMaterials.Blazor.Services.UI;
 @typeparam TLineModel
 
 @inherits DisposableComponent
@@ -6,20 +7,26 @@
 @inject IScrollSensor scrollSensor
 @inject IUiManipulator ui
 
+@{
+    RenderFragment body = @<tbody>
+        @foreach (var item in _items)
+        {
+            <RenderPiece @ref=_renderPieces[item] ReferenceAction="r => _renderPieces[item] = r">
+                <tr @oncontextmenu="async () => await OnLineRightClickAsync(item)" @oncontextmenu:preventDefault="true">
+                        @Line(item)
+                </tr>
+            </RenderPiece>
+        }
+    </tbody>;
+}
+
 @if (BoundToWindow)
 {
     <table class="@ResultantTableClass" style="@TableStyle" id="@_tableId">
         <thead>
             @Head
         </thead>
-        <tbody>
-            @foreach (var item in _items)
-            {
-                <tr>
-                    @Line(item)
-                </tr>
-            }
-        </tbody>
+        @body
     </table>
 }
 else
@@ -34,14 +41,7 @@ else
             <thead style="visibility:hidden !important; display:table-footer-group">
                 @Head
             </thead>
-            <tbody>
-                @foreach (var item in _items)
-                {
-                    <tr>
-                        @Line(item)
-                    </tr>
-                }
-            </tbody>
+            @body
         </table>
     </div>
 }
@@ -84,6 +84,18 @@ else
     [Parameter]
     public double LoadAtScrollRatio { get; set; } = 0.25;
 
+    [Parameter]
+    public Func<TLineModel, RenderPiece, Task> OnLineRightClick { get; set; }
+
+    async Task OnLineRightClickAsync(TLineModel item)
+    {
+        if (OnLineRightClick is not null)
+        {
+            var renderPiece = _renderPieces[item];
+            await OnLineRightClick(item, renderPiece);
+        }
+    }
+
     public void AddInFront(IEnumerable<TLineModel> items)
     {
         _items.InsertRange(0, items);
@@ -108,6 +120,8 @@ else
     readonly List<TLineModel> _items = new();
 
     readonly string _tableId = Guid.NewGuid().ToString();
+
+    Dictionary<TLineModel, RenderPiece> _renderPieces = new();
 
     bool _reachedEnd = false;
     int _loadedPages = 0;

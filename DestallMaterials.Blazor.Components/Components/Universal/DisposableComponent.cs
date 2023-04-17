@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace DestallMaterials.Blazor.Components.Universal;
 
+
 public class DisposableComponent : ComponentBase, IDisposable
 {
     DisposableList<IDisposable> BoundItems = new DisposableList<IDisposable>();
