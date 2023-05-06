@@ -1,6 +1,9 @@
 ﻿@using DestallMaterials.Blazor.Components.Universal.Containers
 @using DestallMaterials.Blazor.Services.UI;
-@typeparam TLineModel
+@using DestallMaterials.WheelProtection.DataStructures;
+@using DestallMaterials.WheelProtection.Extensions.Tasks;
+
+@typeparam TLineModel where TLineModel : class
 
 @inherits DisposableComponent
 
@@ -9,11 +12,12 @@
 
 @{
     RenderFragment body = @<tbody>
-        @foreach (var item in _items)
+        @for (int i = 0; i < _items.Count; i++)
         {
-            <RenderPiece @ref=_renderPieces[item] ReferenceAction="r => _renderPieces[item] = r">
+            var item = _items[i];
+            <RenderPiece ReferenceAction="r => item.RenderPiece = r">
                 <tr @oncontextmenu="async () => await OnLineRightClickAsync(item)" @oncontextmenu:preventDefault="true">
-                        @Line(item)
+                    @Line(item.Model)
                 </tr>
             </RenderPiece>
         }
@@ -87,24 +91,40 @@ else
     [Parameter]
     public Func<TLineModel, RenderPiece, Task> OnLineRightClick { get; set; }
 
-    async Task OnLineRightClickAsync(TLineModel item)
+    internal void FireLineChanged(TLineModel line, TLineModel newValue)
     {
-        if (OnLineRightClick is not null)
+        var item = _items.FirstOrDefault(i => _equalityComparer.Equals(i.Model, line));
+        if (item is null)
         {
-            var renderPiece = _renderPieces[item];
-            await OnLineRightClick(item, renderPiece);
+            return;
         }
+        if (newValue is null)
+        {
+            if (_items.Remove(item))
+            {
+                StateHasChanged();
+            }
+            return;
+        }
+        item.Model = newValue;
+        item.RenderPiece.Refresh();
+    }
+
+    async Task OnLineRightClickAsync(ModelRenderPiecePair<TLineModel> item)
+    {
+        var renderPiece = item.RenderPiece;
+        await OnLineRightClick(item.Model, renderPiece);
     }
 
     public void AddInFront(IEnumerable<TLineModel> items)
     {
-        _items.InsertRange(0, items);
+        _items.InsertRange(0, items.Select(i => new ModelRenderPiecePair<TLineModel>(i)));
         StateHasChanged();
     }
 
     public void Remove(IEnumerable<TLineModel> items)
     {
-        _items.RemoveAll(one => items.Contains(one));
+        _items.RemoveAll(one => items.Any(i => _equalityComparer.Equals(i, one.Model)));
         StateHasChanged();
     }
 
@@ -117,11 +137,9 @@ else
 
     string ResultantContainerStyle => $"overflow:hidden; overflow-y: scroll; height: 800px; {ContainerStyle}";
 
-    readonly List<TLineModel> _items = new();
+    readonly List<ModelRenderPiecePair<TLineModel>> _items = new();
 
     readonly string _tableId = Guid.NewGuid().ToString();
-
-    Dictionary<TLineModel, RenderPiece> _renderPieces = new();
 
     bool _reachedEnd = false;
     int _loadedPages = 0;
@@ -135,7 +153,7 @@ else
             var newItems = await Source(++_loadedPages);
             if (newItems.Any())
             {
-                _items.AddRange(newItems);
+                _items.AddRange(newItems.Select(ni => new ModelRenderPiecePair<TLineModel>(ni)));
                 StateHasChanged();
             }
             if (newItems.Count < PortionSize)
@@ -147,11 +165,8 @@ else
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await base.OnInitializedAsync();
-        await LoadAnotherAsync();
-    }
+    protected override Task OnInitializedAsync()
+        => base.OnInitializedAsync().Then(LoadAnotherAsync);
 
     bool? _boundAsWindow;
     IDisposable callback;
@@ -198,4 +213,9 @@ else
         BindToLifetime(callback);
 
     }
+
+    static readonly ByReferenceEqualityComparer<TLineModel> _equalityComparer = ByReferenceEqualityComparer<TLineModel>.Instance;
+
+    static readonly Func<TLineModel, TLineModel, bool> LinesAreEqual = typeof(TLineModel) == typeof(string) ?
+        (s1, s2) => s1.Equals(s2) : (s1, s2) => LinesAreEqual(s1, s2);
 }

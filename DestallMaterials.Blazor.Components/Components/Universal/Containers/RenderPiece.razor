@@ -16,9 +16,9 @@
     [Parameter]
     public Action<RenderPiece> ReferenceAction { get; set; }
 
-    public void Refresh(bool show)
+    public void Refresh(bool? show = null)
     {
-        Show = show;
+        Show = show ?? Show;
         StateHasChanged();
     }
 

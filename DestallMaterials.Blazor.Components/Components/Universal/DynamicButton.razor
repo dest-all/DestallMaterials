@@ -1,0 +1,92 @@
+﻿@using Client.Web.View.Components.Configurations;
+@using DestallMaterials.Blazor.Components.Universal;
+@using MudBlazor;
+
+@inherits DisposableComponent 
+
+@implements IExposedReference<DynamicButton>
+
+<MudBlazor.MudItem>
+    @{
+        string style = Button.Hidden ? "visibility:hidden" : "";
+    }
+    @if (Success == true)
+    {
+        <MudBlazor.MudIconButton Icon="@(MudBlazor.Icons.Material.Filled.Done)" Size="MudBlazor.Size.Medium" Color="MudBlazor.Color.Success" />
+    }
+    else if (Success == false)
+    {
+        <MudBlazor.MudIconButton Icon="@(MudBlazor.Icons.Material.Filled.Close)" Size="MudBlazor.Size.Medium" Color="MudBlazor.Color.Error" />
+    }
+    else if (Progress)
+    {
+        <MudBlazor.MudProgressCircular Size="MudBlazor.Size.Medium" Indeterminate=true />
+    }
+    else
+    {
+        <MudButton ButtonType=MudBlazor.ButtonType.Button
+                         Disabled=@Button.Disabled
+                         OnClick="@OnClick"
+                         StartIcon="@(Button.Icon)"
+                         Size="MudBlazor.Size.Medium"
+                         Color="Button.Color"
+                         Style="@style">
+
+                         @Button.ActionName
+
+                     </MudButton>
+    }
+</MudBlazor.MudItem>
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public ButtonConfiguration Button { get; set; }
+
+    public Task PressAsync() => OnClick();
+
+    [Parameter]
+    public Action<DynamicButton> ReferenceAction { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ReferenceAction(this);
+    }
+
+    readonly string id = Guid.NewGuid().ToString();
+
+    async Task OnClick()
+    {
+        if (Button.Callback is null)
+        {
+            return;
+        }
+        Progress = true;
+        StateHasChanged();
+        try
+        {
+            await Button.Callback();
+            Success = true;
+            StateHasChanged();
+            await Task.Delay(StateShowPeriod);
+        }
+        catch (Exception ex)
+        {
+            Success = false;
+            StateHasChanged();
+            await Task.Delay(StateShowPeriod);
+        }
+        finally
+        {
+            StateHasChanged();
+            Success = null;
+            Progress = false;
+        }
+    }
+
+    bool Progress { get; set; }
+
+    bool? Success { get; set; }
+
+    static readonly TimeSpan StateShowPeriod = TimeSpan.FromMilliseconds(1000);
+}

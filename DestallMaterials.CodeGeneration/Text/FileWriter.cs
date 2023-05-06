@@ -1,10 +1,6 @@
 ﻿using DestallMaterials.CodeGeneration.Environment;
-using DestallMaterials.WheelProtection.Extensions.String;
+using DestallMaterials.WheelProtection.Extensions.Strings;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 

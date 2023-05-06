@@ -3,21 +3,11 @@ using Buildalyzer;
 using Buildalyzer.Workspaces;
 using DestallMaterials.CodeGeneration.Environment;
 using DestallMaterials.CodeGeneration.Text;
-using DestallMaterials.WheelProtection.Extensions;
-using DestallMaterials.WheelProtection.Extensions.Enumerable;
-using DestallMaterials.WheelProtection.Extensions.String;
+using DestallMaterials.WheelProtection.Extensions.Enumerables;
+using DestallMaterials.WheelProtection.Extensions.Strings;
 using Microsoft.AspNetCore.Components;
 using Microsoft.CodeAnalysis;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace DestallMaterials.CodeGeneration
 {

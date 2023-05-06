@@ -10,5 +10,5 @@ public interface IOuterRefreshable
 public interface IExposedReference<T>
     where T : IComponent, IExposedReference<T>
 {
-    Action<T> ReferenceAction { get; set; }
+    Action<T> ReferenceAction { set; }
 }

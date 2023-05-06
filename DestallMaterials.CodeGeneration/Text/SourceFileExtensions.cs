@@ -1,5 +1,5 @@
 ﻿using DestallMaterials.CodeGeneration.Extensions;
-using DestallMaterials.WheelProtection.Extensions.String;
+using DestallMaterials.WheelProtection.Extensions.Strings;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Text.RegularExpressions;

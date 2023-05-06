@@ -1,30 +1,32 @@
-﻿@page "/"
+﻿@using DestallMaterials.Blazor.Components.Universal;
+@using DestallMaterials.Blazor.Components.Universal.Containers;
+
+@page "/"
 
 
 <PageTitle>Index</PageTitle>
 
-<MudBlazor.MudCheckBox @bind-Checked=BoundToWindow Label="Bound to window"/>
+<MudBlazor.MudCheckBox @bind-Checked=BoundToWindow Label="Bound to window" />
 
-<DestallMaterials.Blazor.Components.Universal.LoadedTable PortionSize="@_portionSize"
-                                                          Source="async portion => Enumerable.Range(0, 1000).Skip((portion - 1) * _portionSize).Take(_portionSize).ToArray()"
-                                                          TLineModel="int"
-                                                          Context="line"
-                                                          TableClass="table"
-                                                          BoundToWindow=@BoundToWindow
-                                                          OnLineRightClick="Clicked">
+<EditableLoadedTable PortionSize="@_portionSize"
+                     Source="async portion => Enumerable.Range(0, 1000).Skip((portion - 1) * _portionSize).Take(_portionSize).Select(n=>new StringContainer(n.ToString())).ToArray()"
+                     TLineModel="StringContainer"
+                     Context="line"
+                     TableClass="table"
+                     BoundToWindow=@BoundToWindow
+                     ComputeHashCode="s=>s.String.Select(c => (int)c).Sum()"
+                     Save="async s => {Console.WriteLine(s.String); return new StringContainer(s.String + 1.ToString());}">
+
     <Head>
-    <td>Number</td>
-    <td>Remainder 2</td>
-    <td>Remainder 3</td>
-    <td>Remainder 4</td>
+        <td>Number</td>
     </Head>
     <Line>
-    <td>@line</td>
-    <td>@(line % 2)</td>
-    <td>@(line % 3)</td>
-    <td>@(line % 4)</td>
+        <td>@line</td>
     </Line>
-</DestallMaterials.Blazor.Components.Universal.LoadedTable>
+    <EditableLine>
+        <td @onclick="() => line.String = line.String + 0.ToString()">@line</td>
+    </EditableLine>
+</EditableLoadedTable>
 
 
 @code {
@@ -32,8 +34,18 @@
 
     bool BoundToWindow = false;
 
-    async Task Clicked(int line)
+    class StringContainer
     {
-        Console.WriteLine($"Clicked {line}...");
+        public string String { get; set; } = "";
+
+        public StringContainer(string @string)
+        {
+            String = @string;
+        }
+
+        public override string ToString() => String;
+
     }
+
 }
+

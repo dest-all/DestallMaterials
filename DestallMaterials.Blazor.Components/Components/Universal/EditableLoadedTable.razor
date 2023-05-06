@@ -1,0 +1,275 @@
+﻿@using Client.Web.View.Components.Configurations;
+@using DestallMaterials.Blazor.Components.Universal.Containers
+@using DestallMaterials.Blazor.Services.UI;
+@using DestallMaterials.WheelProtection.DataStructures;
+@using DestallMaterials.WheelProtection.Extensions.Collections;
+@using DestallMaterials.WheelProtection.Extensions.Dictionaries;
+@using DestallMaterials.WheelProtection.Extensions.Enumerables;
+@using DestallMaterials.WheelProtection.Extensions.Objects;
+@using MudBlazor;
+
+@typeparam TLineModel where TLineModel : class
+
+@{
+    bool canDoAnything = !Disabled && (Save is not null || Delete is not null || AdditionalActions.HasContent());
+
+    RenderFragment<EditableLineManager<TLineModel>> lineFragment;
+
+    if (canDoAnything)
+    {
+        lineFragment = (EditableLineManager<TLineModel> lineManager) =>
+        {
+            @if (lineManager.IsBeingEdited)
+            {
+                return EditableLine(lineManager.CurrentValue);
+            }
+            else
+            {
+                return Line(lineManager.CurrentValue);
+            }
+        };  
+    }
+    else
+    {
+        lineFragment = (EditableLineManager<TLineModel> lineManager) => Line(lineManager.CurrentValue);
+    }
+}
+
+<LoadedTable BoundToWindow=BoundToWindow
+             ContainerClass="@ContainerClass"
+             ContainerStyle="@ContainerStyle"
+             Context="line"
+             LoadAtScrollRatio="LoadAtScrollRatio"
+             OnLineRightClick=onLineRightClickAsync
+             PortionSize="PortionSize"
+             Source="LoadAnother"
+             TableClass="@TableClass"
+             TableStyle="@TableStyle"
+             TLineModel="TLineModel"
+             @ref=_table>
+    <Line>
+        @{
+            var lineManager = GetManager(line);
+            bool modified = lineManager.CheckSum != ComputeHashCode(line);
+        }
+
+        @if (canDoAnything)
+        {
+            <td>
+                @if (Save is not null)
+                {
+                    var saveButton = new ButtonConfiguration
+                    {
+                        ActionName = "Save",
+                        Color = Color.Info,
+                        Disabled = !modified,
+                        Icon = Icons.Material.Filled.Save,
+                        Callback = async () =>
+                        {
+                            var saveResult = await Save(line);
+
+                            lineManager.PreviousValue = line;
+                            lineManager.CurrentValue = saveResult;
+
+                            lineManager.CheckSum = ComputeHashCode(saveResult);
+
+                            @*_hashCodes[line] = ComputeHashCode(saveResult);*@
+                            _table.FireLineChanged(line, saveResult);
+                        }
+                    };
+                    <DynamicButton Button="saveButton" ReferenceAction="b => lineManager.Save = b.PressAsync" />
+                }
+
+                @if (Delete is not null)
+                {
+                    var deleteButton = new ButtonConfiguration
+                    {
+                        ActionName = "Delete",
+                        Color = Color.Error,
+                        Disabled = true,
+                        Icon = Icons.Material.Filled.Delete,
+                        Callback = async () =>
+                        {
+                            await Delete(line);
+                            _lines.Remove(lineManager);
+                            _table.FireLineChanged(line, null);
+                        }
+                    };
+                    <DynamicButton Button="deleteButton" ReferenceAction="b => lineManager.Delete = b.PressAsync" />
+                }
+                @foreach (var action in AdditionalActions)
+                {
+                    <DynamicButton Button="action" />
+                }
+            </td>
+        }
+        @if (CanRevert)
+        {
+            string style = !modified ? "visibility:hidden" : "";
+            <MudIconButton Disabled="!modified" Icon="@Icons.Material.Filled.RepeatOne" Style=@style />
+        }
+        @lineFragment(lineManager)
+    </Line>
+
+    <Head>
+        @if (canDoAnything)
+        {
+            <td>
+                @if (CreateNew is not null && Save is not null)
+                {
+                    var addAnother = () =>
+                    {
+                        var newItem = CreateNew();
+                        _table.AddInFront(newItem.Yield());
+                    };
+
+                    <MudIconButton OnClick="addAnother" Color=@Color.Info Disabled=false Icon=@Icons.Material.Filled.Add />
+                }
+            </td>
+        }
+        @Head
+    </Head>
+
+</LoadedTable>
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public RenderFragment Head { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public RenderFragment<TLineModel> Line { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public Func<int, Task<IReadOnlyList<TLineModel>>> Source { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public int PortionSize { get; set; }
+
+    [Parameter]
+    public string TableClass { get; set; }
+    string ResultantTableClass => $"{TableClass} loaded-table";
+
+    [Parameter]
+    public string ContainerClass { get; set; }
+    string ResultantContainerClass => $"{ContainerClass} loaded-table-container";
+
+    [Parameter]
+    public string TableStyle { get; set; }
+
+    [Parameter]
+    public string ContainerStyle { get; set; }
+
+    [Parameter]
+    public bool BoundToWindow { get; set; } = false;
+
+    [Parameter]
+    public double LoadAtScrollRatio { get; set; } = 0.25;
+
+    [Parameter]
+    [EditorRequired]
+    public RenderFragment<TLineModel> EditableLine { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public Func<TLineModel, int> ComputeHashCode { get; set; }
+
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    [Parameter]
+    public IEnumerable<ButtonConfiguration> AdditionalActions { get; set; } = Enumerable.Empty<ButtonConfiguration>();
+
+    [Parameter]
+    public Func<TLineModel> CreateNew { get; set; }
+
+    [Parameter]
+    public Func<TLineModel, Task<TLineModel>> Save { get; set; }
+
+    [Parameter]
+    public Func<TLineModel, Task> Delete { get; set; }
+
+    [Parameter]
+    public bool SaveOnSwitch { get; set; }
+
+    [Parameter]
+    public Func<TLineModel, TLineModel> Copy { get; set; }
+
+    public void FireLineChanged(TLineModel line, TLineModel newLineValue)
+    {
+        var manager = GetManager(line);
+        if (newLineValue is null)
+        {
+            _lines.Remove(manager);
+        }
+        else
+        {
+            manager.PreviousValue = manager.CurrentValue;
+            manager.CurrentValue = newLineValue;
+        }
+        _table.FireLineChanged(line, newLineValue);
+    }
+
+    HashSet<EditableLineManager<TLineModel>> _lines;
+    IEqualityComparer<EditableLineManager<TLineModel>> _equalityComparer;
+
+    LoadedTable<TLineModel> _table;
+
+    EditableLineManager<TLineModel> GetManager(TLineModel line) => _lines.First(l => LinesAreEqual(l.CurrentValue, line));
+
+    async Task onLineRightClickAsync(TLineModel line, RenderPiece renderPiece)
+    {
+        var manager = GetManager(line);
+        await toggleEdited(manager);
+        renderPiece.Refresh();
+    }
+
+    async ValueTask toggleEdited(EditableLineManager<TLineModel> item, bool? targetState = null)
+    {
+        bool edited = item.IsBeingEdited;
+        if (edited == targetState)
+        {
+            return;
+        }
+        item.IsBeingEdited = !item.IsBeingEdited;
+        if (edited)
+        {
+            if (SaveOnSwitch && Save is not null)
+            {
+                await Save(item.CurrentValue);
+            }
+        }
+    }
+
+    async Task<IReadOnlyList<TLineModel>> LoadAnother(int page)
+    {
+        var items = await Source(page);
+        var newLines = items.Select(i => new EditableLineManager<TLineModel>(i, ComputeHashCode(i)));
+        _lines.AddRange(newLines);
+        return items;
+    }
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        _equalityComparer = new DelegatingEqualityComparer<EditableLineManager<TLineModel>>
+        {
+            AreEqual = (m1, m2) => LinesAreEqual(m1.CurrentValue, m2.CurrentValue),
+            ComputeHashCode = m => ComputeHashCode(m.CurrentValue)
+        };
+
+        if (_lines is null)
+        {
+            _lines = new(_equalityComparer);
+        }
+    }
+
+    static readonly Func<TLineModel, TLineModel, bool> LinesAreEqual = typeof(TLineModel) == typeof(string) ?
+        (s1, s2) => s1.Equals(s2) : (s1,s2) => object.ReferenceEquals(s1, s2);
+
+    bool CanRevert => Copy is not null;
+
+}

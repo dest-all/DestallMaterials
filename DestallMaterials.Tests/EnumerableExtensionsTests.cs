@@ -1,4 +1,4 @@
-using DestallMaterials.WheelProtection.Extensions.Enumerable;
+using DestallMaterials.WheelProtection.Extensions.Enumerables;
 
 namespace DestallMaterials.Tests
 {

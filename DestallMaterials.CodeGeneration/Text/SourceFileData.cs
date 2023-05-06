@@ -1,9 +1,4 @@
-﻿using DestallMaterials.WheelProtection.Extensions.String;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using DestallMaterials.WheelProtection.Extensions.Strings;
 
 namespace DestallMaterials.CodeGeneration.Text
 {

@@ -36,6 +36,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\DestallMaterials.DataStructures\DestallMaterials.WheelProtection.DataStructures.csproj" />
 		<ProjectReference Include="..\DestallPackages.WheelProtection.Extensions\DestallMaterials.WheelProtection.Extensions.csproj" />
 	</ItemGroup>
 
