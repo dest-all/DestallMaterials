@@ -9,9 +9,9 @@ namespace DestallMaterials.WheelProtection.Caching
         public abstract void InvalidateCache();
 
 
-        public static Cacher<TIn, TOut> Create<TIn, TOut>(Func<TIn, TOut> source, Func<TIn, CachingSettings> getCachingSettings, Func<TIn, int> computeCheckSum)
+        public static Cacher<TIn, TOut> Create<TIn, TOut>(Func<TIn, TOut> source, Func<TIn, CachingSettings> getCachingSettings, Func<TIn, int> ComputeChecksum)
         {
-            var result = new Cacher<TIn, TOut>(source, computeCheckSum, getCachingSettings);
+            var result = new Cacher<TIn, TOut>(source, ComputeChecksum, getCachingSettings);
             return result;
         }
 
@@ -29,16 +29,16 @@ namespace DestallMaterials.WheelProtection.Caching
 
         IDictionary<TIn, CachedValue<TOut>> _caches;
 
-        readonly Func<TIn, int> _computeCheckSum;
+        readonly Func<TIn, int> _ComputeChecksum;
 
-        public Cacher(Func<TIn, TOut> source, Func<TIn, int> computeCheckSum, Func<TIn, CachingSettings> getCachingSettings)
+        public Cacher(Func<TIn, TOut> source, Func<TIn, int> ComputeChecksum, Func<TIn, CachingSettings> getCachingSettings)
         {
             _getCachingSettings = getCachingSettings;
             _source = source;
 
-            _computeCheckSum = computeCheckSum;
+            _ComputeChecksum = ComputeChecksum;
 
-            _caches = new ConcurrentDictionary<TIn, CachedValue<TOut>>(new ByChecksumEqualityComparer(computeCheckSum));
+            _caches = new ConcurrentDictionary<TIn, CachedValue<TOut>>(new ByChecksumEqualityComparer(ComputeChecksum));
         }
 
         public void InvalidateCache(TIn param)
@@ -94,7 +94,7 @@ namespace DestallMaterials.WheelProtection.Caching
             {
                 _caches = new ConcurrentDictionary<TIn, CachedValue<TOut>>(
                     _caches.Where(c => c.Value.ValidUntil > DateTime.UtcNow).Take(capacity),
-                    new ByChecksumEqualityComparer(_computeCheckSum)
+                    new ByChecksumEqualityComparer(_ComputeChecksum)
                 );
             }
         }

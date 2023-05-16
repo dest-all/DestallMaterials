@@ -50,7 +50,7 @@
     <Line>
         @{
             var lineManager = GetManager(line);
-            bool modified = lineManager.CheckSum != ComputeHashCode(line);
+            bool modified = lineManager.CheckSum != ComputeChecksum(line);
         }
 
         @if (canDoAnything)
@@ -60,7 +60,7 @@
                 {
                     var saveButton = new ButtonConfiguration
                     {
-                        ActionName = "Save",
+                        ActionName = "",
                         Color = Color.Info,
                         Disabled = !modified,
                         Icon = Icons.Material.Filled.Save,
@@ -71,10 +71,15 @@
                             lineManager.PreviousValue = line;
                             lineManager.CurrentValue = saveResult;
 
-                            lineManager.CheckSum = ComputeHashCode(saveResult);
+                            lineManager.CheckSum = ComputeChecksum(saveResult);
+
+                            lineManager.NewlyAdded = false;
+
+                            lineManager.IsBeingEdited = false;
 
                             @*_hashCodes[line] = ComputeHashCode(saveResult);*@
                             _table.FireLineChanged(line, saveResult);
+
                         }
                     };
                     <DynamicButton Button="saveButton" ReferenceAction="b => lineManager.Save = b.PressAsync" />
@@ -84,13 +89,16 @@
                 {
                     var deleteButton = new ButtonConfiguration
                     {
-                        ActionName = "Delete",
+                        ActionName = "",
                         Color = Color.Error,
-                        Disabled = true,
+                        Disabled = lineManager.NewlyAdded,
                         Icon = Icons.Material.Filled.Delete,
                         Callback = async () =>
                         {
                             await Delete(line);
+                        },
+                        AfterSuccess = () =>
+                        {
                             _lines.Remove(lineManager);
                             _table.FireLineChanged(line, null);
                         }
@@ -114,13 +122,18 @@
     <Head>
         @if (canDoAnything)
         {
-            <td>
+            <td style="width:50px">
                 @if (CreateNew is not null && Save is not null)
                 {
                     var addAnother = () =>
                     {
                         var newItem = CreateNew();
                         _table.AddInFront(newItem.Yield());
+                        _lines.Add(new EditableLineManager<TLineModel>(newItem, ComputeChecksum(newItem))
+                        {
+                            NewlyAdded = true,
+                            IsBeingEdited = true
+                        });
                     };
 
                     <MudIconButton OnClick="addAnother" Color=@Color.Info Disabled=false Icon=@Icons.Material.Filled.Add />
@@ -175,7 +188,7 @@
 
     [Parameter]
     [EditorRequired]
-    public Func<TLineModel, int> ComputeHashCode { get; set; }
+    public Func<TLineModel, int> ComputeChecksum { get; set; }
 
     [Parameter]
     public bool Disabled { get; set; }
@@ -247,7 +260,7 @@
     async Task<IReadOnlyList<TLineModel>> LoadAnother(int page)
     {
         var items = await Source(page);
-        var newLines = items.Select(i => new EditableLineManager<TLineModel>(i, ComputeHashCode(i)));
+        var newLines = items.Select(i => new EditableLineManager<TLineModel>(i, ComputeChecksum(i)));
         _lines.AddRange(newLines);
         return items;
     }
@@ -258,7 +271,7 @@
         _equalityComparer = new DelegatingEqualityComparer<EditableLineManager<TLineModel>>
         {
             AreEqual = (m1, m2) => LinesAreEqual(m1.CurrentValue, m2.CurrentValue),
-            ComputeHashCode = m => ComputeHashCode(m.CurrentValue)
+            ComputeHashCode = m => ComputeChecksum(m.CurrentValue)
         };
 
         if (_lines is null)
@@ -271,5 +284,4 @@
         (s1, s2) => s1.Equals(s2) : (s1,s2) => object.ReferenceEquals(s1, s2);
 
     bool CanRevert => Copy is not null;
-
 }

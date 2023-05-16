@@ -17,7 +17,11 @@ public class ButtonConfiguration
 
     public string Icon { get; init; } = "";
 
-    public Color Color { get; init; } = Color.Info;
+    public Color Color { get; init; } = Color.Info; 
 
     public bool Hidden { get; set; }
+
+    public TimeSpan ShowStateFor { get; set; } = TimeSpan.FromSeconds(1);
+
+    public Action AfterSuccess { get; set; } = () => { };
 }

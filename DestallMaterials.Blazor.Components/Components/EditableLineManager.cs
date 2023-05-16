@@ -30,4 +30,6 @@ internal class EditableLineManager<TLineModel>
     public int CheckSum { get; set; }
 
     public bool IsBeingEdited { get; set; }
+
+    public bool NewlyAdded { get; set; }
 }

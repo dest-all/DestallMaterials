@@ -51,5 +51,7 @@ namespace DestallMaterials.WheelProtection.Extensions.Dictionaries
             }
             return result;
         }
+
+        public static IReadOnlyDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this Dictionary<TKey, TValue> dict) => dict;
     }
 }

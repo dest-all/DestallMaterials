@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "DestallMaterials.WheelProtection.Executions": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:4143;http://localhost:4144"
+    }
+  }
+}

@@ -15,7 +15,8 @@
                      TableClass="table"
                      BoundToWindow=@BoundToWindow
                      ComputeHashCode="s=>s.String.Select(c => (int)c).Sum()"
-                     Save="async s => {Console.WriteLine(s.String); return new StringContainer(s.String + 1.ToString());}">
+                     Save="async s => {Console.WriteLine(s.String); return new StringContainer(s.String + 1.ToString());}"
+                     Delete="async i => Console.WriteLine(i.String)">
 
     <Head>
         <td>Number</td>

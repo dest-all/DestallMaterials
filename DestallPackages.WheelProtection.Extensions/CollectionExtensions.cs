@@ -56,5 +56,8 @@ namespace DestallMaterials.WheelProtection.Extensions.Collections
                 items.Add(item);
             }
         }
+
+        public static IReadOnlyList<T> AsReadOnlyList<T>(this IReadOnlyList<T> list) => list;
+
     }
 }
