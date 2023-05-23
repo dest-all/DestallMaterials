@@ -142,10 +142,17 @@ const destallMaterials = {
                         initialCallback();
                         await addedCallback();
                     };
+
+                    return 1;
                 }
                 else {
                     const elem = document.getElementById(elemId);
                     const formerOnScroll = elem.onscroll || (() => { });
+
+                    if (elem == null) {
+                        return 0;
+                    }
+
                     elem.onscroll = async () => {
                         formerOnScroll();
 
@@ -174,6 +181,8 @@ const destallMaterials = {
                             ]
                         );
                     }
+
+                    return 1;
                 }
             }
         },

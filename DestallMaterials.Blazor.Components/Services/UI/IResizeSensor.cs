@@ -48,9 +48,11 @@ namespace DestallMaterials.Blazor.Services.UI
 
         public async Task<DisposableCallback> SubscribeAsync(string id, Func<ElementSize, Task> callback)
         {
+            byte subscribed;
             if (_subscriptions.TryGetValue(id, out var callbacks))
             {
                 callbacks.Add(callback);
+                subscribed = 1;
             }
             else
             {
@@ -59,12 +61,16 @@ namespace DestallMaterials.Blazor.Services.UI
                     callback
                 };
 
-                await _js.InvokeVoidAsync(_subscribeCommand, id, DotNetObjectReference.Create(this));
+                subscribed = await _js.InvokeAsync<byte?>(_subscribeCommand, id, DotNetObjectReference.Create(this)) ?? 0;
             }
 
-            var result = new DisposableCallback(() => _subscriptions[id].Remove(callback));
+            if (subscribed == 0)
+            {
+                return null;
+            }
 
-            return result;
+            return new DisposableCallback(() => _subscriptions[id].Remove(callback));
+
         }
     }
 

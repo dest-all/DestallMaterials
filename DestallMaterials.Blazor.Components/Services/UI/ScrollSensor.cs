@@ -73,7 +73,7 @@ namespace DestallMaterials.Blazor.Services.UI
                     callback
                 };
 
-                result = await _js.InvokeAsync<byte>(_subscribeForScrollCommand, id, DotNetObjectReference.Create(this));
+                result = await _js.InvokeAsync<byte?>(_subscribeForScrollCommand, id, DotNetObjectReference.Create(this)) ?? 0;
             }
 
             if (result == 0)
