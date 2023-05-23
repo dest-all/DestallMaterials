@@ -160,7 +160,7 @@ const destallMaterials = {
                         const maxVerticalScroll = elem.scrollHeight;
                         const maxHorizontalScroll = elem.scrollWidth;
 
-                        await service.invokeMethodAsync('ReactToScrollEventAsync',
+                        await service.invokeMethodAsync('ReactAsync',
                             elemId,
                             [
                                 height,
@@ -176,6 +176,28 @@ const destallMaterials = {
                     }
                 }
             }
+        },
+        resize: {
+            subscribe: (elemId, service) => {
+                let elem;
+                if (elemId === '__window') {
+                    elem = window;
+                }
+                else {
+                    elem = document.getElementById(elemId);
+                }
+
+                if (!elem) {
+                    return;
+                }
+
+                elem.onresize = async () => {
+                    const height = elem.clientHeight;
+                    const width = elem.clientWidth;
+
+                    await service.invokeMethodAsync('ReactAsync', elemId, [height, width])
+                }
+            } 
         }
     },
     uiManipulation: {

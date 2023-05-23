@@ -21,6 +21,7 @@ namespace DestallMaterials.Blazor.Services.UI
         public double Y { get; init; }
     }
 
+
     public struct ScrollState
     {
         public ElementPosition Position { get; init; }
@@ -36,9 +37,13 @@ namespace DestallMaterials.Blazor.Services.UI
         public double MaxHorizontalScroll { get; init; }
     }
 
-    public interface IScrollSensor
+    public interface IElementSensor<T>
     {
-        Task<DisposableCallback> SubscribeForElementScrollAsync(string id, Func<ScrollState, Task> callback);
+        Task<DisposableCallback> SubscribeAsync(string elementId, Func<T, Task> callback);
+    }
+
+    public interface IScrollSensor : IElementSensor<ScrollState>
+    {
     }
 
     public class JsScrollSensor : IScrollSensor
@@ -53,7 +58,7 @@ namespace DestallMaterials.Blazor.Services.UI
             _js = js;
         }
 
-        public async Task<DisposableCallback> SubscribeForElementScrollAsync(string id, Func<ScrollState, Task> callback)
+        public async Task<DisposableCallback> SubscribeAsync(string id, Func<ScrollState, Task> callback)
         {
             if (_subscriptions.TryGetValue(id, out var callbacks))
             {
@@ -123,6 +128,6 @@ namespace DestallMaterials.Blazor.Services.UI
     public static class ScrollSensorExtensions
     {
         public static Task<DisposableCallback> SubscribeForWindowScrollAsync(this IScrollSensor scrollSensor, Func<ScrollState, Task> callback)
-            => scrollSensor.SubscribeForElementScrollAsync("__window", callback);
+            => scrollSensor.SubscribeAsync("__window", callback);
     }
 }

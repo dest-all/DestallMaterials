@@ -196,7 +196,7 @@ else
         }
         else
         {
-            callback = await scrollSensor.SubscribeForElementScrollAsync(_tableId, async elementScrollState =>
+            callback = await scrollSensor.SubscribeAsync(_tableId, async elementScrollState =>
             {
                 if (_loading)
                 {

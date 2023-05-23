@@ -13,6 +13,7 @@ namespace DestallMaterials.Blazor.Services.Extensions
         public static IServiceCollection ConfigureDestallBlazorServices(this IServiceCollection services) 
             => services
                 .AddSingleton<IUiManipulator, JsUiManipulator>()
-                .AddSingleton<IScrollSensor, JsScrollSensor>();
+                .AddSingleton<IScrollSensor, JsScrollSensor>()
+                .AddSingleton<IResizeSensor, JsResizeSensor>();
     }
 }
