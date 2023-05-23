@@ -60,9 +60,11 @@ namespace DestallMaterials.Blazor.Services.UI
 
         public async Task<DisposableCallback> SubscribeAsync(string id, Func<ScrollState, Task> callback)
         {
+            byte result = 0;
             if (_subscriptions.TryGetValue(id, out var callbacks))
             {
                 callbacks.Add(callback);
+                result = 1;
             }
             else
             {
@@ -71,12 +73,15 @@ namespace DestallMaterials.Blazor.Services.UI
                     callback
                 };
 
-                await _js.InvokeVoidAsync(_subscribeForScrollCommand, id, DotNetObjectReference.Create(this));
+                result = await _js.InvokeAsync<byte>(_subscribeForScrollCommand, id, DotNetObjectReference.Create(this));
             }
 
-            var result = new DisposableCallback(() => _subscriptions[id].Remove(callback));
+            if (result == 0)
+            {
+                return null;
+            }
 
-            return result;
+            return new DisposableCallback(() => _subscriptions[id].Remove(callback));
         }
 
         [JSInvokable]
