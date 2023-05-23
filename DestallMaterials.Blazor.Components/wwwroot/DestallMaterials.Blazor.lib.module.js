@@ -188,15 +188,19 @@ const destallMaterials = {
                 }
 
                 if (!elem) {
-                    return;
+                    return 0;
                 }
 
-                elem.onresize = async () => {
+                const resizeObserver = new ResizeObserver(async () => {
                     const height = elem.clientHeight;
                     const width = elem.clientWidth;
 
                     await service.invokeMethodAsync('ReactAsync', elemId, [height, width])
-                }
+                });
+
+                resizeObserver.observe(elem);
+
+                return 1;
             } 
         }
     },
