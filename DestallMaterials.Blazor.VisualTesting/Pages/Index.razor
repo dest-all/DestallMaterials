@@ -1,51 +1,28 @@
-﻿@using DestallMaterials.Blazor.Components.Universal;
+﻿@using DestallMaterials.Blazor.Components
+@using DestallMaterials.Blazor.Components.Universal;
 @using DestallMaterials.Blazor.Components.Universal.Containers;
+@using MudBlazor;
 
 @page "/"
 
 
-<PageTitle>Index</PageTitle>
-
-<MudBlazor.MudCheckBox @bind-Checked=BoundToWindow Label="Bound to window" />
-
-<EditableLoadedTable PortionSize="@_portionSize"
-                     Source="async portion => Enumerable.Range(0, 1000).Skip((portion - 1) * _portionSize).Take(_portionSize).Select(n=>new StringContainer(n.ToString())).ToArray()"
-                     TLineModel="StringContainer"
-                     Context="line"
-                     TableClass="table"
-                     BoundToWindow=@BoundToWindow
-                     ComputeHashCode="s=>s.String.Select(c => (int)c).Sum()"
-                     Save="async s => {Console.WriteLine(s.String); return new StringContainer(s.String + 1.ToString());}"
-                     Delete="async i => Console.WriteLine(i.String)">
-
-    <Head>
-        <td>Number</td>
-    </Head>
-    <Line>
-        <td>@line</td>
-    </Line>
-    <EditableLine>
-        <td @onclick="() => line.String = line.String + 0.ToString()">@line</td>
-    </EditableLine>
-</EditableLoadedTable>
-
+<SortToggler OnSortToggled="OnSorting" ChildContent="Sorter button" />
 
 @code {
-    const int _portionSize = 50;
-
-    bool BoundToWindow = false;
-
-    class StringContainer
+    void OnSorting(SortDirection direction)
     {
-        public string String { get; set; } = "";
-
-        public StringContainer(string @string)
+        if (direction == default)
         {
-            String = @string;
+            Console.WriteLine("Sorting disabled.");
         }
-
-        public override string ToString() => String;
-
+        else if (direction == SortDirection.Ascending)
+        {
+            Console.WriteLine("Sorting Ascending.");
+        }
+        else
+        {
+            Console.WriteLine("Sorting Descenging.");
+        }
     }
 
 }

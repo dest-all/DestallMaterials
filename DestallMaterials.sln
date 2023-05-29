@@ -43,7 +43,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmarking", "Benchmarkin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.WheelProtection.Copying", "DestallMaterials.WheelProtection.Copying\DestallMaterials.WheelProtection.Copying.csproj", "{BA47DEAC-CAF8-4BA6-A606-116655F0C4D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DestallMaterials.Blazor.VisualTesting", "DestallMaterials.Blazor.VisualTesting\DestallMaterials.Blazor.VisualTesting.csproj", "{72DA3A28-ED50-4020-AB78-AEF4E6EC8D75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DestallMaterials.Blazor.VisualTesting", "DestallMaterials.Blazor.VisualTesting\DestallMaterials.Blazor.VisualTesting.csproj", "{72DA3A28-ED50-4020-AB78-AEF4E6EC8D75}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

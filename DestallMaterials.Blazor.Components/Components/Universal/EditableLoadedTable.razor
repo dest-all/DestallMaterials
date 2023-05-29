@@ -226,6 +226,8 @@
         _table.FireLineChanged(line, newLineValue);
     }
 
+    public Task RefreshAsync() => _table.RefreshAsync();
+
     HashSet<EditableLineManager<TLineModel>> _lines;
     IEqualityComparer<EditableLineManager<TLineModel>> _equalityComparer;
 

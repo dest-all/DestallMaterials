@@ -135,7 +135,7 @@ namespace DestallMaterials.WheelProtection.Extensions.Enumerables
 
         public static bool HasContent<T>(this IEnumerable<T> items) => items?.Any() == true;
 
-        public static bool IsEmpty<T>(this IEnumerable<T> items)
+        public static bool IsEmpty<T>(this IEnumerable<T>? items)
             => !items.HasContent();
 
         public static IEnumerable<T> WhereNot<T>(this IEnumerable<T> items, Func<T, bool> condition)

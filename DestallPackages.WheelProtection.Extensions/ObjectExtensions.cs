@@ -35,5 +35,7 @@ namespace DestallMaterials.WheelProtection.Extensions.Objects
             yield return item1;
             yield return item2;
         }
+
+        public static T[] ToArrayOfOne<T>(this T item) => new T[1] { item };
     }
 }

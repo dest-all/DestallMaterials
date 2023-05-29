@@ -11,10 +11,23 @@
 @inject IUiManipulator ui
 
 @{
+
     RenderFragment body = @<tbody>
-        @for (int i = 0; i < _items.Count; i++)
+        <RenderPiece Show=true ReferenceAction="r => _addedItemsPart = r">
+            @for (int i = 0; i < _addedItems.Count; i++)
+            {
+                var item = _addedItems[i];
+                <RenderPiece ReferenceAction="r => item.RenderPiece = r">
+                    <tr @oncontextmenu="async () => await OnLineRightClickAsync(item)" @oncontextmenu:preventDefault="true">
+                        @Line(item.Model)
+                    </tr>
+                </RenderPiece>
+            }
+        </RenderPiece>
+        
+        @for (int i = 0; i < _loadedItems.Count; i++)
         {
-            var item = _items[i];
+            var item = _loadedItems[i];
             <RenderPiece ReferenceAction="r => item.RenderPiece = r">
                 <tr @oncontextmenu="async () => await OnLineRightClickAsync(item)" @oncontextmenu:preventDefault="true">
                     @Line(item.Model)
@@ -93,14 +106,14 @@ else
 
     internal void FireLineChanged(TLineModel line, TLineModel newValue)
     {
-        var item = _items.FirstOrDefault(i => _equalityComparer.Equals(i.Model, line));
+        var item = _loadedItems.FirstOrDefault(i => _equalityComparer.Equals(i.Model, line));
         if (item is null)
         {
             return;
         }
         if (newValue is null)
         {
-            if (_items.Remove(item))
+            if (_loadedItems.Remove(item))
             {
                 StateHasChanged();
             }
@@ -118,26 +131,33 @@ else
 
     public void AddInFront(IEnumerable<TLineModel> items)
     {
-        _items.InsertRange(0, items.Select(i => new ModelRenderPiecePair<TLineModel>(i)));
-        StateHasChanged();
+        _loadedItems.InsertRange(0, items.Select(i => new ModelRenderPiecePair<TLineModel>(i)));
+        _addedItemsPart?.Refresh();
     }
 
     public void Remove(IEnumerable<TLineModel> items)
     {
-        _items.RemoveAll(one => items.Any(i => _equalityComparer.Equals(i, one.Model)));
+        _loadedItems.RemoveAll(one => items.Any(i => _equalityComparer.Equals(i, one.Model)));
         StateHasChanged();
     }
 
     public async Task RefreshAsync()
     {
-        _items.Clear();
+        _addedItems.Clear();
+        _loadedItems.Clear();
+        _reachedEnd = false;
+        _loadedPages = 0;
         await LoadAnotherAsync();
         StateHasChanged();
     }
 
     string ResultantContainerStyle => $"overflow:hidden; overflow-y: scroll; height: 800px; {ContainerStyle}";
 
-    readonly List<ModelRenderPiecePair<TLineModel>> _items = new();
+    RenderPiece _loadedItemsPart;
+    readonly List<ModelRenderPiecePair<TLineModel>> _loadedItems = new();
+
+    RenderPiece _addedItemsPart;
+    readonly List<ModelRenderPiecePair<TLineModel>> _addedItems = new();
 
     readonly string _tableId = Guid.NewGuid().ToString();
 
@@ -153,7 +173,7 @@ else
             var newItems = await Source(++_loadedPages);
             if (newItems.Any())
             {
-                _items.AddRange(newItems.Select(ni => new ModelRenderPiecePair<TLineModel>(ni)));
+                _loadedItems.AddRange(newItems.Select(ni => new ModelRenderPiecePair<TLineModel>(ni)));
                 StateHasChanged();
             }
             if (newItems.Count < PortionSize)
