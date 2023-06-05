@@ -12,7 +12,7 @@ namespace DestallMaterials.Tests
         [Test]
         public void GetHashCode_MustIgnoreOverriden()
         {
-            var equalityComparer = new ByReferenceEqualityComparer<OverridingClass>();
+            var equalityComparer = ByReferenceEqualityComparer<OverridingClass>.Instance;
 
             var item1 = new OverridingClass
             {

@@ -1,6 +1,6 @@
 ﻿using DestallMaterials.WheelProtection.Extensions;
-using DestallMaterials.WheelProtection.Extensions.Enumerable;
-using DestallMaterials.WheelProtection.Extensions.String;
+using DestallMaterials.WheelProtection.Extensions.Enumerables;
+using DestallMaterials.WheelProtection.Extensions.Strings;
 using DestallMaterials.WheelProtection.PublishLast;
 using System.Security;
 

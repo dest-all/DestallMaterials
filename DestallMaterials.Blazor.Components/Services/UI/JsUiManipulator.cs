@@ -1,4 +1,4 @@
-﻿using DestallMaterials.Blazor.Services.UI.Extensions;
+﻿using DestallMaterials.Blazor.Services.UI;
 using Microsoft.JSInterop;
 
 namespace DestallMaterials.Blazor.Services.UI

@@ -1,138 +1,131 @@
 ﻿using DestallMaterials.WheelProtection.Extensions.Enumerables;
 using Microsoft.JSInterop;
-using MudBlazor;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DestallMaterials.Blazor.Services.UI
+namespace DestallMaterials.Blazor.Services.UI;
+
+public class ScrollStates
 {
-    public class ScrollStates
+    public ScrollState Element { get; init; }
+    public ScrollState Window { get; init; }
+}
+
+public struct ElementPosition
+{
+    public double X { get; init; }
+    public double Y { get; init; }
+}
+
+
+public struct ScrollState
+{
+    public ElementPosition Position { get; init; }
+
+    public double ScrolledHorizontally { get; init; }
+    public double VisibleWidth { get; init; }
+
+
+    public double VisibleHeight { get; init; }
+    public double ScrolledVertically { get; init; }
+
+    public double MaxVerticalScroll { get; init; }
+    public double MaxHorizontalScroll { get; init; }
+}
+
+public interface IElementSensor<T>
+{
+    Task<DisposableCallback> SubscribeAsync(string elementId, Func<T, Task> callback);
+}
+
+public interface IScrollSensor : IElementSensor<ScrollState>
+{
+}
+
+public class JsScrollSensor : IScrollSensor
+{
+    readonly Dictionary<string, List<Func<ScrollState, Task>>> _subscriptions = new();
+    readonly IJSRuntime _js;
+
+    const string _subscribeForScrollCommand = "destallMaterials.sensors.scroll.subscribe";
+
+    public JsScrollSensor(IJSRuntime js)
     {
-        public ScrollState Element { get; init; }
-        public ScrollState Window { get; init; }
+        _js = js;
     }
 
-    public struct ElementPosition
+    public async Task<DisposableCallback> SubscribeAsync(string id, Func<ScrollState, Task> callback)
     {
-        public double X { get; init; }
-        public double Y { get; init; }
-    }
-
-
-    public struct ScrollState
-    {
-        public ElementPosition Position { get; init; }
-
-        public double ScrolledHorizontally { get; init; }
-        public double VisibleWidth { get; init; }
-
-
-        public double VisibleHeight { get; init; }
-        public double ScrolledVertically { get; init; }
-
-        public double MaxVerticalScroll { get; init; }
-        public double MaxHorizontalScroll { get; init; }
-    }
-
-    public interface IElementSensor<T>
-    {
-        Task<DisposableCallback> SubscribeAsync(string elementId, Func<T, Task> callback);
-    }
-
-    public interface IScrollSensor : IElementSensor<ScrollState>
-    {
-    }
-
-    public class JsScrollSensor : IScrollSensor
-    {
-        readonly Dictionary<string, List<Func<ScrollState, Task>>> _subscriptions = new();
-        readonly IJSRuntime _js;
-
-        const string _subscribeForScrollCommand = "destallMaterials.sensors.scroll.subscribe";
-
-        public JsScrollSensor(IJSRuntime js)
+        byte result = 0;
+        if (_subscriptions.TryGetValue(id, out var callbacks))
         {
-            _js = js;
+            callbacks.Add(callback);
+            result = 1;
         }
-
-        public async Task<DisposableCallback> SubscribeAsync(string id, Func<ScrollState, Task> callback)
+        else
         {
-            byte result = 0;
-            if (_subscriptions.TryGetValue(id, out var callbacks))
+            _subscriptions[id] = new List<Func<ScrollState, Task>>()
             {
-                callbacks.Add(callback);
-                result = 1;
-            }
-            else
-            {
-                _subscriptions[id] = new List<Func<ScrollState, Task>>()
-                {
-                    callback
-                };
-
-                result = await _js.InvokeAsync<byte?>(_subscribeForScrollCommand, id, DotNetObjectReference.Create(this)) ?? 0;
-            }
-
-            if (result == 0)
-            {
-                return null;
-            }
-
-            return new DisposableCallback(() => _subscriptions[id].Remove(callback));
-        }
-
-        [JSInvokable]
-        public async Task ReactToScrollEventAsync(
-            string elementId,
-            double[] elementScrollStateNumbers)
-        {
-            if (_subscriptions.TryGetValue(elementId, out var callbacks))
-            {
-                ScrollState elementState = elementScrollStateNumbers.HasContent() ? CreateScrollStateFromInteropArray(elementScrollStateNumbers) : new();
-                
-                foreach (var callback in callbacks)
-                {
-                    await callback(elementState);
-                }
-                return;
-            }
-        }
-
-        static ScrollState CreateScrollStateFromInteropArray(double[] numbers)
-            => CreateScrollState(numbers[0], numbers[1], numbers[2], numbers[3], numbers[4], numbers[5], numbers[6], numbers[7]);
-
-        static ScrollState CreateScrollState(
-            double height,
-            double width,
-            double scrolledVertically,
-            double scrolledHorizontally,
-            double maxVerticalScroll,
-            double maxHorizontalScroll,
-            double positionX,
-            double positionY)
-            => new ScrollState
-            {
-                ScrolledHorizontally = scrolledHorizontally,
-                VisibleWidth = width,
-                VisibleHeight = height,
-                ScrolledVertically = scrolledVertically,
-                MaxHorizontalScroll = maxHorizontalScroll,
-                MaxVerticalScroll = maxVerticalScroll,
-                Position = new ElementPosition
-                {
-                    X = positionX,
-                    Y = positionY
-                }
+                callback
             };
 
+            result = await _js.InvokeAsync<byte?>(_subscribeForScrollCommand, id, DotNetObjectReference.Create(this)) ?? 0;
+        }
+
+        if (result == 0)
+        {
+            return null;
+        }
+
+        return new DisposableCallback(() => _subscriptions[id].Remove(callback));
     }
 
-    public static class ScrollSensorExtensions
+    [JSInvokable]
+    public async Task ReactToScrollEventAsync(
+        string elementId,
+        double[] elementScrollStateNumbers)
     {
-        public static Task<DisposableCallback> SubscribeForWindowScrollAsync(this IScrollSensor scrollSensor, Func<ScrollState, Task> callback)
-            => scrollSensor.SubscribeAsync("__window", callback);
+        if (_subscriptions.TryGetValue(elementId, out var callbacks))
+        {
+            ScrollState elementState = elementScrollStateNumbers.HasContent() ? CreateScrollStateFromInteropArray(elementScrollStateNumbers) : new();
+            
+            foreach (var callback in callbacks)
+            {
+                await callback(elementState);
+            }
+            return;
+        }
     }
+
+    static ScrollState CreateScrollStateFromInteropArray(double[] numbers)
+        => CreateScrollState(numbers[0], numbers[1], numbers[2], numbers[3], numbers[4], numbers[5], numbers[6], numbers[7]);
+
+    static ScrollState CreateScrollState(
+        double height,
+        double width,
+        double scrolledVertically,
+        double scrolledHorizontally,
+        double maxVerticalScroll,
+        double maxHorizontalScroll,
+        double positionX,
+        double positionY)
+        => new ScrollState
+        {
+            ScrolledHorizontally = scrolledHorizontally,
+            VisibleWidth = width,
+            VisibleHeight = height,
+            ScrolledVertically = scrolledVertically,
+            MaxHorizontalScroll = maxHorizontalScroll,
+            MaxVerticalScroll = maxVerticalScroll,
+            Position = new ElementPosition
+            {
+                X = positionX,
+                Y = positionY
+            }
+        };
+
+}
+
+public static class ScrollSensorExtensions
+{
+    public static Task<DisposableCallback> SubscribeForWindowScrollAsync(this IScrollSensor scrollSensor, Func<ScrollState, Task> callback)
+        => scrollSensor.SubscribeAsync("__window", callback);
 }

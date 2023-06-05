@@ -9,9 +9,9 @@ namespace DestallMaterials.WheelProtection.Caching
         public abstract void InvalidateCache();
 
 
-        public static Cacher<TIn, TOut> Create<TIn, TOut>(Func<TIn, TOut> source, Func<TIn, CachingSettings> getCachingSettings, Func<TIn, int> ComputeChecksum)
+        public static Cacher<TIn, TOut> Create<TIn, TOut>(Func<TIn, TOut> source, Func<TIn, CachingSettings> getCachingSettings, Func<TIn, int> computeChecksum)
         {
-            var result = new Cacher<TIn, TOut>(source, ComputeChecksum, getCachingSettings);
+            var result = new Cacher<TIn, TOut>(source, computeChecksum, getCachingSettings);
             return result;
         }
 
@@ -31,14 +31,14 @@ namespace DestallMaterials.WheelProtection.Caching
 
         readonly Func<TIn, int> _ComputeChecksum;
 
-        public Cacher(Func<TIn, TOut> source, Func<TIn, int> ComputeChecksum, Func<TIn, CachingSettings> getCachingSettings)
+        public Cacher(Func<TIn, TOut> source, Func<TIn, int> computeChecksum, Func<TIn, CachingSettings> getCachingSettings)
         {
             _getCachingSettings = getCachingSettings;
             _source = source;
 
-            _ComputeChecksum = ComputeChecksum;
+            _ComputeChecksum = computeChecksum;
 
-            _caches = new ConcurrentDictionary<TIn, CachedValue<TOut>>(new ByChecksumEqualityComparer(ComputeChecksum));
+            _caches = new ConcurrentDictionary<TIn, CachedValue<TOut>>(new ByChecksumEqualityComparer(computeChecksum));
         }
 
         public void InvalidateCache(TIn param)

@@ -1,6 +1,5 @@
-﻿namespace DestallMaterials.Blazor.Components
+﻿namespace DestallMaterials.Blazor.Components;
+
+public interface IEditableListComponent<TModel> : IModelComponent<TModel>
 {
-    public interface IEditableListComponent<TModel> : IModelComponent<TModel>
-    {
-    }
 }

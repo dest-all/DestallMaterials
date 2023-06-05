@@ -170,11 +170,6 @@ namespace DestallMaterials.WheelProtection.Extensions.Strings
         static readonly Regex _digitsRegex = new Regex("^[0-9]*$", RegexOptions.Compiled | RegexOptions.Singleline);
         public static bool ConsistsOnlyOfDigits(this string input) => _digitsRegex.IsMatch(input);
 
-        public static string ToJson(this object obj)
-        {
-            return JsonSerializer.Serialize(obj);
-        }
-
         public static string Replace(this string str, Regex regex, string replacePattern)
         {
             var result = regex.Replace(str, replacePattern);

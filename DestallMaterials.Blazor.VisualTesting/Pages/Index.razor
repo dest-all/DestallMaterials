@@ -5,8 +5,28 @@
 
 @page "/"
 
+<EditableLoadedTable BoundToWindow=false TLineModel="StringContainer" Context="line" 
+    Source="async (page) => Enumerable.Range(0, page * 50).Select(s => new StringContainer(s.ToString())).ToArray()"
+    PortionSize="50"
+    ComputeChecksum="s=>s?.Value.GetHashCode() ?? 0"
+    Save="async s => s"
+    @ref=_table>
+    <Line>
+        <td>@line</td>
+    </Line>
+    <EditableLine>
+        <td>@line</td>
+        <td><MudButton OnClick="() => line.Value = line.Value + 0.ToString()">Change</MudButton></td>
+        <td><MudButton OnClick="() => _table.AcceptLineChanges(line)">Accept</MudButton></td>
+    </EditableLine>
+    <Head>
+        <td>
+            Value
+        </td>
+    </Head>
 
-<SortToggler OnSortToggled="OnSorting" ChildContent="Sorter button" />
+</EditableLoadedTable>
+
 
 @code {
     void OnSorting(SortDirection direction)
@@ -23,6 +43,21 @@
         {
             Console.WriteLine("Sorting Descenging.");
         }
+    }
+
+    EditableLoadedTable<StringContainer> _table;
+
+    class StringContainer
+    {
+        public string Value { get; set; }
+
+        public StringContainer(string value)
+        {
+            Value = value;
+        }
+
+        public override string ToString()
+            => Value;
     }
 
 }

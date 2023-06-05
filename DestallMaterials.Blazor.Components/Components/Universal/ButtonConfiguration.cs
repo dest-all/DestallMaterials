@@ -1,7 +1,6 @@
-﻿using DestallMaterials.Blazor.Components.Universal;
-using MudBlazor;
+﻿using MudBlazor;
 
-namespace Client.Web.View.Components.Configurations;
+namespace DestallMaterials.Blazor.Components.Universal;
 
 public class ButtonConfiguration
 {
@@ -17,7 +16,7 @@ public class ButtonConfiguration
 
     public string Icon { get; init; } = "";
 
-    public Color Color { get; init; } = Color.Info; 
+    public Color Color { get; init; } = Color.Info;
 
     public bool Hidden { get; set; }
 

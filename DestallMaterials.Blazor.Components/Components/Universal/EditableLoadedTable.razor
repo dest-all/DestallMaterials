@@ -1,5 +1,4 @@
-﻿@using Client.Web.View.Components.Configurations;
-@using DestallMaterials.Blazor.Components.Universal.Containers
+﻿@using DestallMaterials.Blazor.Components.Universal.Containers
 @using DestallMaterials.Blazor.Services.UI;
 @using DestallMaterials.WheelProtection.DataStructures;
 @using DestallMaterials.WheelProtection.Extensions.Collections;
@@ -224,6 +223,17 @@
             manager.CurrentValue = newLineValue;
         }
         _table.FireLineChanged(line, newLineValue);
+    }
+
+    /// <summary>
+    /// Mark the changed line as not changed by checksum.
+    /// </summary>
+    /// <param name="line"></param>
+    public void AcceptLineChanges(TLineModel line)
+    {
+        var lineManager = GetManager(line);
+        lineManager.CheckSum = ComputeChecksum(line);
+        lineManager.Refresh();
     }
 
     public Task RefreshAsync() => _table.RefreshAsync();
