@@ -14,7 +14,8 @@ var renderer = new ProjectCodeRenderer(rootDirectory);
 
 const string projectName = "CodeGenerationExample.Target"; // the project to get compilation object of
 
-renderer.Bind<Template>(projectName);
+renderer.Bind<Template>(projectName); // i.e. the compilation of <projectName> will be passed to an instance of <Template> component as Compilation object
+                                      // when you call renderer.RenderAsync. After that the template will be rendered immediately.
 
 renderer.ConfigureRenderer((_, ren) => 
 {
