@@ -8,7 +8,7 @@
 @{
     string style = Button.Hidden ? "visibility:hidden" : "";
 
-    style = $"width:50px; {style}";
+    style = $"width:50px; {style}; {Style}";
 }
 
 <MudBlazor.MudItem Style="@style">
@@ -33,7 +33,8 @@
                          StartIcon="@(Button.Icon)"
                          Size="MudBlazor.Size.Medium"
                          Color="Button.Color"
-                         Style="@style">
+                         Style="@style"
+                         Class="@CssClass">
 
                          @Button.ActionName
 
@@ -50,6 +51,12 @@
 
     [Parameter]
     public Action<DynamicButton> ReferenceAction { get; set; } = db => { };
+
+    [Parameter]
+    public string CssClass { get; set; }
+
+    [Parameter]
+    public string Style { get; set; }
 
     protected override void OnParametersSet()
     {

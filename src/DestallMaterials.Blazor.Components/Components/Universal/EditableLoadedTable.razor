@@ -226,13 +226,24 @@
     }
 
     /// <summary>
-    /// Mark the changed line as not changed by checksum.
+    /// Set the changed line as not changed by checksum.
     /// </summary>
     /// <param name="line"></param>
     public void AcceptLineChanges(TLineModel line)
     {
         var lineManager = GetManager(line);
+
+        if (lineManager.PreviousValue == lineManager.CurrentValue || ComputeChecksum(lineManager.PreviousValue) == ComputeChecksum(lineManager.CurrentValue))
+        {
+            return;
+        }
+
+        lineManager.PreviousValue = line;
+        lineManager.CurrentValue = line;
+
         lineManager.CheckSum = ComputeChecksum(line);
+
+        lineManager.NewlyAdded = false;
         lineManager.Refresh();
     }
 

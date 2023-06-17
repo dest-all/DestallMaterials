@@ -16,7 +16,7 @@
     </Line>
     <EditableLine>
         <td>@line</td>
-        <td><MudButton OnClick="() => line.Value = line.Value + 0.ToString()">Change</MudButton></td>
+        <td><MudButton OnClick="() => {line.Value = line.Value + 0.ToString(); _table.FireLineChanged(line, line); }">Change</MudButton></td>
         <td><MudButton OnClick="() => _table.AcceptLineChanges(line)">Accept</MudButton></td>
     </EditableLine>
     <Head>
