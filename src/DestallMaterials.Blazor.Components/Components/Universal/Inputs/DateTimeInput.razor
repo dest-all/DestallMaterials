@@ -3,59 +3,67 @@
 @using MudBlazor
 
 @inherits BaseInput<DateTime?>
-@*@inject IGlobalClickCatcher globalClickCatcher;*@
 
-<MudItem>
-    <MudDatePicker PickerVariant="PickerVariant.Inline" Label=@Label @bind-Date="Date" Culture="System.Globalization.CultureInfo.CurrentCulture" Class="d-inline-flex" />
-    <MudTimePicker @bind-Time=Time Culture="System.Globalization.CultureInfo.CurrentCulture" Class="d-inline-flex" />
+<MudItem Class="@Class">
+    @{
+        const string icon = Icons.Material.Filled.Clear;
+        string style = Value is null ? $"visibility: hidden;" : "";
+        <MudIconButton Icon="@icon" Style="@style" OnClick="() => { Value = default; StateHasChanged(); }" Size="Size.Small" />
+    }
+    @if (PickDate)
+    {
+        <MudDatePicker
+            PickerVariant="PickerVariant.Inline" 
+            Label=@Label @bind-Date="Date" 
+            Culture="System.Globalization.CultureInfo.CurrentCulture" 
+            Class="d-inline-flex" 
+            MinDate="MinValue" 
+            Style="width:120px" />
+    }
+    @if (PickTime)
+    {
+        <MudTimePicker 
+            @bind-Time=Time 
+            Culture="System.Globalization.CultureInfo.CurrentCulture" 
+            Class="d-inline-flex" 
+            Style="width: 100px; margin-left: 10px" />
+    }
+
 </MudItem>
 
 @code {
 
     [Parameter]
-    public bool Disabled { get; set; }
+    public string Class { get; set; }
 
-    //string _invalidityCondition(string value)
-    //{
-    //    if (!DateTime.TryParse(value, out var date))
-    //    {
-    //        return "Not a valid date";
-    //    }
-    //    else
-    //    {
-    //        return InvalidityCondition(date);
-    //    }
-    //}
+    [Parameter]
+    public bool PickTime { get; set; } = true;
 
-    //[Parameter]
-    //public Func<DateTime, string> InvalidityCondition { get; set; } = s => "";
+    [Parameter]
+    public bool PickDate { get; set; } = true;
 
-    //void _onValueSet(string value)
-    //{
-    //    if (value == "∞")
-    //    {
-    //        Value = DateTime.MaxValue;
-    //        OnValueSet(Value);
-    //        return;
-    //    }
-    //    if (DateTime.TryParse(value, out var x))
-    //    {
-    //        Value = x;
-    //        OnValueSet(x);
-    //    }
-    //}
+    [Parameter]
+    public DateTime MinValue { get; set; } = new DateTime(2000, 1, 1);
+
+    /// <summary>
+    /// If only date is pickable then the picked Date will denote the last tick of the selected date.
+    /// </summary>
+    [Parameter]
+    public bool PickLastMomentOfDay { get; set; } = true;
 
     protected override void OnParametersSet()
     {
+        if (!PickDate && !PickTime)
+        {
+            throw new InvalidOperationException("At least one of time or date should be pickable.");
+        }
+
         base.OnParametersSet();
         _value = Value;
+
+
     }
 
-    //public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
-
-    //public string ErrorMessage => InvalidityCondition(Value ?? default);
-
-    //private string InputClass() => HasError ? "errored" : "";
 
     string ValueString => Value == DateTime.MaxValue ? "∞" : Value.ToString();
 
@@ -64,7 +72,8 @@
         get => Value.HasValue ? Value.Value.TimeOfDay : default;
         set
         {
-            Value = (Date ?? default) + (value ?? default); if (OnValueSet != null)
+            Value = (Date ?? default) + (value ?? default); 
+            if (OnValueSet is not null)
             {
                 OnValueSet(Value);
             }
@@ -75,7 +84,19 @@
         get => Value.HasValue ? Value.Value.Date : default;
         set
         {
-            Value = (value ?? default) + (Time ?? default); if (OnValueSet != null)
+            Value = (value ?? default) + (Time ?? default);
+
+            if (Value == default(DateTime))
+            {
+                Value = default;
+            }
+
+            if (!PickTime && PickDate && PickLastMomentOfDay && Value is not null)
+            {
+                Value = Value.Value.Date.AddDays(1).AddTicks(-1);
+            }
+
+            if (OnValueSet is not null)
             {
                 OnValueSet(Value);
             }
@@ -86,4 +107,5 @@
     {
         Value = DateTime.Now;
     }
+
 }

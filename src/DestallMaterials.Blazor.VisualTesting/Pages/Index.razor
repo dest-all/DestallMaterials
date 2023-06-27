@@ -1,64 +1,11 @@
-﻿@using DestallMaterials.Blazor.Components
-@using DestallMaterials.Blazor.Components.Universal;
-@using DestallMaterials.Blazor.Components.Universal.Containers;
-@using MudBlazor;
+﻿@page "/"
 
-@page "/"
+<PageTitle>Index</PageTitle>
 
-<EditableLoadedTable BoundToWindow=false TLineModel="StringContainer" Context="line" 
-    Source="async (page) => Enumerable.Range(0, page * 50).Select(s => new StringContainer(s.ToString())).ToArray()"
-    PortionSize="50"
-    ComputeChecksum="s=>s?.Value.GetHashCode() ?? 0"
-    Save="async s => s"
-    @ref=_table>
-    <Line>
-        <td>@line</td>
-    </Line>
-    <EditableLine>
-        <td>@line</td>
-        <td><MudButton OnClick="() => {line.Value = line.Value + 0.ToString(); _table.FireLineChanged(line, line); }">Change</MudButton></td>
-        <td><MudButton OnClick="() => _table.AcceptLineChanges(line)">Accept</MudButton></td>
-    </EditableLine>
-    <Head>
-        <td>
-            Value
-        </td>
-    </Head>
-
-</EditableLoadedTable>
-
+<div style="width:160px">
+    <DestallMaterials.Blazor.Components.Universal.Inputs.DateTimeInput OnValueSet="v => Date = v" Value="Date" PickTime=false />
+</div>
 
 @code {
-    void OnSorting(SortDirection direction)
-    {
-        if (direction == default)
-        {
-            Console.WriteLine("Sorting disabled.");
-        }
-        else if (direction == SortDirection.Ascending)
-        {
-            Console.WriteLine("Sorting Ascending.");
-        }
-        else
-        {
-            Console.WriteLine("Sorting Descenging.");
-        }
-    }
-
-    EditableLoadedTable<StringContainer> _table;
-
-    class StringContainer
-    {
-        public string Value { get; set; }
-
-        public StringContainer(string value)
-        {
-            Value = value;
-        }
-
-        public override string ToString()
-            => Value;
-    }
-
+    DateTime? Date { get; set; } = DateTime.Now;
 }
-
