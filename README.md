@@ -32,7 +32,7 @@ Just like that:
 
 </File>
 ```
-Please, see the example at samples/*.sln for real introduction and template files structure to start off with. Comments in source files will guide you.
+Please, see the example and readme.md at samples/*.sln for closer introduction and template files structure to start off with. Comments in source files will guide you.
 
 ***
 Requires some knowledge of Roslyn. 
