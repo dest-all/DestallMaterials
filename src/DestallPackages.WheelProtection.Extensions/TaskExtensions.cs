@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Threading.Tasks.Task;
@@ -20,8 +21,7 @@ namespace DestallMaterials.WheelProtection.Extensions.Tasks
 
         public static Task WithinDeadline(this Task task, TimeSpan deadline)
             => WhenAny(task, Delay(deadline))
-            .ContinueWith(t =>
-            {
+            .ContinueWith(t => {
                 if (!t.IsCompleted)
                 {
                     throw new TimeoutException($"Task is not completed within period of {deadline}.");
@@ -92,8 +92,28 @@ namespace DestallMaterials.WheelProtection.Extensions.Tasks
             await asyncAction();
         }
 
-        public static void Forget(this Task _) 
+        public static void Forget(this Task _)
         {
         }
+
+        public static TaskAwaiter<ValueTuple<T1, T2>> GetAwaiter<T1, T2>(this ValueTuple<Task<T1>, Task<T2>> tasksTuple)
+            => tasksTuple.Item1.Then(r1 => tasksTuple.Item2.Then(r2 => new ValueTuple<T1, T2>(r1, r2))).GetAwaiter();
+
+        public static TaskAwaiter<ValueTuple<T1, T2, T3>> GetAwaiter<T1, T2, T3>(this ValueTuple<Task<T1>, Task<T2>, Task<T3>> tasksTuple)
+            => tasksTuple.Item1.Then(r1 => tasksTuple.Item2.Then(r2 => tasksTuple.Item3.Then(r3 => new ValueTuple<T1, T2, T3>(r1, r2, r3)))).GetAwaiter();
+
+        public static TaskAwaiter<ValueTuple<T1, T2, T3, T4>> GetAwaiter<T1, T2, T3, T4>(this ValueTuple<Task<T1>, Task<T2>, Task<T3>, Task<T4>> tasksTuple)
+            => tasksTuple.Item1.Then(r1 => tasksTuple.Item2.Then(r2 => tasksTuple.Item3.Then(r3 => tasksTuple.Item4.Then(r4 => new ValueTuple<T1, T2, T3, T4>(r1, r2, r3, r4))))).GetAwaiter();
+
+        public static TaskAwaiter<ValueTuple<T1, T2, T3, T4, T5>> GetAwaiter<T1, T2, T3, T4, T5>(this ValueTuple<Task<T1>, Task<T2>, Task<T3>, Task<T4>, Task<T5>> tasksTuple)
+            => tasksTuple.Item1.Then(r1 => tasksTuple.Item2.Then(r2 => tasksTuple.Item3.Then(r3 => tasksTuple.Item4.Then(r4 => tasksTuple.Item5.Then(r5 => new ValueTuple<T1, T2, T3, T4, T5>(r1, r2, r3, r4, r5)))))).GetAwaiter();
+
+        public static TaskAwaiter<ValueTuple<T1, T2, T3, T4, T5, T6>> GetAwaiter<T1, T2, T3, T4, T5, T6>(this ValueTuple<Task<T1>, Task<T2>, Task<T3>, Task<T4>, Task<T5>, Task<T6>> tasksTuple)
+            => tasksTuple.Item1.Then(r1 => tasksTuple.Item2.Then(r2 => tasksTuple.Item3.Then(r3 => tasksTuple.Item4.Then(r4 => tasksTuple.Item5.Then(r5 => tasksTuple.Item6.Then(r6 => new ValueTuple<T1, T2, T3, T4, T5, T6>(r1, r2, r3, r4, r5, r6))))))).GetAwaiter();
+
+        public static TaskAwaiter<ValueTuple<T1, T2, T3, T4, T5, T6, T7>> GetAwaiter<T1, T2, T3, T4, T5, T6, T7>(this ValueTuple<Task<T1>, Task<T2>, Task<T3>, Task<T4>, Task<T5>, Task<T6>, Task<T7>> tasksTuple)
+            => tasksTuple.Item1.Then(r1 => tasksTuple.Item2.Then(r2 => tasksTuple.Item3.Then(r3 => tasksTuple.Item4.Then(r4 => tasksTuple.Item5.Then(r5 => tasksTuple.Item6.Then(r6 => tasksTuple.Item7.Then(r7 => new ValueTuple<T1, T2, T3, T4, T5, T6, T7>(r1, r2, r3, r4, r5, r6, r7)))))))).GetAwaiter();
+
+
     }
 }

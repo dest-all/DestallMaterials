@@ -1,7 +1,10 @@
-﻿@using DestallMaterials.Blazor.Components.Universal;
+﻿@using DestallMaterials.Blazor.Auxiliary;
+@using DestallMaterials.Blazor.Components.Universal;
+@using DestallMaterials.WheelProtection.Executions;
+@using DestallMaterials.WheelProtection.Extensions.Strings;
 @using MudBlazor;
 
-@inherits DisposableComponent 
+@inherits DisposableComponent
 
 @implements IExposedReference<DynamicButton>
 
@@ -12,33 +15,40 @@
 }
 
 <MudBlazor.MudItem Style="@style">
-   
+
+    @if (showPopover)
+    {
+        <MudPopover AnchorOrigin="@popoverLocation" Open=true TransformOrigin="@transform">
+            <span style="padding:15px">
+                @popoverContent
+            </span>
+        </MudPopover>
+
+    }
+
     @if (Success == true)
     {
         <MudBlazor.MudIconButton Icon="@(MudBlazor.Icons.Material.Filled.Done)" Size="MudBlazor.Size.Medium" Color="MudBlazor.Color.Success" />
-    }
-    else if (Success == false)
+    } else if (Success == false)
     {
         <MudBlazor.MudIconButton Icon="@(MudBlazor.Icons.Material.Filled.Close)" Size="MudBlazor.Size.Medium" Color="MudBlazor.Color.Error" />
-    }
-    else if (Progress)
+    } else if (Progress)
     {
         <MudBlazor.MudProgressCircular Size="MudBlazor.Size.Medium" Indeterminate=true />
-    }
-    else
+    } else
     {
         <MudButton ButtonType=MudBlazor.ButtonType.Button
-                         Disabled=@Button.Disabled
-                         OnClick="@OnClick"
-                         StartIcon="@(Button.Icon)"
-                         Size="MudBlazor.Size.Medium"
-                         Color="Button.Color"
-                         Style="@style"
-                         Class="@CssClass">
+                   Disabled=@Button.Disabled
+                   OnClick="@OnClick"
+                   StartIcon="@(Button.Icon)"
+                   Size="MudBlazor.Size.Medium"
+                   Color="Button.Color"
+                   Style="@style"
+                   Class="@CssClass">
 
-                         @Button.ActionName
+            @Button.ActionName
 
-                     </MudButton>
+        </MudButton>
     }
 </MudBlazor.MudItem>
 
@@ -58,10 +68,13 @@
     [Parameter]
     public string Style { get; set; }
 
+    string popoverContent;
+    bool showPopover => popoverContent.HasContent();
+    Origin popoverLocation;
+    Origin transform = Origin.TopRight;
+
     protected override void OnParametersSet()
-    {
-        ReferenceAction(this);
-    }
+        => ReferenceAction(this);
 
     readonly string id = Guid.NewGuid().ToString();
 
@@ -84,12 +97,17 @@
         }
         catch (Exception ex)
         {
+            if (ex is IExplained explained)
+            {
+                popoverContent = explained.Explanation;
+            }
             Success = false;
             StateHasChanged();
             await Task.Delay(StateShowPeriod);
         }
         finally
         {
+            popoverContent = "";
             StateHasChanged();
             Success = null;
             Progress = false;
@@ -104,5 +122,5 @@
 
     bool? Success { get; set; }
 
-    static readonly TimeSpan StateShowPeriod = TimeSpan.FromMilliseconds(1000);
+    TimeSpan StateShowPeriod => Button.ShowStateFor;
 }

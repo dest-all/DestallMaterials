@@ -79,7 +79,8 @@
                             @*_hashCodes[line] = ComputeHashCode(saveResult);*@
                             _table.FireLineChanged(line, saveResult);
 
-                        }
+                        },
+                        ShowStateFor = ShowButtonStateFor
                     };
                     <DynamicButton Button="saveButton" ReferenceAction="b => lineManager.Save = b.PressAsync" />
                 }
@@ -100,7 +101,8 @@
                         {
                             _lines.Remove(lineManager);
                             _table.FireLineChanged(line, null);
-                        }
+                        },
+                        ShowStateFor = ShowButtonStateFor
                     };
                     <DynamicButton Button="deleteButton" ReferenceAction="b => lineManager.Delete = b.PressAsync" />
                 }
@@ -209,6 +211,9 @@
 
     [Parameter]
     public Func<TLineModel, TLineModel> Copy { get; set; }
+
+    [Parameter]
+    public TimeSpan ShowButtonStateFor { get; set; } = TimeSpan.FromSeconds(5);
 
     public void FireLineChanged(TLineModel line, TLineModel newLineValue)
     {

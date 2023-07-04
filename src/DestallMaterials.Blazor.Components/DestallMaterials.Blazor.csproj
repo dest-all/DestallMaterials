@@ -7,7 +7,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Destall's-Blazor</Title>
-		<Version>1.1.6</Version>
+		<Version>1.1.16</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -38,6 +38,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\DestallMaterials.DataStructures\DestallMaterials.WheelProtection.DataStructures.csproj" />
+		<ProjectReference Include="..\DestallMaterials.WheelProtection.Executions\DestallMaterials.WheelProtection.Executions.csproj" />
 		<ProjectReference Include="..\DestallPackages.WheelProtection.Extensions\DestallMaterials.WheelProtection.Extensions.csproj" />
 	</ItemGroup>
 

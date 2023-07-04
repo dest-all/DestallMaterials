@@ -1,11 +1,27 @@
 ﻿@page "/"
+@using DestallMaterials.Blazor.Auxiliary;
+@using DestallMaterials.Blazor.Components.Universal.Dropdowns
+@using DestallMaterials.Blazor.Components.Universal;
+@using DestallMaterials.WheelProtection.Executions;
 
 <PageTitle>Index</PageTitle>
 
-<div style="width:160px">
-    <DestallMaterials.Blazor.Components.Universal.Inputs.DateTimeInput OnValueSet="v => Date = v" Value="Date" PickTime=false />
-</div>
+@{
+    var dynamicButton = new ButtonConfiguration
+    {
+        ShowStateFor = TimeSpan.FromSeconds(5),
+        Callback = async () => throw new ExplainedError(),
+        Hidden = false,
+        Disabled = false,
+        ActionName = "Click me"
+    };
+}
+
+<DynamicButton Button="dynamicButton" />
 
 @code {
-    DateTime? Date { get; set; } = DateTime.Now;
+    class ExplainedError : Exception, IExplained
+    {
+        public string Explanation => "Test error popover";
+    }
 }

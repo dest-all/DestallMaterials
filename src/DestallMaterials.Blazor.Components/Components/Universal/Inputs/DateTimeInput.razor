@@ -1,13 +1,16 @@
 ﻿@using DestallMaterials.Blazor.Components.Universal.Inputs
 @using DestallMaterials.Blazor.Services
+@using DestallMaterials.WheelProtection.Extensions.Strings;
 @using MudBlazor
 
 @inherits BaseInput<DateTime?>
 
-<MudItem Class="@Class">
+<MudItem Class="@Class" Style="@containerStyle">
     @{
         const string icon = Icons.Material.Filled.Clear;
         string style = Value is null ? $"visibility: hidden;" : "";
+        style = $"{style} margin-top:14%;";
+        
         <MudIconButton Icon="@icon" Style="@style" OnClick="() => { Value = default; StateHasChanged(); }" Size="Size.Small" />
     }
     @if (PickDate)
@@ -50,6 +53,8 @@
     /// </summary>
     [Parameter]
     public bool PickLastMomentOfDay { get; set; } = true;
+
+    string containerStyle => "display: flex;";
 
     protected override void OnParametersSet()
     {
