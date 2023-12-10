@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 
 namespace DestallMaterials.Tests
 {
-
     class ServerEmulator
     {
         Recycler<RequestProcessor> _recycler = new RequestsProcessorRecycler();

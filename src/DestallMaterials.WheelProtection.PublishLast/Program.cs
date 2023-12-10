@@ -39,5 +39,5 @@ static void Do(string directory)
     Console.WriteLine(@$"Running command:
 {command}");
 
-    CmdRunner.Run(command);
+    //CmdRunner.Run(command);
 }

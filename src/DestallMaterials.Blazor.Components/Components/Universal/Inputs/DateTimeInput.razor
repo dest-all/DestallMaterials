@@ -11,7 +11,7 @@
         string style = Value is null ? $"visibility: hidden;" : "";
         style = $"{style} margin-top:14%;";
         
-        <MudIconButton Icon="@icon" Style="@style" OnClick="() => { Value = default; StateHasChanged(); }" Size="Size.Small" />
+        <MudIconButton Icon="@icon" Style="@style" OnClick="() => { Value = MinValue; StateHasChanged(); }" Size="Size.Small" />
     }
     @if (PickDate)
     {
@@ -54,7 +54,7 @@
     [Parameter]
     public bool PickLastMomentOfDay { get; set; } = true;
 
-    string containerStyle => "display: flex;";
+    string containerStyle => "display: flex; max-width: 150px;";
 
     protected override void OnParametersSet()
     {

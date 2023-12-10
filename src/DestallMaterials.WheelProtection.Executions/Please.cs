@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 
 namespace DestallMaterials.WheelProtection.Executions
 {
-    public static class Run
+    public static class Please
     {
-        public static async Task<TResult> RepeatUntilSuccessAsync<TResult>(this Func<Task<TResult>> function, int maxTriesCount, TimeSpan awaitBetweenTries = default)
+        public static async Task<TResult> RepeatUntilSuccessAsync<TResult>(
+            this Func<Task<TResult>> function,
+            int maxTriesCount,
+            TimeSpan awaitBetweenTries = default
+        )
         {
             while (maxTriesCount-- > 0)
             {
@@ -32,7 +36,8 @@ namespace DestallMaterials.WheelProtection.Executions
             this Func<Task<TResult>> function,
             int maxTriesCount,
             Func<TResult, bool> validityCriterion,
-            TimeSpan awaitBetweenTries = default)
+            TimeSpan awaitBetweenTries = default
+        )
         {
             while (maxTriesCount-- > 0)
             {
@@ -56,7 +61,10 @@ namespace DestallMaterials.WheelProtection.Executions
             return default;
         }
 
-        public static TResult MeasureExecutionTime<TResult>(this Func<TResult> func, Action<TimeSpan> doWithTimeTaken)
+        public static TResult MeasureExecutionTime<TResult>(
+            this Func<TResult> func,
+            Action<TimeSpan> doWithTimeTaken
+        )
         {
             var stopwatch = Stopwatch.StartNew();
             try
@@ -70,7 +78,11 @@ namespace DestallMaterials.WheelProtection.Executions
                 doWithTimeTaken(stopwatch.Elapsed);
             }
         }
-        public static async Task<TResult> MeasureExecutionTimeAsync<TResult>(this Func<Task<TResult>> func, Action<TimeSpan> doWithTimeTaken)
+
+        public static async Task<TResult> MeasureExecutionTimeAsync<TResult>(
+            this Func<Task<TResult>> func,
+            Action<TimeSpan> doWithTimeTaken
+        )
         {
             var stopwatch = Stopwatch.StartNew();
             try
@@ -84,7 +96,11 @@ namespace DestallMaterials.WheelProtection.Executions
                 doWithTimeTaken(stopwatch.Elapsed);
             }
         }
-        public static async Task MeasureExecutionTimeAsync(this Func<Task> func, Action<TimeSpan> doWithTimeTaken)
+
+        public static async Task MeasureExecutionTimeAsync(
+            this Func<Task> func,
+            Action<TimeSpan> doWithTimeTaken
+        )
         {
             var stopwatch = Stopwatch.StartNew();
             try
@@ -97,7 +113,11 @@ namespace DestallMaterials.WheelProtection.Executions
                 doWithTimeTaken(stopwatch.Elapsed);
             }
         }
-        public static void MeasureExecutionTime(this Action action, Action<TimeSpan> doWithTimeTaken)
+
+        public static void MeasureExecutionTime(
+            this Action action,
+            Action<TimeSpan> doWithTimeTaken
+        )
         {
             var stopwatch = Stopwatch.StartNew();
             try
@@ -111,7 +131,10 @@ namespace DestallMaterials.WheelProtection.Executions
             }
         }
 
-        public static async Task<TResult> ReturnOnErrorAsync<TResult>(this Func<Task<TResult>> func, Func<Exception, TResult> onError)
+        public static async Task<TResult> ReturnOnErrorAsync<TResult>(
+            this Func<Task<TResult>> func,
+            Func<Exception, TResult> onError
+        )
         {
             try
             {
@@ -123,7 +146,10 @@ namespace DestallMaterials.WheelProtection.Executions
             }
         }
 
-        public static TResult ReturnOnError<TResult>(this Func<TResult> func, Func<Exception, TResult> onError)
+        public static TResult ReturnOnError<TResult>(
+            this Func<TResult> func,
+            Func<Exception, TResult> onError
+        )
         {
             try
             {

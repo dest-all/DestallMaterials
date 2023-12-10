@@ -74,7 +74,7 @@ namespace DestallMaterials.WheelProtection.Queues
             }
         }
 
-        private IDisposable CreateNewControlLocker()
+        IDisposable CreateNewControlLocker()
         {
             var time = new StartAndFinishTime()
             {
