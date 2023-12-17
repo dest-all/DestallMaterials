@@ -4,7 +4,7 @@ using static System.IO.Directory;
 
 namespace CodeGenerationTests;
 
-static class CodegenPreparation
+static class TestsPreparation
 {
     internal static (string supplierProjFile, string consumerProjFile) EnsureSamples()
     {

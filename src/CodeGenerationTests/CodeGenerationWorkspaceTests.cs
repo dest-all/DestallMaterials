@@ -12,14 +12,14 @@ namespace CodeGenerationTests;
 
 [Parallelizable(scope: ParallelScope.All)]
 [TestFixture]
-public class CodegenSystemTests
+public class CodeGenerationWorkspaceTests
 {
     static readonly string _supplierProject;
     static readonly string _consumerProject;
 
-    static CodegenSystemTests()
+    static CodeGenerationWorkspaceTests()
     {
-        (_supplierProject, _consumerProject) = CodegenPreparation.EnsureSamples();
+        (_supplierProject, _consumerProject) = TestsPreparation.EnsureSamples();
     }
 
     const string nameSpace = "GeneratedNamespace";
@@ -30,12 +30,12 @@ public class CodegenSystemTests
     public async Task AddSource_MustAdd_TreeMustBeFound()
     {
         // Arrange
-        var system = CodeGenerationSystem.Create(_consumerProject);
-        var projectName = system.ProjectNames.First(pn => pn.Contains("Consumer"));
+        var system = CodeGenerationWorkspace.Create(_consumerProject);
+        var projectName = system.ProjectLocations.Keys.First(pn => pn.Contains("Consumer"));
 
         // Act
-        var sourceFile = new SourceFile(new ProjectRelativeFilePath(projectName, fileName), sourceText);
-        await system.AddSourceFilesAsync(sourceFile.Yield());
+        var sourceFile = new CodeFile(new ProjectRelativeFilePath(projectName, fileName), sourceText);
+        await system.AddSourceFilesAsync(sourceFile.Yield(), default);
         var compilation = await system.GetProjectCompilationAsync(projectName);
 
         // Assert
@@ -47,13 +47,13 @@ public class CodegenSystemTests
     public async Task AddSource_ToSecondaryProject_MustBeFound_InMainCompilation()
     {
         // Arrange
-        var system = CodeGenerationSystem.Create(_consumerProject);
-        var mainProjectName = system.ProjectNames.First(pn => pn.Contains("Consumer"));
-        var secondaryProjectName = system.ProjectNames.First(pn => pn.Contains("Supplier"));
+        var system = CodeGenerationWorkspace.Create(_consumerProject);
+        var mainProjectName = system.ProjectLocations.Keys.First(pn => pn.Contains("Consumer"));
+        var secondaryProjectName = system.ProjectLocations.Keys.First(pn => pn.Contains("Supplier"));
 
         // Act
-        var sourceFile = new SourceFile(new ProjectRelativeFilePath(secondaryProjectName, fileName), sourceText);
-        await system.AddSourceFilesAsync(sourceFile.Yield());
+        var sourceFile = new CodeFile(new ProjectRelativeFilePath(secondaryProjectName, fileName), sourceText);
+        await system.AddSourceFilesAsync(sourceFile.Yield(), default);
         var compilation = await system.GetProjectCompilationAsync(mainProjectName);
 
         // Assert
@@ -65,9 +65,9 @@ public class CodegenSystemTests
     public async Task SecondaryProjectClass_MustBeFound_InMainProject()
     {
         // Arrange
-        var system = CodeGenerationSystem.Create(_consumerProject);
-        var mainProjectName = system.ProjectNames.First(pn => pn.Contains("Consumer"));
-        var secondaryProjectName = system.ProjectNames.First(pn => pn.Contains("Supplier"));
+        var system = CodeGenerationWorkspace.Create(_consumerProject);
+        var mainProjectName = system.ProjectLocations.Keys.First(pn => pn.Contains("Consumer"));
+        var secondaryProjectName = system.ProjectLocations.Keys.First(pn => pn.Contains("Supplier"));
 
         // Act
         var (mainCompilation, secondaryCompilation) = await (
@@ -88,12 +88,12 @@ public class CodegenSystemTests
     public async Task Subscribe_SubscriptionMustWorkOnce()
     {
         // Arrange
-        using var system = CodeGenerationSystem.Create(_consumerProject);
-        var mainProjectName = system.ProjectNames.First(pn => pn.Contains("Consumer"));
-        var secondaryProjectName = system.ProjectNames.First(pn => pn.Contains("Supplier"));
+        using var system = CodeGenerationWorkspace.Create(_consumerProject);
+        var mainProjectName = system.ProjectLocations.Keys.First(pn => pn.Contains("Consumer"));
+        var secondaryProjectName = system.ProjectLocations.Keys.First(pn => pn.Contains("Supplier"));
 
         // Act
-        system.SubscribeForProjectChange(secondaryProjectName, async change =>
+        system.SubscribeForProjectChange(secondaryProjectName, async (change, ct) =>
         {
             var (_, content, _) = change.Single();
 
@@ -104,7 +104,7 @@ public class CodegenSystemTests
     {{
         public const int ClassesCount = {classesCount};
     }}
-}}");
+}}", ct);
         });
 
         const int newClassesCount = 3;
@@ -112,7 +112,7 @@ public class CodegenSystemTests
         await system.AddSourceFileAsync(secondaryProjectName, "newclasses.cs", $@"namespace {nameSpace} 
 {{
     {(0..newClassesCount).Select(i => $"public class Class{i} {{}}").Join("\n")}
-}}");
+}}", default);
 
         var mainCompilation = await system.GetProjectCompilationAsync(mainProjectName);
 
@@ -130,14 +130,14 @@ public class CodegenSystemTests
     public async Task Subscribe_IncrementalSubscriptionMustWork()
     {
         // Arrange
-        using var system = CodeGenerationSystem.Create(_consumerProject);
-        var mainProjectName = system.ProjectNames.First(pn => pn.Contains("Consumer"));
-        var secondaryProjectName = system.ProjectNames.First(pn => pn.Contains("Supplier"));
+        using var system = CodeGenerationWorkspace.Create(_consumerProject);
+        var mainProjectName = system.ProjectLocations.Keys.First(pn => pn.Contains("Consumer"));
+        var secondaryProjectName = system.ProjectLocations.Keys.First(pn => pn.Contains("Supplier"));
 
         const string structName = "NewStruct";
 
         // Act
-        system.SubscribeForProjectChange(secondaryProjectName, async change =>
+        system.SubscribeForProjectChange(secondaryProjectName, async (change, ct) =>
         {
             var (_, content, _) = change.Single();
 
@@ -150,11 +150,11 @@ public class CodegenSystemTests
     {{
         public const int ClassesCount = {classesCount};
     }}
-}}");
+}}", default);
             }
         });
 
-        system.SubscribeForProjectChange(mainProjectName, async change =>
+        system.SubscribeForProjectChange(mainProjectName, async (change, ct) =>
         {
             var (_, content, _) = change.Single();
 
@@ -165,7 +165,7 @@ public class CodegenSystemTests
     public struct {structName}
     {{
     }}
-}}");
+}}", ct);
         });
 
         const int newClassesCount = 3;
@@ -173,7 +173,7 @@ public class CodegenSystemTests
         await system.AddSourceFileAsync(secondaryProjectName, "newclasses.cs", $@"namespace {nameSpace} 
 {{
     {(0..newClassesCount).Select(i => $"public class Class{i} {{}}").Join("\n")}
-}}");
+}}", default);
 
         var (mainCompilation, secondaryCompilation) = await (
             system.GetProjectCompilationAsync(mainProjectName), 
@@ -189,7 +189,7 @@ public class CodegenSystemTests
     {
         var ticker = Stopwatch.StartNew();
 
-        var system = CodeGenerationSystem.Create(_consumerProject);
+        var system = CodeGenerationWorkspace.Create(_consumerProject);
 
         const string mainProjectName = "CodegenSample.Consumer";
 
@@ -197,7 +197,7 @@ public class CodegenSystemTests
 
         var errors1 = GetErrors(mainCompilation1);
 
-        var referredProjects = system.ProjectNames.Where(pn => pn != mainProjectName).ToArray();
+        var referredProjects = system.ProjectLocations.Keys.Where(pn => pn != mainProjectName).ToArray();
 
         var newClasses = referredProjects.Select(project =>
         {
@@ -216,15 +216,15 @@ public class CodegenSystemTests
    {newClasses.Select((nc, i) => $"public {nc.addedClass} Prop_{i} {{ get; set; }}").Join("\n")} 
 }}";
 
-        await system.AddSourceFileAsync(mainProjectName, "newClass.cs", newClassCode);
+        await system.AddSourceFileAsync(mainProjectName, "newClass.cs", newClassCode, default);
 
         var mainCompilation2 = await system.GetProjectCompilationAsync(mainProjectName);
 
         var errors2 = GetErrors(mainCompilation2);
 
-        var newFiles = newClasses.Select(nc => new SourceFile(new ProjectRelativeFilePath(nc.project, "newclass.cs"), nc.newClassCode));
+        var newFiles = newClasses.Select(nc => new CodeFile(new ProjectRelativeFilePath(nc.project, "newclass.cs"), nc.newClassCode));
 
-        await system.AddSourceFilesAsync(newFiles);
+        await system.AddSourceFilesAsync(newFiles, default);
 
         var syntaxTrees = await referredProjects.ToArrayAsync(rp => system.GetProjectCompilationAsync(rp).Then(c => c.SyntaxTrees.ToArray()));
 

@@ -17,9 +17,11 @@ public record struct ProjectRelativeFilePath(string ProjectName, IEnumerable<str
     public ProjectRelativeFilePath(string projectName, string fileName) : this(projectName, Enumerable.Empty<string>(), fileName)
     { }
 
-    public override string ToString()
-        => Folders.Any() ? $"{ProjectName}/{Folders.Join("/")}/{FileName}" :
-                           $"{ProjectName}/{FileName}";
+    public override string ToString() => ToString(Path.PathSeparator);
+        
+    string ToString(char separator) => Folders.Any() ? $"{ProjectName}{separator}{Folders.Join(separator)}{separator}{FileName}" :
+                           $"{ProjectName}{separator}{FileName}";
+
 
     public static ProjectRelativeFilePath Parse(string relativePathAsString)
     {
@@ -48,10 +50,10 @@ public record struct ProjectRelativeFilePath(string ProjectName, IEnumerable<str
 /// <param name="Path"></param>
 /// <param name="Content"></param>
 /// <param name="Virtual"></param>
-public record struct SourceFile(ProjectRelativeFilePath Path, string Content, bool Virtual = false)
+public record struct CodeFile(ProjectRelativeFilePath Path, string Content, bool Virtual = false)
 {
     static readonly Regex _sourceCodeFilesParser = new Regex(@"<(\s)*File(\s)*Path(\s)*=(\s)*""(?<Path>.*?)""(\s)*Virtual(\s)*=(\s)*""(?<Virtual>.*?)"".*?>(?<Content>(.|\s)*?)<(\s)*/(\s)*File(\s)*>", RegexOptions.Compiled);
-    public static IEnumerable<SourceFile> ParseMany(string renderingResult)
+    public static IEnumerable<CodeFile> ParseMany(string renderingResult)
     {
         var matches = _sourceCodeFilesParser.Matches(renderingResult);
 
@@ -69,5 +71,11 @@ public record struct SourceFile(ProjectRelativeFilePath Path, string Content, bo
 
     [Obsolete("Must not be used without parameters", true)]
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public SourceFile() : this(default, default, default) { }
+    public CodeFile() : this(default, default, default) { }
 };
+
+public static class CodeFileExtensions
+{
+    public static bool IsCharpFile(this CodeFile codeFile) 
+        => codeFile.Path.FileName.ToLower().EndsWith(".cs", ".razor");
+}

@@ -4,33 +4,32 @@ using DestallMaterials.WheelProtection.Extensions.Tuples;
 using Microsoft.CodeAnalysis;
 using DestallMaterials.WheelProtection.Extensions.Objects;
 using DestallMaterials.WheelProtection.Extensions.Tasks;
+using DestallMaterials.CodeGeneration.Text;
+using System.Threading;
 
 namespace DestallMaterials.CodeGeneration;
 
-public sealed class CodeGenerationSystem : IDisposable
+public sealed class CodeGenerationWorkspace : IDisposable
 {
     volatile Solution _solution;
 
-    readonly List<Func<IReadOnlyList<SourceFile>, Task>> _onProjectsChange = new();
+    readonly List<Func<IReadOnlyList<CodeFile>, CancellationToken, Task>> _onProjectsChange = new();
 
-    static void Log(object message)
-        => Console.WriteLine(message);
+    public IReadOnlyDictionary<string, string> ProjectLocations { get; }
 
-    public IReadOnlyList<string> ProjectNames { get; }
-
-    CodeGenerationSystem(Solution solution)
+    CodeGenerationWorkspace(Solution solution)
     {
         _solution = solution;
-        ProjectNames = solution.Projects.Select(p => p.Name).ToArray();
+        ProjectLocations = solution.Projects.ToDictionary(p => p.Name, p => p?.FilePath ?? throw new FileNotFoundException());
     }
 
-    public static CodeGenerationSystem Create(string mainProjectFile)
+    public static CodeGenerationWorkspace Create(string mainProjectFile)
     {
         var workspace = CreateWorkspace(mainProjectFile);
 
         var solution = workspace.CurrentSolution;
 
-        return new CodeGenerationSystem(solution);
+        return new CodeGenerationWorkspace(solution);
     }
 
     public async Task<Compilation> GetProjectCompilationAsync(string projectName, CancellationToken cancellationToken = default)
@@ -47,12 +46,17 @@ public sealed class CodeGenerationSystem : IDisposable
     /// </summary>
     /// <param name="sourceFiles">Files to add</param>
     /// <returns>Those files, that were not present and have been added to system.</returns>
-    public async Task<IReadOnlyList<SourceFile>> AddSourceFilesAsync(IEnumerable<SourceFile> sourceFiles)
+    public async Task<IReadOnlyList<CodeFile>> AddSourceFilesAsync(IEnumerable<CodeFile> sourceFiles, CancellationToken cancellationToken)
     {
         var processedProjects = await Task.WhenAll(sourceFiles.Select(async sourceFile =>
         {
             var oldProject = _solution.Projects.First(p => p.Name == sourceFile.Path.ProjectName);
-            var newProject = await oldProject.WithAsync(sourceFile);
+            if (!sourceFile.IsCharpFile())
+            {
+                return (oldProject, newProject: oldProject, sourceFile, areDifferent: false);
+            }
+            
+            var newProject = await oldProject.WithAsync(sourceFile, cancellationToken);
 
             bool areDifferent = !ReferenceEquals(newProject, oldProject);
 
@@ -68,7 +72,7 @@ public sealed class CodeGenerationSystem : IDisposable
 
         foreach (var callback in _onProjectsChange)
         {
-            await callback(addedFiles);
+            await callback(addedFiles, cancellationToken);
         }
 
         return addedFiles;
@@ -79,7 +83,7 @@ public sealed class CodeGenerationSystem : IDisposable
     /// </summary>
     /// <param name="onProjectDocumentChanged">Callback</param>
     /// <returns>Unsubsription token. Dispose to unsubscribe.</returns>
-    public IDisposable SubscribeForSolutionChange(Func<IReadOnlyList<SourceFile>, Task> onProjectDocumentChanged)
+    public IDisposable SubscribeForSolutionChange(Func<IReadOnlyList<CodeFile>, CancellationToken, Task> onProjectDocumentChanged)
     {
         _onProjectsChange.Add(onProjectDocumentChanged);
         DisposableCallback unsubcribe = new(() => _onProjectsChange.Remove(onProjectDocumentChanged));
@@ -109,7 +113,7 @@ public sealed class CodeGenerationSystem : IDisposable
         => _onProjectsChange.Clear();
 }
 
-public static class CodegenSystemExtensions
+public static class CodegenWorkspaceExtensions
 {
     /// <summary>
     /// Subscribe for particular project changes
@@ -118,15 +122,15 @@ public static class CodegenSystemExtensions
     /// <param name="projectName">Project to whose changes to subscribe</param>
     /// <param name="callback">Callback</param>
     /// <returns>Unsibscription token</returns>
-    public static IDisposable SubscribeForProjectChange(this CodeGenerationSystem codegenSystem, string projectName, Func<IReadOnlyList<SourceFile>, Task> callback)
-        => codegenSystem.SubscribeForSolutionChange(changes =>
+    public static IDisposable SubscribeForProjectChange(this CodeGenerationWorkspace codegenSystem, string projectName, Func<IReadOnlyList<CodeFile>, CancellationToken, Task> callback)
+        => codegenSystem.SubscribeForSolutionChange((changes, ct) =>
         {
             var relevantChanges = changes.Where(c => c.Path.ProjectName == projectName).ToArray();
             if (relevantChanges.Length == 0)
             {
                 return Task.CompletedTask;
             }
-            return callback(relevantChanges);
+            return callback(relevantChanges, ct);
         });
 
     /// <summary>
@@ -135,23 +139,37 @@ public static class CodegenSystemExtensions
     /// <param name="codeGenerationSystem">System</param>
     /// <param name="sourceFile">File to add</param>
     /// <returns>Whether the file has been added or not</returns>
-    public static Task<bool> AddSourceFileAsync(this CodeGenerationSystem codeGenerationSystem, SourceFile sourceFile)
-        => codeGenerationSystem.AddSourceFilesAsync(sourceFile.Yield()).Then(files => files.Any());
+    public static Task<bool> AddSourceFileAsync(this CodeGenerationWorkspace codeGenerationSystem, CodeFile sourceFile, CancellationToken cancellationToken)
+        => codeGenerationSystem.AddSourceFilesAsync(sourceFile.Yield(), cancellationToken).Then(files => files.Any());
 
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="codeGenerationSystem"></param>
+    /// <param name="codeGenerationWorkspace"></param>
     /// <param name="projectName"></param>
     /// <param name="fileName"></param>
     /// <param name="code"></param>
     /// <returns></returns>
     public static Task<bool> AddSourceFileAsync(
-        this CodeGenerationSystem codeGenerationSystem,
+        this CodeGenerationWorkspace codeGenerationWorkspace,
         string projectName,
         string fileName,
-        string code)
-        => codeGenerationSystem.AddSourceFileAsync(new SourceFile(new ProjectRelativeFilePath(projectName, fileName), code));
+        string code,
+        CancellationToken cancellationToken)
+        => codeGenerationWorkspace.AddSourceFileAsync(new CodeFile(new ProjectRelativeFilePath(projectName, fileName), code), cancellationToken);
+
+
+    public static async Task WriteFilesAsync(this CodeGenerationWorkspace codeGenerationWorkspace, IEnumerable<CodeFile> sourceFiles, CancellationToken cancellationToken)
+    {
+        foreach (var sourceFile in sourceFiles)
+        {
+            if (sourceFile.Virtual)
+            {
+                continue;
+            }
+            await codeGenerationWorkspace.WriteAsync(sourceFile.WithAutogeneratedAnnotation(), cancellationToken);
+        }
+    }
 }
 
 file class DisposableCallback : IDisposable

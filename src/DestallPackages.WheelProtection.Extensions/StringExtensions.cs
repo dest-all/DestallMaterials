@@ -187,6 +187,10 @@ public static class StringExtensions
     public static string Join(this IEnumerable<string> input, string joiner) =>
         string.Join(joiner, input);
 
+    public static string Join(this IEnumerable<string> input, char joiner) =>
+        string.Join(joiner, input);
+
+
     static readonly Regex _digitsRegex = new Regex(
         "^[0-9]*$",
         RegexOptions.Compiled | RegexOptions.Singleline
@@ -199,4 +203,7 @@ public static class StringExtensions
         var result = regex.Replace(str, replacePattern);
         return result;
     }
+
+    public static bool EndsWith(this string str, params string[] endings)
+        => endings.Any(ending => str.EndsWith(ending));
 }
