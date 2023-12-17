@@ -11,7 +11,7 @@ namespace DestallMaterials.CodeGeneration.Text
         private static readonly Regex _directoryPath = new Regex(@"(.*)\\(^\\)*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         private readonly SolutionPathFinder _pathFinder;
         private readonly ILogger _logger;
-        public static readonly Regex _outpuFilesParser = new Regex(@"<(\s)*File(\s)*Path(\s)*=(\s)*""(?<Path>.*?)"".*?>(?<Content>(.|\s)*?)<(\s)*/(\s)*File(\s)*>", RegexOptions.Compiled);
+        public static readonly Regex _outpuFilesParser = new Regex(@"<(\s)*File(\s)*Path(\s)*=(\s)*""(?<Path>.*?)""(\s)*PureVirtual(\s)*=(\s)*""(?<PureVirtual>.*?)"".*?>(?<Content>(.|\s)*?)<(\s)*/(\s)*File(\s)*>", RegexOptions.Compiled);
 
         private static readonly string[] ExceptionsForUnicode = { "proto" };
 
@@ -112,8 +112,6 @@ namespace DestallMaterials.CodeGeneration.Text
             return false;
         }
 
-
-
         public IReadOnlyList<SourceFileData> SplitIntoFiles(string content, string source = null)
         {
             var matches = _outpuFilesParser.Matches(content);
@@ -121,9 +119,10 @@ namespace DestallMaterials.CodeGeneration.Text
             var exceptions = new List<Exception>();
             var result = new List<SourceFileData>();
 
-            foreach (var fileParsed in matches.ToList())
+            foreach (var fileParsed in matches.AsEnumerable())
             {
                 string path = fileParsed.Groups["Path"].Value;
+                bool pureVirtual = bool.Parse(fileParsed.Groups["PureVirtual"].Value);
                 string code = fileParsed.Groups["Content"].Value;
                 try
                 {
@@ -139,7 +138,7 @@ namespace DestallMaterials.CodeGeneration.Text
                 {
                     Content = code,
                     FilePath = FilePath.Parse(path) ?? throw new InvalidOperationException($"Unable to parse {path} as file path."),
-                    Source = source
+                    PureVirtual = pureVirtual
                 });
             }
 

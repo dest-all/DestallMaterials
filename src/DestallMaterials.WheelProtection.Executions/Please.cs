@@ -74,7 +74,6 @@ namespace DestallMaterials.WheelProtection.Executions
             }
             finally
             {
-                stopwatch.Stop();
                 doWithTimeTaken(stopwatch.Elapsed);
             }
         }
@@ -92,7 +91,6 @@ namespace DestallMaterials.WheelProtection.Executions
             }
             finally
             {
-                stopwatch.Stop();
                 doWithTimeTaken(stopwatch.Elapsed);
             }
         }
@@ -109,7 +107,19 @@ namespace DestallMaterials.WheelProtection.Executions
             }
             finally
             {
-                stopwatch.Stop();
+                doWithTimeTaken(stopwatch.Elapsed);
+            }
+        }
+
+        public static async Task<T> MeasureExecutionTimeAsync<T>(this Task<T> task, Action<TimeSpan> doWithTimeTaken)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            try
+            {
+                return await task;
+            }
+            finally
+            {
                 doWithTimeTaken(stopwatch.Elapsed);
             }
         }

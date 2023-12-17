@@ -30,6 +30,16 @@ public static class ObjectExtensions
         yield return item2;
     }
 
+    public static IEnumerable<T> And<T>(this T item1, IEnumerable<T> items)
+    {
+        yield return item1;
+
+        foreach (var item in items)
+        {
+            yield return item;
+        }
+    }
+
     public static T[] ToArrayOfOne<T>(this T item)
         => new T[1] { item };
 

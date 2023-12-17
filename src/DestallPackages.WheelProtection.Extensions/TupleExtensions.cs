@@ -346,6 +346,12 @@ public static class TupleExtensions
         where T9 : T0
         => new T0[10] { tuple.Item1, tuple.Item2, tuple.Item3, tuple.Item4, tuple.Item5, tuple.Item6, tuple.Item7, tuple.Item8, tuple.Item9, tuple.Item10 };
 
+    public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this (TKey, TValue) tuple)
+       => new Dictionary<TKey, TValue>(2)
+       {
+            { tuple.Item1, tuple.Item2 }
+       };
+
     public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this (TKey, TValue, TKey, TValue) tuple)
         => new Dictionary<TKey, TValue>(2)
         {
@@ -472,4 +478,12 @@ public static class TupleExtensions
     public static (TR, TR, TR, TR, TR, TR, TR, TR, TR, TR) Select<T, TR>(this (T, T, T, T, T, T, T, T, T, T) tuple, Func<T, TR> selector)
         => (selector(tuple.Item1), selector(tuple.Item2), selector(tuple.Item3), selector(tuple.Item4), selector(tuple.Item5), selector(tuple.Item6), selector(tuple.Item7), selector(tuple.Item8), selector(tuple.Item9), selector(tuple.Item10));
 
+    public static bool Contains<T>(this (T, T) items, T sought)
+    {
+        if (items.Item1?.Equals(sought) != true && items.Item2?.Equals(sought) != true)
+        {
+            return false;
+        }
+        return true;
+    }
 }

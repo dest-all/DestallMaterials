@@ -2,66 +2,68 @@
 
 namespace DestallMaterials.CodeGeneration.Text;
 
-public class SolutionPathFinder
-{
-    public const string GuidPattern = @".{8}-.{4}-.{4}-.{4}-.{12}";
-    public const string SourceGenerationProjectBaseName = "SourceGeneration";
-    private static readonly Regex sourceGenerationProjectRegex = new Regex($".*{SourceGenerationProjectBaseName}_{GuidPattern}.csproj", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+/// <summary>
+/// Serves to find absolute paths corresponding to project-based relative file paths.
+/// </summary>
+public sealed class PathsProcessor
+{    
+    private readonly string _rootProjectPath;
+    private readonly string _rootProject;
 
-    private string _rootProjectPath;
-    private string _rootProject;
-    private Dictionary<string, string> _projectsLocations = new Dictionary<string, string>();
-
-    public static SolutionPathFinder Create(string rootProjectPath)
+    internal PathsProcessor(string rootProject, string rootProjectPath)
     {
-        SolutionPathFinder pathFinder;
+        _rootProjectPath = rootProjectPath;
+        _rootProject = rootProject;
+    }
+    
+    private readonly Dictionary<string, string> _projectsLocations = new Dictionary<string, string>();
 
-        if (Directory.Exists(rootProjectPath))
+    /// <summary>
+    /// Only way to create PathFinder is based on passing some root file to it.
+    /// </summary>
+    /// <param name="rootFilePath">Path to .sln, .csproj or .shproj file</param>
+    /// <returns>Ready for work <see cref="PathsProcessor"/></returns>
+    /// <exception cref="FileLoadException">File is not one of the required.</exception>
+    public static PathsProcessor Create(string rootFilePath)
+    {
+        PathsProcessor pathFinder;
+
+        if (Directory.Exists(rootFilePath))
         {
-            rootProjectPath = Directory.GetFiles(rootProjectPath).FirstOrDefault(f => f.EndsWith(".sln") || f.EndsWith(".csproj") || f.EndsWith(".shproj"))
+            rootFilePath = Directory.GetFiles(rootFilePath).FirstOrDefault(f => f.EndsWith(".sln") || f.EndsWith(".csproj") || f.EndsWith(".shproj"))
                 ?? throw new Exception($"No csproj, sln or shproj file in specified folder.");
         }
 
-        if (rootProjectPath.EndsWith(".csproj"))
+        if (rootFilePath.EndsWith(".csproj"))
         {
-            pathFinder = new SolutionPathFinder()
-            {
-                _rootProject = rootProjectPath.Split('\\').Last().Split(".csproj".ToCharArray()).First(),
-                _rootProjectPath = Directory.GetParent(rootProjectPath).FullName
-            };
+            pathFinder = new PathsProcessor(rootFilePath.Split('\\').Last().Split(".csproj".ToCharArray()).First(), Directory.GetParent(rootFilePath).FullName);
         }
-        else if (rootProjectPath.EndsWith(".shproj"))
+        else if (rootFilePath.EndsWith(".shproj"))
         {
-            pathFinder = new SolutionPathFinder()
-            {
-                _rootProject = rootProjectPath.Split('\\').Last().Split(".shproj".ToCharArray()).First(),
-                _rootProjectPath = Directory.GetParent(rootProjectPath).FullName
-            };
+            pathFinder = new PathsProcessor(rootFilePath.Split('\\').Last().Split(".shproj".ToCharArray()).First(), Directory.GetParent(rootFilePath).FullName);
         }
-        else if (rootProjectPath.EndsWith(".sln"))
+        else if (rootFilePath.EndsWith(".sln"))
         {
-            pathFinder = new SolutionPathFinder()
-            {
-                _rootProject = rootProjectPath.Split('\\').Last().Split(".sln".ToCharArray()).First(),
-                _rootProjectPath = Directory.GetParent(rootProjectPath).FullName
-            };
+            pathFinder = new PathsProcessor(rootFilePath.Split('\\').Last().Split(".sln".ToCharArray()).First(), Directory.GetParent(rootFilePath).FullName);
         }
         else
         {
-            throw new Exception($"Invalid project/solution file path '{rootProjectPath}'. Must end with '.csproj', '.sln' or '.shproj'.");
+            throw new FileLoadException($"Invalid project/solution file path '{rootFilePath}'. Must end with '.csproj', '.sln' or '.shproj'.");
         }
 
         return pathFinder;
     }
 
-    SolutionPathFinder()
+    /// <summary>
+    /// Compose file system path for project-based path.
+    /// </summary>
+    /// <param name="sourceFilePath"></param>
+    /// <returns></returns>
+    public string? ToAbsolutePath(ProjectRelativeFilePath sourceFilePath)
     {
-
-    }
-    public string? RelativeToAbsolutePath(string relativeLocation)
-    {
+        var relativeLocation = sourceFilePath.ToString();
         relativeLocation = relativeLocation.Replace("/", "\\");
-        string targetProject = relativeLocation.Split('\\').First();
+        string targetProject = sourceFilePath.ProjectName;
         if (targetProject == null) { return null; }
 
         string targetProjectFolder;

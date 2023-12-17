@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace DestallMaterials.CodeGeneration
 {
-    public abstract class CodegenComponent : ComponentBase
+    public abstract class CodeGenerationEntryPoint : ComponentBase
     {
         public static class SourceCodeRenderingSymbols
         {
@@ -13,13 +13,10 @@ namespace DestallMaterials.CodeGeneration
             public static readonly MarkupString L = (MarkupString)"<";
             public static MarkupString Raw(string str) => (MarkupString)str;
             public static MarkupString A => Arrow;
-
         }
 
         [Parameter]
+        [EditorRequired]
         public Compilation Compilation { get; set; }
-
-        
-
     }
 }
