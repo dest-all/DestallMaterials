@@ -4,8 +4,6 @@ using DestallMaterials.WheelProtection.Extensions.Tuples;
 using Microsoft.CodeAnalysis;
 using DestallMaterials.WheelProtection.Extensions.Objects;
 using DestallMaterials.WheelProtection.Extensions.Tasks;
-using DestallMaterials.CodeGeneration.Text;
-using System.Threading;
 
 namespace DestallMaterials.CodeGeneration;
 

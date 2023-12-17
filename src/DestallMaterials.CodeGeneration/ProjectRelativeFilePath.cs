@@ -1,5 +1,4 @@
-﻿using DestallMaterials.CodeGeneration.Text;
-using DestallMaterials.WheelProtection.Extensions.Strings;
+﻿using DestallMaterials.WheelProtection.Extensions.Strings;
 using Microsoft.CodeAnalysis;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
@@ -56,8 +55,6 @@ public record struct CodeFile(ProjectRelativeFilePath Path, string Content, bool
     public static IEnumerable<CodeFile> ParseMany(string renderingResult)
     {
         var matches = _sourceCodeFilesParser.Matches(renderingResult);
-
-        var result = new List<SourceFileData>();
 
         foreach (var fileFound in matches.AsEnumerable())
         {
