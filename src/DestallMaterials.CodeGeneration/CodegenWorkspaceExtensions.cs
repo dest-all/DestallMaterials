@@ -50,6 +50,13 @@ public static class CodegenWorkspaceExtensions
         => codeGenerationWorkspace.AddSourceFileAsync(new CodeFile(new ProjectRelativeFilePath(projectName, fileName), code), cancellationToken);
 
 
+    /// <summary>
+    /// Write physical files to the solution behind the workspace.
+    /// </summary>
+    /// <param name="codeGenerationWorkspace">Workspace to accept files</param>
+    /// <param name="sourceFiles">Files to write</param>
+    /// <param name="cancellationToken">Cancellation</param>
+    /// <returns></returns>
     public static async Task WriteFilesAsync(this CodeGenerationWorkspace codeGenerationWorkspace, IEnumerable<CodeFile> sourceFiles, CancellationToken cancellationToken)
     {
         foreach (var sourceFile in sourceFiles)

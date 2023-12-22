@@ -22,14 +22,12 @@ public class GeneratePackageContents
 
         var renderer = new SourceFileRenderer(sp => { });
 
-        var filesAdded = await renderer.RenderToWorkspaceAsync<TestComponents.GeneratePackageContents>(
+        var filesAdded = await renderer.WriteToWorkspaceAsync<TestComponents.GeneratePackageContents>(
             projectName,
             workspace,
             (
                 nameof(TestComponents.GeneratePackageContents.TupleSize), (object)maxTupleSize
             ).ToDictionary(),
             default);
-
-        await workspace.WriteFilesAsync(filesAdded, default);
     }
 }

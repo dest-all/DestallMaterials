@@ -56,7 +56,7 @@ public static class SourceFileWriter
             var existingText = await existingFile.GetTextAsync(cancellationToken);
             var sourceContent = SourceText.From(content);
 
-            if (existingText == sourceContent)
+            if (existingText.ToString() == content)
             {
                 return project;
             }
