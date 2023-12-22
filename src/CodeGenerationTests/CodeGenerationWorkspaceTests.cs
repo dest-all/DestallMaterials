@@ -1,6 +1,5 @@
 ﻿using DestallMaterials.WheelProtection.Extensions.Enumerables;
 using DestallMaterials.WheelProtection.Extensions.Strings;
-using DestallMaterials.WheelProtection.Extensions.Tuples;
 using Microsoft.CodeAnalysis;
 using System.Diagnostics;
 using DestallMaterials.WheelProtection.Extensions.Tasks;
@@ -12,20 +11,8 @@ namespace CodeGenerationTests;
 
 [Parallelizable(scope: ParallelScope.All)]
 [TestFixture]
-public class CodeGenerationWorkspaceTests
-{
-    static readonly string _supplierProject;
-    static readonly string _consumerProject;
-
-    static CodeGenerationWorkspaceTests()
-    {
-        (_supplierProject, _consumerProject) = TestsPreparation.EnsureSamples();
-    }
-
-    const string nameSpace = "GeneratedNamespace";
-    const string className = "GeneratedClass";
-    const string fileName = $"{className}.cs";
-    const string sourceText = $"namespace {nameSpace} {{ public class {className} {{}} }}";
+public class CodeGenerationWorkspaceTests : CodeGenerationTests
+{    
     [Test]
     public async Task AddSource_MustAdd_TreeMustBeFound()
     {

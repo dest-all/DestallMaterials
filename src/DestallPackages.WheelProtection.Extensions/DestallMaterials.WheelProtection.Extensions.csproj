@@ -14,6 +14,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\DestallMaterials.DataStructures\DestallMaterials.WheelProtection.DataStructures.csproj" />
+		<ProjectReference Include="..\DestallMaterials.WheelProtection.LinqToTuples\DestallMaterials.WheelProtection.LinqToTuples.csproj" />
 	</ItemGroup>
 
 </Project>

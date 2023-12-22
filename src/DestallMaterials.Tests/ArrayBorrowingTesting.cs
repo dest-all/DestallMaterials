@@ -1,6 +1,6 @@
 ﻿using DestallMaterials.WheelProtection.DataStructures.Buffers;
 using DestallMaterials.WheelProtection.Extensions.Ranges;
-using DestallMaterials.WheelProtection.Extensions.Tuples;
+using DestallMaterials.WheelProtection.Linq;
 
 namespace DestallMaterials.Tests;
 

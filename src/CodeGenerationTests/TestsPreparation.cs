@@ -1,4 +1,4 @@
-﻿using DestallMaterials.WheelProtection.Extensions.Tuples;
+﻿using DestallMaterials.WheelProtection.Linq;
 using Microsoft.CodeAnalysis;
 using static System.IO.Directory;
 

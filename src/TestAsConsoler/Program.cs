@@ -1,3 +1,4 @@
-﻿using DestallMaterials.WheelProtection.Queues;
+﻿DateTime? input = null;
 
-Console.WriteLine("A");
+
+Console.WriteLine(DateTime.Now > input || DateTime.Now < input);

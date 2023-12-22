@@ -1,8 +1,6 @@
-﻿using BlazorTemplater;
-using DestallMaterials.WheelProtection.Extensions.Enumerables;
+﻿using DestallMaterials.WheelProtection.Extensions.Enumerables;
 using DestallMaterials.WheelProtection.Extensions.Strings;
-using DestallMaterials.WheelProtection.Extensions.Tuples;
-using Microsoft.AspNetCore.Components;
+using DestallMaterials.WheelProtection.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
@@ -42,7 +40,7 @@ public static class SourceFileWriter
     /// <param name="sourceFile">File (document) data</param>
     /// <param name="cancellationToken">Token to cancel operation</param>
     /// <returns>The same project, if exact same file had already existed. Otherwise - new Project with existing file. 
-    /// Compare input and output references to know if document had existed or not.</returns>
+    /// Hint: Compare input and output references to know whether document had existed or not.</returns>
     public static async ValueTask<Project> WithAsync(this Project project, CodeFile sourceFile, CancellationToken cancellationToken = default)
     {
         var (_, folders, fileName) = sourceFile.Path;
@@ -109,64 +107,5 @@ public static class SourceFileWriter
         fileName = splitted.Join(".");
 
         return fileName;
-    }
-}
-
-
-/// <summary>
-/// Serves to render source code components with Compilation.
-/// </summary>
-public sealed class SourceFileRenderer
-{
-    readonly Action<ComponentRenderer<DynamicComponent>> _configureComponentRenderer;
-
-    /// <summary>
-    /// Initialize
-    /// </summary>
-    /// <param name="configureRenderer">Configure service contracts that will be applied to every component renderer, created every time <see cref="RenderSourceCode<TComponent>" is called.></param>
-    public SourceFileRenderer(Action<ComponentRenderer<DynamicComponent>> configureRenderer)
-    {
-        _configureComponentRenderer = configureRenderer;
-    }
-
-    /// <summary>
-    /// Render source code template to Source code files.
-    /// </summary>
-    /// <typeparam name="TComponent"></typeparam>
-    /// <param name="compilation"></param>
-    /// <returns></returns>
-    public IEnumerable<CodeFile> RenderSourceCode<TComponent>(Compilation compilation)
-        where TComponent : CodeGenerationEntryPoint
-    {
-        var renderer = new ComponentRenderer<DynamicComponent>();
-
-        _configureComponentRenderer(renderer);
-
-        renderer.Set(c => c.Type, typeof(TComponent));
-        renderer.Set(c => c.Parameters, new Dictionary<string, object>
-        {
-            { "Compilation", compilation }
-        });
-
-        var stringResult = renderer.Render();
-
-        var result = CodeFile.ParseMany(stringResult);
-
-        return result;
-    }
-}
-
-public static class CodeFilesAddingExtensions
-{
-    public static async Task<IReadOnlyList<CodeFile>> RenderToSystemAsync<TComponent>(this SourceFileRenderer sourceFileRenderer, string projectName, CodeGenerationWorkspace codeGenerationSystem, CancellationToken cancellationToken)
-        where TComponent : CodeGenerationEntryPoint
-    {
-        var compilation = await codeGenerationSystem.GetProjectCompilationAsync(projectName);
-
-        var sourceFiles = sourceFileRenderer.RenderSourceCode<TComponent>(compilation!);
-
-        var addedSourceFiles = await codeGenerationSystem.AddSourceFilesAsync(sourceFiles, cancellationToken);
-
-        return addedSourceFiles;
     }
 }

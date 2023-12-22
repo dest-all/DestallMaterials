@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DestallMaterials.WheelProtection.Executions
@@ -20,7 +18,7 @@ namespace DestallMaterials.WheelProtection.Executions
                 {
                     return await function();
                 }
-                catch (Exception ex)
+                catch
                 {
                     if (maxTriesCount == 0)
                     {
