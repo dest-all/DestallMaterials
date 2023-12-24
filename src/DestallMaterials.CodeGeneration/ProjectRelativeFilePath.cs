@@ -5,7 +5,6 @@ using System.Text.RegularExpressions;
 
 namespace DestallMaterials.CodeGeneration;
 
-
 /// <summary>
 /// File 
 /// </summary>

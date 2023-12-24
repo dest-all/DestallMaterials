@@ -23,7 +23,7 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
         // Act
         var sourceFile = new CodeFile(new ProjectRelativeFilePath(projectName, fileName), sourceText);
         await system.AddSourceFilesAsync(sourceFile.Yield(), default);
-        var compilation = await system.GetProjectCompilationAsync(projectName);
+        var compilation = await system.GetProjectCompilationAsync(projectName, default);
 
         // Assert
         var containsClass = compilation.GetTypeByMetadataName($"{nameSpace}.{className}") is not null;
@@ -41,7 +41,7 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
         // Act
         var sourceFile = new CodeFile(new ProjectRelativeFilePath(secondaryProjectName, fileName), sourceText);
         await system.AddSourceFilesAsync(sourceFile.Yield(), default);
-        var compilation = await system.GetProjectCompilationAsync(mainProjectName);
+        var compilation = await system.GetProjectCompilationAsync(mainProjectName, default);
 
         // Assert
         var containsClass = compilation.GetTypeByMetadataName($"{nameSpace}.{className}") is not null;
@@ -58,8 +58,8 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
 
         // Act
         var (mainCompilation, secondaryCompilation) = await (
-            system.GetProjectCompilationAsync(mainProjectName),
-            system.GetProjectCompilationAsync(secondaryProjectName));
+            system.GetProjectCompilationAsync(mainProjectName, default),
+            system.GetProjectCompilationAsync(secondaryProjectName, default));
 
         string classToFind = $"{secondaryProjectName}.SupplierModel";
 
@@ -101,7 +101,7 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
     {(0..newClassesCount).Select(i => $"public class Class{i} {{}}").Join("\n")}
 }}", default);
 
-        var mainCompilation = await system.GetProjectCompilationAsync(mainProjectName);
+        var mainCompilation = await system.GetProjectCompilationAsync(mainProjectName, default);
 
         // Assert
         var classesCounterClass = mainCompilation.GetTypeByMetadataName($"{nameSpace}.{className}");
@@ -145,7 +145,7 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
         {
             var (_, content, _) = change.Single();
 
-            var mainCompilation = await system.GetProjectCompilationAsync(mainProjectName);
+            var mainCompilation = await system.GetProjectCompilationAsync(mainProjectName, default);
 
             await system.AddSourceFileAsync(secondaryProjectName, "newstruct.cs", $@"namespace {nameSpace} 
 {{
@@ -163,8 +163,8 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
 }}", default);
 
         var (mainCompilation, secondaryCompilation) = await (
-            system.GetProjectCompilationAsync(mainProjectName), 
-            system.GetProjectCompilationAsync(secondaryProjectName));
+            system.GetProjectCompilationAsync(mainProjectName, default), 
+            system.GetProjectCompilationAsync(secondaryProjectName, default));
 
         // Assert
         var newStruct = secondaryCompilation.GetTypeByMetadataName($"{nameSpace}.{structName}");
@@ -180,7 +180,7 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
 
         const string mainProjectName = "CodegenSample.Consumer";
 
-        var mainCompilation1 = await system.GetProjectCompilationAsync(mainProjectName);
+        var mainCompilation1 = await system.GetProjectCompilationAsync(mainProjectName, default);
 
         var errors1 = GetErrors(mainCompilation1);
 
@@ -205,7 +205,7 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
 
         await system.AddSourceFileAsync(mainProjectName, "newClass.cs", newClassCode, default);
 
-        var mainCompilation2 = await system.GetProjectCompilationAsync(mainProjectName);
+        var mainCompilation2 = await system.GetProjectCompilationAsync(mainProjectName, default);
 
         var errors2 = GetErrors(mainCompilation2);
 
@@ -213,9 +213,9 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
 
         await system.AddSourceFilesAsync(newFiles, default);
 
-        var syntaxTrees = await referredProjects.ToArrayAsync(rp => system.GetProjectCompilationAsync(rp).Then(c => c.SyntaxTrees.ToArray()));
+        var syntaxTrees = await referredProjects.ToArrayAsync(rp => system.GetProjectCompilationAsync(rp, default).Then(c => c.SyntaxTrees.ToArray()));
 
-        var mainCompilation3 = await system.GetProjectCompilationAsync(mainProjectName);
+        var mainCompilation3 = await system.GetProjectCompilationAsync(mainProjectName, default);
 
         var errors3 = GetErrors(mainCompilation3);
 

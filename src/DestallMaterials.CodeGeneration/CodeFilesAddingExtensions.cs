@@ -22,7 +22,7 @@ public static class CodeFilesAddingExtensions
         CancellationToken cancellationToken)
         where TComponent : SourceGenerationTemplate
     {
-        var compilation = await codeGenerationWorkspace.GetProjectCompilationAsync(projectName);
+        var compilation = await codeGenerationWorkspace.GetProjectCompilationAsync(projectName, cancellationToken);
 
         var sourceFiles = sourceFileRenderer.RenderSourceCode<TComponent>(compilation!, parameters);
 

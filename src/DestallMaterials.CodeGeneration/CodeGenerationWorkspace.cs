@@ -33,7 +33,13 @@ public sealed class CodeGenerationWorkspace : IDisposable
     public static CodeGenerationWorkspace Create(Workspace workspace)
         => Create(workspace.CurrentSolution);
 
-    public async Task<Compilation> GetProjectCompilationAsync(string projectName, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Get compilation object of the project within the workspace. Cached upon calling, so consequent calls will execute instantly.
+    /// </summary>
+    /// <param name="projectName">Exact project name to get compilation of</param>
+    /// <param name="cancellationToken">Cancellation</param>
+    /// <returns>Compilation object</returns>
+    public async Task<Compilation> GetProjectCompilationAsync(string projectName, CancellationToken cancellationToken)
     {
         var project = _solution.Projects.First(p => p.Name == projectName);
 
@@ -43,7 +49,7 @@ public sealed class CodeGenerationWorkspace : IDisposable
     }
 
     /// <summary>
-    /// Added a bunch of source files to system.
+    /// Added a bunch of source files to the workspace.
     /// </summary>
     /// <param name="sourceFiles">Files to add</param>
     /// <returns>Those files, that were not present and have been added to system.</returns>
@@ -67,9 +73,12 @@ public sealed class CodeGenerationWorkspace : IDisposable
         }));
 
         var changedProjects = processedProjects
-            .Where(pp => pp.areDifferent).ToArray();
+            .Where(pp => pp.areDifferent)
+            .ToArray();
 
-        var addedFiles = changedProjects.Select(cp => cp.sourceFile).ToArray();
+        var addedFiles = changedProjects
+            .Select(cp => cp.sourceFile)
+            .ToArray();
 
         foreach (var callback in _onProjectsChange)
         {
