@@ -5,6 +5,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Concurrent;
 
+using SymbolsDict = System.Collections.Generic.IReadOnlyDictionary<Microsoft.CodeAnalysis.INamedTypeSymbol, System.Collections.Generic.IReadOnlyList<Microsoft.CodeAnalysis.ISymbol>>;
+
 namespace DestallMaterials.CodeGeneration.Utilities;
 
 public class SemanticsReceiver : CSharpSyntaxWalker
@@ -17,7 +19,7 @@ public class SemanticsReceiver : CSharpSyntaxWalker
     public IReadOnlyDictionary<INamedTypeSymbol, IReadOnlyList<ISymbol>> AttributeTiedSymbols
         => _attributeTiedSymbols.ToDictionary(kv => kv.Key, kv => kv.Value.AsReadOnlyList());
 
-    public SemanticsReceiver(Compilation compilation, IEnumerable<string> seekedAttributes)
+    internal SemanticsReceiver(Compilation compilation, IEnumerable<string> seekedAttributes)
     {
         _compilation = compilation;
         SymbolEqualityComparer equalityComparer = SymbolEqualityComparer.Default;
@@ -93,25 +95,34 @@ public class SemanticsReceiver : CSharpSyntaxWalker
         OnVisitSyntaxNode(node, semanticModel);
     }
 
-    public async Task<IReadOnlyDictionary<INamedTypeSymbol, IReadOnlyList<ISymbol>>> VisitAllSyntaxTreesAsync()
+    public async Task<SymbolsDict> VisitAllSyntaxTreesAsync()
     {
         await _compilation.SyntaxTrees.SelectAsync(tree => Task.Run(() =>
         {
-            Visit(tree.GetRoot()); 
+            Visit(tree.GetRoot());
             return true;
         })).ToListAsync();
 
         return AttributeTiedSymbols;
     }
+
+    public static async Task<SymbolsDict> AnalyzeAttributeBearersAsync(
+        Compilation compilation,
+        IEnumerable<string> seekedAttributes)
+    {
+        var semanticsReceiver = new SemanticsReceiver(compilation, seekedAttributes);
+        var result = await semanticsReceiver.VisitAllSyntaxTreesAsync();
+        return result;
+    }
 }
 
 public static class SemanticsReceiverExtensions
 {
-    public static IReadOnlyList<ISymbol> GetAttributeSymbols<TAttribute>(this SemanticsReceiver semanticsReceiver)
-        => semanticsReceiver.GetAttributeSymbols(typeof(TAttribute).FullName);
+    public static IReadOnlyList<ISymbol> GetAttributeSymbols<TAttribute>(this SymbolsDict symbolsDict)
+        => symbolsDict.GetAttributeSymbols(typeof(TAttribute).FullName);
 
-    public static IReadOnlyList<ISymbol> GetAttributeSymbols(this SemanticsReceiver semanticsReceiver, string attributeFullName)
-        => semanticsReceiver.AttributeTiedSymbols.FirstOrDefault(kv => kv.Key.ToFullDisplayString() == attributeFullName).Value ?? Array.Empty<ISymbol>();
+    public static IReadOnlyList<ISymbol> GetAttributeSymbols(this SymbolsDict symbolsDict, string attributeFullName)
+        => symbolsDict.FirstOrDefault(kv => kv.Key.ToFullDisplayString() == attributeFullName).Value ?? Array.Empty<ISymbol>();
 }
 
 public static class SyntaxExtensions
