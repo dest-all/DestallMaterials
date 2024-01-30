@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis;
 
 namespace DestallMaterials.CodeGeneration;
 
-public sealed class CodeGenerationWorkspace : IDisposable
+public sealed class CodeGenerationWorkspace : ICompilationSource, IDisposable
 {
     volatile Solution _solution;
 
@@ -33,12 +33,7 @@ public sealed class CodeGenerationWorkspace : IDisposable
     public static CodeGenerationWorkspace Create(Workspace workspace)
         => Create(workspace.CurrentSolution);
 
-    /// <summary>
-    /// Get compilation object of the project within the workspace. Cached upon calling, so consequent calls will execute instantly.
-    /// </summary>
-    /// <param name="projectName">Exact project name to get compilation of</param>
-    /// <param name="cancellationToken">Cancellation</param>
-    /// <returns>Compilation object</returns>
+    /// <inheritdoc/>
     public async Task<Compilation> GetProjectCompilationAsync(string projectName, CancellationToken cancellationToken)
     {
         var project = _solution.Projects.First(p => p.Name == projectName);
@@ -57,7 +52,8 @@ public sealed class CodeGenerationWorkspace : IDisposable
     {
         var processedProjects = await Task.WhenAll(sourceFiles.Select(async sourceFile =>
         {
-            var oldProject = _solution.Projects.First(p => p.Name == sourceFile.Path.ProjectName);
+            var oldProject = _solution.Projects.FirstOrDefault(p => p.Name == sourceFile.Path.ProjectName)
+                ?? throw new SourceCodeGenerationException($"Project {sourceFile.Path.ProjectName} has not been found in the solution.");
             if (!sourceFile.IsCharpFile())
             {
                 return (oldProject, newProject: oldProject, sourceFile, areDifferent: false);
@@ -122,6 +118,21 @@ public sealed class CodeGenerationWorkspace : IDisposable
     public void Dispose()
         => _onProjectsChange.Clear();
 }
+
+/// <summary>
+/// Server to get compilation of projects besides from those passed to the template.
+/// </summary>
+public interface ICompilationSource
+{
+    /// <summary>
+    /// Get compilation object of the project within workspace. Cached upon calling, so consequent calls will execute instantly.
+    /// </summary>
+    /// <param name="projectName">Exact project name to get compilation of</param>
+    /// <param name="cancellationToken">Cancellation</param>
+    /// <returns>Compilation object</returns>
+    Task<Compilation> GetProjectCompilationAsync(string projectName, CancellationToken cancellationToken);
+}
+
 
 file class DisposableCallback : IDisposable
 {

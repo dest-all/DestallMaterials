@@ -16,7 +16,7 @@ public class SemanticsReceiver : CSharpSyntaxWalker
 
     readonly ConcurrentDictionary<string, SemanticModel> _semanticModels = new();
 
-    public IReadOnlyDictionary<INamedTypeSymbol, IReadOnlyList<ISymbol>> AttributeTiedSymbols
+    public SymbolsDict AttributeTiedSymbols
         => _attributeTiedSymbols.ToDictionary(kv => kv.Key, kv => kv.Value.AsReadOnlyList());
 
     internal SemanticsReceiver(Compilation compilation, IEnumerable<string> seekedAttributes)
@@ -97,21 +97,53 @@ public class SemanticsReceiver : CSharpSyntaxWalker
 
     public async Task<SymbolsDict> VisitAllSyntaxTreesAsync()
     {
-        await _compilation.SyntaxTrees.SelectAsync(tree => Task.Run(() =>
+        await _compilation.SyntaxTrees.SelectAsync(tree =>
         {
             Visit(tree.GetRoot());
             return true;
-        })).ToListAsync();
+        }).ToListAsync();
 
         return AttributeTiedSymbols;
     }
 
+    public SymbolsDict VisitAllSyntaxTrees()
+    {
+        _compilation.SyntaxTrees.Select(tree =>
+        {
+            Visit(tree.GetRoot());
+            return true;
+        }).ToList();
+
+        return AttributeTiedSymbols;
+    }
+
+    /// <summary>
+    /// Visits all syntax trees in parallel. Errors when used for big project in razor template.
+    /// </summary>
+    /// <param name="compilation"></param>
+    /// <param name="soughtAttributes"></param>
+    /// <returns>Symbols bearing the attributes specified</returns>
     public static async Task<SymbolsDict> AnalyzeAttributeBearersAsync(
         Compilation compilation,
-        IEnumerable<string> seekedAttributes)
+        IEnumerable<string> soughtAttributes)
     {
-        var semanticsReceiver = new SemanticsReceiver(compilation, seekedAttributes);
+        var semanticsReceiver = new SemanticsReceiver(compilation, soughtAttributes);
         var result = await semanticsReceiver.VisitAllSyntaxTreesAsync();
+        return result;
+    }
+
+    /// <summary>
+    /// Visits all syntax trees synchronously
+    /// </summary>
+    /// <param name="compilation"></param>
+    /// <param name="soughtAttributes"></param>
+    /// <returns>Symbols bearing the attributes specified</returns>
+    public static SymbolsDict AnalyzeAttributeBearers(
+        Compilation compilation,
+        IEnumerable<string> soughtAttributes)
+    {
+        var semanticsReceiver = new SemanticsReceiver(compilation, soughtAttributes);
+        var result = semanticsReceiver.VisitAllSyntaxTrees();
         return result;
     }
 }

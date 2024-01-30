@@ -10,7 +10,7 @@
 
 @{
     const string nameSpace = "DestallMaterials.WheelProtection.Linq";
-    var filePath = (string method) => new ProjectRelativeFilePath("DestallMaterials.WheelProtection.LinqToTuples", $"{method}.cs").ToString();
+    var filePath = (string method) => new ProjectRelativeFilePath("DestallMaterials.WheelProtection.LinqToTuples", $"{method}.cs");
     var path = filePath("TupleExtensions");
 
     var ts = (int count) => Enumerable.Repeat("T", count).Join(", ");

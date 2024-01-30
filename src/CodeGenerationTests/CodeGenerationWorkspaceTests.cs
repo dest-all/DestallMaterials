@@ -224,7 +224,7 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
         Assert.IsFalse(errors1.Any());
         Assert.IsTrue(errors2.Any());
         Assert.IsFalse(errors3.Any());
-    }
+    }    
 
     static Diagnostic[] GetErrors(Compilation compilation)
         => compilation

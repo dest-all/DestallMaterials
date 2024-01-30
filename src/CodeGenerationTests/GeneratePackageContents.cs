@@ -20,10 +20,9 @@ public class GeneratePackageContents
 
         using var workspace = CodeGenerationWorkspace.Create(linqToTuplesProject);
 
-        var renderer = new SourceFileRenderer(sp => { });
+        var renderer = new SourceFileRenderer(workspace, sp => { });
 
         var filesAdded = await renderer.WriteToWorkspaceAsync<TestComponents.GeneratePackageContents>(
-            projectName,
             workspace,
             (
                 nameof(TestComponents.GeneratePackageContents.TupleSize), (object)maxTupleSize

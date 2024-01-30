@@ -21,5 +21,5 @@ public abstract class CodeGenerationTests
     }
 
     protected static Dictionary<string, object> ToTestComponentParameters(CodeFile codeFile) 
-        => ("Path", (object)codeFile.Path.ToString(), "Content", codeFile.Content, "Virtual", codeFile.Virtual).ToDictionary();
+        => ("Path", (object)codeFile.Path, "Content", codeFile.Content, "Virtual", codeFile.Virtual).ToDictionary();
 }

@@ -82,7 +82,10 @@ public record struct CodeFile(ProjectRelativeFilePath Path, string Content, bool
 
             string code = fileFound.Groups["Content"].Value;
 
-            code = code.Split("``").Select(str => str.Replace("/`", ">").Replace('`', '<')).Join("``");
+            code = code
+                .Split("``")
+                .Select(str => str.Replace("/`", ">").Replace('`', '<'))
+                .Join("``");
 
             CodeFile codeFile = new(path, code, pureVirtual);
 

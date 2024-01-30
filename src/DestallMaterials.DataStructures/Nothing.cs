@@ -3,3 +3,7 @@
 public struct Nothing
 {
 }
+
+public struct Nothing<T>
+{
+}

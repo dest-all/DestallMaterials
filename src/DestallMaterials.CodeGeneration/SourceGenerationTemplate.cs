@@ -18,7 +18,7 @@ public abstract class SourceGenerationTemplate : ComponentBase
 
     [Parameter]
     [EditorRequired]
-    public Compilation Compilation { get; set; }
+    public ICompilationSource CompilationSource { get; set; }
 }
 
 public sealed class SourceFile : ComponentBase
@@ -28,8 +28,8 @@ public sealed class SourceFile : ComponentBase
         base.BuildRenderTree(builder);
 
         builder.OpenElement(1, "File");
-        builder.AddAttribute(2, nameof(Virtual), Virtual);
-        builder.AddAttribute(3, nameof(Path), Path);
+        builder.AddAttribute(2, nameof(Virtual), Virtual ? "true" : "false");
+        builder.AddAttribute(3, nameof(Path), Path.ToString());
         builder.AddContent(4, ChildContent);
         builder.CloseElement();
     }
@@ -43,5 +43,5 @@ public sealed class SourceFile : ComponentBase
 
     [Parameter]
     [EditorRequired]
-    public string Path { get; set; } = "";
+    public ProjectRelativeFilePath Path { get; set; }
 }

@@ -1,4 +1,5 @@
 ﻿using DestallMaterials.WheelProtection.Extensions.Objects;
+using DestallMaterials.WheelProtection.Extensions.Strings;
 using DestallMaterials.WheelProtection.Linq;
 using Microsoft.CodeAnalysis;
 using System.Collections;
@@ -86,7 +87,7 @@ public static class SemanticsExtensions
     static readonly SymbolDisplayFormat _format = new SymbolDisplayFormat(
                             SymbolDisplayGlobalNamespaceStyle.OmittedAsContaining,
                             SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
-                            SymbolDisplayGenericsOptions.None
+                            SymbolDisplayGenericsOptions.IncludeTypeParameters
             );
 
     public static bool Is<T>(this ITypeSymbol typeSymbol)
@@ -94,16 +95,25 @@ public static class SemanticsExtensions
 
     public static bool Is(this ITypeSymbol typeSymbol, Type type)
     {
-        if (typeSymbol is null)
+        if (!type.IsGenericType)
+        {
+            if (typeSymbol is null)
+            {
+                return false;
+            }
+            var signature = type.FullName;
+            var result = typeSymbol.ToFullDisplayString() == signature;
+            return result;
+        }
+
+        if (!typeSymbol.IsGenericType())
         {
             return false;
         }
-        var signature = type.FullName;
 
-        var result = typeSymbol.ToFullDisplayString() == signature;
-
-        return result;
+        return typeSymbol.ToFullDisplayString().Replace("?", "") == type.ToDisplayString().Replace("?", "");
     }
+
     public static bool IsNumber(this ITypeSymbol typeSymbol)
         => NumberTypes.Any(nt => typeSymbol.Is(nt));
 
@@ -258,7 +268,6 @@ public static class SemanticsExtensions
             return false;
         }
         return ReadOnlyEnumerables.Select(e => $"{e}<{typeParameter.ToDisplayString()}>").Contains(typeSymbol.ToDisplayString());
-
     }
 
     public static bool IsSemanticEnumerable(this ITypeSymbol type, out ITypeSymbol underEnumerable)
@@ -273,4 +282,19 @@ public static class SemanticsExtensions
 
     public static bool IsGenericType(this ITypeSymbol type) => (type as INamedTypeSymbol)?.IsGenericType == true;
 
+    public static string ToDisplayString(this Type type)
+    {
+        if (!type.IsGenericType)
+        {
+            return type.FullName;
+        }
+        if (type.GenericTypeArguments.Length == 1)
+        {
+            if (type.FullName.StartsWith("System.Nullable`"))
+            {
+                return $"{type.GenericTypeArguments[0]}?";
+            }
+        }
+        return $"{type.FullName.Split('`')[0]}<{type.GenericTypeArguments.Select(t => t.ToDisplayString()).Join(", ")}>";
+    }
 }
