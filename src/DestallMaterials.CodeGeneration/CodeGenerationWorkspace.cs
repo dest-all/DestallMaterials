@@ -36,7 +36,8 @@ public sealed class CodeGenerationWorkspace : ICompilationSource, IDisposable
     /// <inheritdoc/>
     public async Task<Compilation> GetProjectCompilationAsync(string projectName, CancellationToken cancellationToken)
     {
-        var project = _solution.Projects.First(p => p.Name == projectName);
+        var project = _solution.Projects.FirstOrDefault(p => p.Name == projectName) 
+            ?? throw new InvalidOperationException($"Project with name {projectName} is not found among projects of the workspace.");
 
         var result = await project.GetCompilationAsync(cancellationToken);
 

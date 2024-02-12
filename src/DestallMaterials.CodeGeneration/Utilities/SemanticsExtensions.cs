@@ -127,44 +127,32 @@ public static class SemanticsExtensions
 
     public static string ToFullDisplayString(this ISymbol symbol) => symbol.ToDisplayString(_format);
 
-    public static bool TiedToAttribute<TAttribute>(this ITypeSymbol symbol) where TAttribute : Attribute
-        => symbol.TiedToAttribute(typeof(TAttribute));
+    public static bool RelatesToAttribute<TAttribute>(this ITypeSymbol symbol) where TAttribute : Attribute
+        => symbol.RelatesToAttribute(typeof(TAttribute));
 
-    public static bool TiedToAttribute(this ITypeSymbol symbol, Type attribute)
+    public static bool RelatesToAttribute(this ITypeSymbol symbol, Type attribute)
+        => symbol.RelatesToAttribute(attribute.FullName);
+
+    public static bool RelatesToAttribute(this ITypeSymbol symbol, INamedTypeSymbol attribute)
+        => symbol.RelatesToAttribute(attribute.ToDisplayString());
+
+    public static bool RelatesToAttribute(this ITypeSymbol type, string attribute)
     {
-        if (symbol == null)
-        {
-            return false;
-        }
-        string attributeSignature = attribute.FullName;
+        var allBases = type.AllBaseClassesHierarchyIncludingSelf().Concat(type.AllInterfaces);
 
-        var allBases = symbol.AllBaseClassesHierarchyIncludingSelf();
-
-        bool result = allBases.Any(c => c.GetAttributes().Any(a => a.AttributeClass.AllBaseClassesHierarchyIncludingSelf().Any(ac => ac.ToFullDisplayString() == attributeSignature)));
-
-        return result;
-    }
-
-    public static bool TiedToAttribute(this ITypeSymbol symbol, INamedTypeSymbol attribute)
-    {
-        if (symbol == null)
-        {
-            return false;
-        }
-        string attributeSignature = attribute.ToFullDisplayString();
-
-        var allBases = symbol.AllBaseClassesHierarchyIncludingSelf();
-
-        bool result = allBases.Any(c => c.GetAttributes().Any(a => a.AttributeClass.AllBaseClassesHierarchyIncludingSelf().Any(ac => ac.ToFullDisplayString() == attributeSignature)));
+        bool result = allBases.Any(c => c.GetAttributes().Any(a => a.AttributeClass.AllBaseClassesHierarchyIncludingSelf().Any(ac => ac.ToDisplayString() == attribute)));
 
         return result;
     }
 
     public static bool HasAttribute<TAttr>(this ISymbol symbol)
-            where TAttr : Attribute => symbol.HasAttribute<TAttr>(out var notNeeded);
+            where TAttr : Attribute => symbol.HasAttribute<TAttr>(out var _);
+
+    public static bool HasAttribute(this ISymbol symbol, string attr)
+            => symbol.GetAttributes().Any(a => a.AttributeClass.ToDisplayString() == attr);
 
     public static bool HasAttribute(this ISymbol symbol, INamedTypeSymbol attribute)
-            => symbol.GetAttributes().Any(attr => attr.AttributeClass.ToFullDisplayString() == attribute.ToFullDisplayString());
+        => symbol.HasAttribute(attribute.ToDisplayString());
 
     public static bool HasAttribute<TAttr>(this ISymbol symbol, out AttributeData? attributeSymbol)
         where TAttr : Attribute
@@ -297,4 +285,7 @@ public static class SemanticsExtensions
         }
         return $"{type.FullName.Split('`')[0]}<{type.GenericTypeArguments.Select(t => t.ToDisplayString()).Join(", ")}>";
     }
+
+    public static bool IsEqualTo(this ITypeSymbol first, ITypeSymbol second)
+        => first.ToDisplayString() == second.ToDisplayString();
 }
