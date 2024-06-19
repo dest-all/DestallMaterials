@@ -1,5 +1,4 @@
 ﻿using DestallMaterials.WheelProtection.Extensions.Collections;
-using DestallMaterials.WheelProtection.Extensions.Enumerables;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,7 +16,10 @@ public class SemanticsReceiver : CSharpSyntaxWalker
     readonly ConcurrentDictionary<string, SemanticModel> _semanticModels = new();
 
     public SymbolsDict AttributeTiedSymbols
-        => _attributeTiedSymbols.ToDictionary(kv => _compilation.GetTypeByMetadataName(kv.Key), kv => kv.Value.AsReadOnlyList());
+        => _attributeTiedSymbols.ToDictionary(
+            kv => _compilation.GetTypeByMetadataName(kv.Key) 
+                ?? throw new SourceCodeGenerationException($"Compilation {_compilation} does not recognize type {kv.Key}"), 
+            kv => kv.Value.AsReadOnlyList());
 
     internal SemanticsReceiver(Compilation compilation, IEnumerable<string> seekedAttributes)
     {

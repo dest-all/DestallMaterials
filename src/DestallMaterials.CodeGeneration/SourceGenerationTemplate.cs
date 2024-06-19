@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
-using Microsoft.CodeAnalysis;
 
 namespace DestallMaterials.CodeGeneration;
 
@@ -19,6 +18,19 @@ public abstract class SourceGenerationTemplate : ComponentBase
     [Parameter]
     [EditorRequired]
     public ICompilationSource CompilationSource { get; set; }
+}
+
+public sealed class Content : ComponentBase
+{
+    [Parameter]
+    [EditorRequired]
+    public RenderFragment ChildContent { get; set; }
+
+    protected override void BuildRenderTree(RenderTreeBuilder builder)
+    {
+        base.BuildRenderTree(builder);
+        ChildContent(builder);
+    }
 }
 
 public sealed class SourceFile : ComponentBase

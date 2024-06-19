@@ -137,48 +137,4 @@ public static class Functions
         Assert.AreNotEqual(string1, string2);
         Assert.IsTrue(string1.IsEqualTo(string2));
     }
-
-    [Test]
-    public async Task AttributesGathering_Temporary()
-    {
-        const string webServerProj = @"C:\Users\igor_\Documents\Projects\Destall_ERP\CollectorProject\CollectorProject.csproj";
-
-        var workspace = CodeGenerationWorkspace.Create(webServerProj);
-
-        var attributes = "DestallMaterials.CodeGeneration.ERP.ClientDependency.TransportedAttribute".Yield();
-
-        var attributesArray = attributes.ToArray();
-
-        async Task<IReadOnlyDictionary<INamedTypeSymbol, IReadOnlyList<ISymbol>>> GetAttributedSymbolsAsync()
-        {
-            var (dataCompilation, messagesCompilation, efCompilation) = await (
-                workspace.GetProjectCompilationAsync("Data", default),
-                workspace.GetProjectCompilationAsync("Protocol.Messages", default),
-                workspace.GetProjectCompilationAsync("Data.EntityFramework", default));
-
-            var dataAttributedSymbols = SemanticsReceiver.AnalyzeAttributeBearers(dataCompilation, attributesArray);
-            var messagesAttributeSymbols = SemanticsReceiver.AnalyzeAttributeBearers(messagesCompilation, attributesArray);
-
-            var symbols = dataAttributedSymbols
-                .Concat(messagesAttributeSymbols)
-                .GroupBy(kv => kv.Key.ToDisplayString())
-                .ToDictionary(gr => gr.First().Key, gr => gr.SelectMany(g => g.Value).ToArray().AsReadOnlyList());
-
-            return symbols;
-        }
-
-        var renderer = new SourceFileRenderer(workspace, sc => { });
-        
-        CancellationToken cancellationToken = default;
-
-        string[] classes = [];
-
-        for (int i = 0; i < 2; i++)
-        {
-            var symbolsData = await GetAttributedSymbolsAsync();
-
-            classes = symbolsData.GetAttributeSymbols(attributes.First()).Select(s => s.ToDisplayString()).Except(classes).ToArray();
-        }
-    }
-
 }
