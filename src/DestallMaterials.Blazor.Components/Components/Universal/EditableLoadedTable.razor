@@ -7,6 +7,8 @@
 @using DestallMaterials.WheelProtection.Extensions.Objects;
 @using MudBlazor;
 
+@inherits DisposableComponent
+
 @typeparam TLineModel where TLineModel : class
 
 @{
@@ -63,9 +65,9 @@
                         Color = Color.Info,
                         Disabled = !modified,
                         Icon = Icons.Material.Filled.Save,
-                        Callback = async () =>
+                        Callback = async (ct) =>
                         {
-                            var saveResult = await Save(line);
+                            var saveResult = await Save(line, ct);
 
                             lineManager.PreviousValue = line;
                             lineManager.CurrentValue = saveResult;
@@ -93,9 +95,9 @@
                         Color = Color.Error,
                         Disabled = lineManager.NewlyAdded,
                         Icon = Icons.Material.Filled.Delete,
-                        Callback = async () =>
+                        Callback = async (ct) =>
                         {
-                            await Delete(line);
+                            await Delete(line, ct);
                         },
                         AfterSuccess = () =>
                         {
@@ -157,7 +159,7 @@
 
     [Parameter]
     [EditorRequired]
-    public Func<int, Task<IReadOnlyList<TLineModel>>> Source { get; set; }
+    public Func<int, CancellationToken, Task<IReadOnlyList<TLineModel>>> Source { get; set; }
 
     [Parameter]
     [EditorRequired]
@@ -201,10 +203,10 @@
     public Func<TLineModel> CreateNew { get; set; }
 
     [Parameter]
-    public Func<TLineModel, Task<TLineModel>> Save { get; set; }
+    public Func<TLineModel, CancellationToken, Task<TLineModel>> Save { get; set; }
 
     [Parameter]
-    public Func<TLineModel, Task> Delete { get; set; }
+    public Func<TLineModel, CancellationToken, Task> Delete { get; set; }
 
     [Parameter]
     public bool SaveOnSwitch { get; set; }
@@ -252,7 +254,7 @@
         lineManager.Refresh();
     }
 
-    public Task RefreshAsync() => _table.RefreshAsync();
+    public Task RefreshAsync() => _table.RefreshAsync(UntilDisposed);
 
     HashSet<EditableLineManager<TLineModel>> _lines;
     IEqualityComparer<EditableLineManager<TLineModel>> _equalityComparer;
@@ -280,14 +282,14 @@
         {
             if (SaveOnSwitch && Save is not null)
             {
-                await Save(item.CurrentValue);
+                await Save(item.CurrentValue, default);
             }
         }
     }
 
-    async Task<IReadOnlyList<TLineModel>> LoadAnother(int page)
+    async Task<IReadOnlyList<TLineModel>> LoadAnother(int page, CancellationToken cancellationToken)
     {
-        var items = await Source(page);
+        var items = await Source(page, cancellationToken);
         var newLines = items.Select(i => new EditableLineManager<TLineModel>(i, ComputeChecksum(i)));
         _lines.AddRange(newLines);
         return items;

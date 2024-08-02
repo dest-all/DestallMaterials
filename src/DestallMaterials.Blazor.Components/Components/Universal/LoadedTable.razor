@@ -75,7 +75,7 @@ else
 
     [Parameter]
     [EditorRequired]
-    public Func<int, Task<IReadOnlyList<TLineModel>>> Source { get; set; }
+    public Func<int, CancellationToken, Task<IReadOnlyList<TLineModel>>> Source { get; set; }
 
     [Parameter]
     [EditorRequired]
@@ -141,13 +141,13 @@ else
         StateHasChanged();
     }
 
-    public async Task RefreshAsync()
+    public async Task RefreshAsync(CancellationToken cancellationToken)
     {
         _addedItems.Clear();
         _loadedItems.Clear();
         _reachedEnd = false;
         _loadedPages = 0;
-        await LoadAnotherAsync();
+        await LoadAnotherAsync(cancellationToken);
         StateHasChanged();
     }
 
@@ -165,12 +165,12 @@ else
     int _loadedPages = 0;
 
     bool _loading;
-    async Task LoadAnotherAsync()
+    async Task LoadAnotherAsync(CancellationToken cancellationToken)
     {
         if (!_reachedEnd)
         {
             _loading = true;
-            var newItems = await Source(++_loadedPages);
+            var newItems = await Source(++_loadedPages, cancellationToken);
             if (newItems.Any())
             {
                 _loadedItems.AddRange(newItems.Select(ni => new ModelRenderPiecePair<TLineModel>(ni)));
@@ -186,7 +186,7 @@ else
     }
 
     protected override Task OnInitializedAsync()
-        => base.OnInitializedAsync().Then(LoadAnotherAsync);
+        => base.OnInitializedAsync().Then(async () => await LoadAnotherAsync(UntilDisposed));
 
     bool? _boundAsWindow;
     IDisposable callback;
@@ -210,7 +210,7 @@ else
                 var itemRectangle = await ui.GetElementBoungingRectangle(_tableId);
                 if ((itemRectangle.Bottom - scrollState.VisibleHeight) / scrollState.VisibleHeight < LoadAtScrollRatio)
                 {
-                    await LoadAnotherAsync();
+                    await LoadAnotherAsync(UntilDisposed);
                 }
             });
         }
@@ -224,7 +224,7 @@ else
                 }
                 if ((elementScrollState.ScrolledVertically + elementScrollState.VisibleHeight) / (elementScrollState.MaxVerticalScroll) >= (1 - LoadAtScrollRatio))
                 {
-                    await LoadAnotherAsync();
+                    await LoadAnotherAsync(UntilDisposed);
                 }
             });
 

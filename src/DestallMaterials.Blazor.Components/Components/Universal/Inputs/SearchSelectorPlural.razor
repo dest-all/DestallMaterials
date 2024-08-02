@@ -4,7 +4,7 @@
 <div class="@cssClass">
     <MudAutocomplete T="TItem"
                      Label=@Label
-                     SearchFunc="async (string filterString) => await GetItemsByFilter(filterString, default)"
+                     SearchFunc="async (string filterString, CancellationToken cancellationToken) => await GetItemsByFilter(filterString, default)"
                      ResetValueOnEmptyText="true"
                      ToStringFunc="GetItemRepresentation"
                      MaxItems="50"
@@ -13,9 +13,9 @@
                      Disabled=Disabled
                      />
 
-    @foreach (var selectedItem in _value ?? Enumerable.Empty<TItem>())
+    @foreach (var selectedItem in _value ?? [])
     {
-        <MudChip OnClose="() => RemoveItem(selectedItem)">@(GetItemRepresentation(selectedItem))</MudChip>
+        <MudChip T=string OnClose="() => RemoveItem(selectedItem)">@(GetItemRepresentation(selectedItem))</MudChip>
     }
 </div>
 
@@ -83,7 +83,7 @@
             FireValueChanged();
             if (_autocomplete != null)
             {
-                await _autocomplete.Clear();
+                await _autocomplete.ClearAsync();
             }
         }
     }
