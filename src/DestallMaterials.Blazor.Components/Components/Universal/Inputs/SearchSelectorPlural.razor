@@ -4,7 +4,7 @@
 <div class="@cssClass">
     <MudAutocomplete T="TItem"
                      Label=@Label
-                     SearchFunc="async filter => await GetItemsByFilter(filter)"
+                     SearchFunc="async (string filterString) => await GetItemsByFilter(filterString, default)"
                      ResetValueOnEmptyText="true"
                      ToStringFunc="GetItemRepresentation"
                      MaxItems="50"
@@ -23,7 +23,7 @@
 @code {
     [Parameter]
     [EditorRequired]
-    public Func<string, Task<IEnumerable<TItem>>> GetItemsByFilter { get; set; }
+    public Func<string, CancellationToken, Task<IEnumerable<TItem>>> GetItemsByFilter { get; set; }
 
     [Parameter]
     public Func<TItem, string> GetItemRepresentation { get; set; } = item => item?.ToString();

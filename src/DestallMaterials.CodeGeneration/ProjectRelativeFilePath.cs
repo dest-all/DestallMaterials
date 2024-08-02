@@ -109,9 +109,3 @@ public record struct CodeFile(ProjectRelativeFilePath Path, string Content, bool
         return result;
     }
 };
-
-public static class CodeFileExtensions
-{
-    public static bool IsCharpFile(this CodeFile codeFile)
-        => codeFile.Path.FileName.ToLower().EndsWith(".cs", ".razor");
-}
