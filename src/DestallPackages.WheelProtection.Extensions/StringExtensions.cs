@@ -180,9 +180,9 @@ public static class StringExtensions
         return result;
     }
 
-    public static bool HasContent(this string input) => !string.IsNullOrEmpty(input);
+    public static bool HasContent(this string? input) => !string.IsNullOrEmpty(input);
 
-    public static bool IsEmpty(this string input) => string.IsNullOrEmpty(input);
+    public static bool IsEmpty(this string? input) => string.IsNullOrEmpty(input);
 
     public static string Join(this IEnumerable<string> input, string joiner) =>
         string.Join(joiner, input);

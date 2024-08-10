@@ -17,6 +17,25 @@ public abstract class Cacher
         return result;
     }
 
+    public static AsyncCacher<TIn, TOut> Create<TIn, TOut>(
+        Func<TIn, CancellationToken, Task<TOut>> source,
+        Func<TIn, CachingSettings> getCachingSettings,
+        Func<TIn, int> computeChecksum
+    )
+    {
+        var result = new AsyncCacher<TIn, TOut>(source, computeChecksum, getCachingSettings);
+        return result;
+    }
+
+    public static AsyncCacher<TOut> Create<TIn, TOut>(
+        Func<CancellationToken, Task<TOut>> source,
+        CachingSettings cachingSettings
+    )
+    {
+        var result = new AsyncCacher<TOut>(source, cachingSettings);
+        return result;
+    }
+
     public static Cacher<TResult> Create<TResult>(
         Func<TResult> source,
         Func<TimeSpan> getCacheLifetime
@@ -109,6 +128,7 @@ public class Cacher<TIn, TOut>
         }
     }
 }
+
 
 public class Cacher<TOut>
 {

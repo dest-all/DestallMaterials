@@ -9,7 +9,7 @@
                  Value="Value"
                  ValueChanged="OnValueSet"
                  Disabled=Disabled
-                 Clearable=true
+                 Clearable=MayBeEmpty
                  OnClearButtonClick="Clear"
                  Class="@Class"
                  />
@@ -43,6 +43,9 @@
 
     [Parameter]
     public Action OnClear { get; set; } = () => { };
+
+    [Parameter]
+    public bool MayBeEmpty { get; set; } = true;
 
     string cssClass => $"search-selector-singular {Class}";
 
