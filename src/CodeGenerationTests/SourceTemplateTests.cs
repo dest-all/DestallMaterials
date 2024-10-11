@@ -26,11 +26,12 @@ public class SourceTemplateTests : CodeGenerationTests
         parameters2["Content"] = parameters2["Content"] + "\nnamespace ObjectiveCSharp {}";
         parameters2["Path"] = (ProjectRelativeFilePath)parameters2["Path"] with { FileName = "AnotherFile.cs" };
 
+        var sourceWriter = new SourceFileWriter(workspace, renderer, SourceFilesWritingSettings.Standard);
 
         // Act
         var (renderResult_1, renderResult_2) = await (
-                renderer.RenderToWorkspaceAsync<TestCodegenComponent>(workspace, parameters1, default), 
-                renderer.RenderToWorkspaceAsync<TestCodegenComponent>(workspace, parameters2, default)
+                sourceWriter.AddFilesToWorkspaceAsync<TestCodegenComponent>(parameters1, default), 
+                sourceWriter.AddFilesToWorkspaceAsync<TestCodegenComponent>(parameters2, default)
             );
 
         // Assert

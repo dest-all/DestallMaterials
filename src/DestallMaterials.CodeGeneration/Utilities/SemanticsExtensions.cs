@@ -180,7 +180,7 @@ public static class SemanticsExtensions
         {
             return typeSymbol;
         }
-        if (!namedTypeSymbol.ToFullDisplayString().StartsWith(typeof(Task).FullName))
+        if (!namedTypeSymbol.ToFullDisplayString().StartsWith(typeof(Task).FullName) || namedTypeSymbol.ToFullDisplayString().StartsWith(typeof(ValueTask).FullName))
         {
             return namedTypeSymbol;
         }

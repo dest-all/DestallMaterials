@@ -9,26 +9,28 @@ public sealed class CodeGenerationWorkspace : ICompilationSource, IDisposable
     volatile Solution _solution;
 
     readonly List<Func<IReadOnlyList<CodeFile>, CancellationToken, Task>> _onProjectsChange = new();
+    readonly SourceFilesWritingSettings _settings;
 
     public IReadOnlyDictionary<string, string> ProjectLocations { get; }
 
-    CodeGenerationWorkspace(Solution solution)
+    CodeGenerationWorkspace(Solution solution, SourceFilesWritingSettings settings)
     {
         _solution = solution;
         ProjectLocations = solution.Projects.ToDictionary(p => p.Name, p => p?.FilePath ?? throw new FileNotFoundException());
+        _settings = settings;
     }
 
-    public static CodeGenerationWorkspace Create(string mainProjectFile)
+    public static CodeGenerationWorkspace Create(string mainProjectFile, SourceFilesWritingSettings? settings = null)
     {
         var workspace = CreateWorkspace(mainProjectFile);
 
         var solution = workspace.CurrentSolution;
 
-        return Create(solution);
+        return Create(solution, settings ?? SourceFilesWritingSettings.Standard);
     }
 
-    public static CodeGenerationWorkspace Create(Solution solution)
-        => new(solution);
+    public static CodeGenerationWorkspace Create(Solution solution, SourceFilesWritingSettings? settings = null)
+        => new(solution, settings ?? SourceFilesWritingSettings.Standard);
 
     public static CodeGenerationWorkspace Create(Workspace workspace)
         => Create(workspace.CurrentSolution);
@@ -36,7 +38,7 @@ public sealed class CodeGenerationWorkspace : ICompilationSource, IDisposable
     /// <inheritdoc/>
     public async Task<Compilation> GetProjectCompilationAsync(string projectName, CancellationToken cancellationToken)
     {
-        var project = _solution.Projects.FirstOrDefault(p => p.Name == projectName) 
+        var project = _solution.Projects.FirstOrDefault(p => p.Name == projectName)
             ?? throw new InvalidOperationException($"Project with name {projectName} is not found among projects of the workspace.");
 
         var result = await project.GetCompilationAsync(cancellationToken);
@@ -59,7 +61,17 @@ public sealed class CodeGenerationWorkspace : ICompilationSource, IDisposable
             {
                 return (oldProject, newProject: oldProject, sourceFile, areDifferent: false);
             }
-            
+
+            var originalPath = sourceFile.Path;
+            var finalPath = _settings.TransformFilePathBeforeWriting(sourceFile.Path);
+
+            var replacementFilePath = finalPath with { FileName = originalPath.FileName };
+            if (oldProject.Documents.Find(replacementFilePath) is not null)
+            {
+                return (oldProject, newProject: oldProject, sourceFile, areDifferent: false);
+            }
+
+            sourceFile = sourceFile with { Path = finalPath };
             var newProject = await oldProject.WithAsync(sourceFile, cancellationToken);
 
             bool areDifferent = !ReferenceEquals(newProject, oldProject);

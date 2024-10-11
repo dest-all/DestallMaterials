@@ -22,8 +22,9 @@ public class GeneratePackageContents
 
         var renderer = new SourceFileRenderer(workspace, sp => { });
 
-        var filesAdded = await renderer.WriteToWorkspaceAsync<TestComponents.GeneratePackageContents>(
-            workspace,
+        var sourceWriter = new SourceFileWriter(workspace, renderer, SourceFilesWritingSettings.Standard);
+
+        var filesAdded = await sourceWriter.WriteToWorkspaceAsync<TestComponents.GeneratePackageContents>(
             (
                 nameof(TestComponents.GeneratePackageContents.TupleSize), (object)maxTupleSize
             ).ToDictionary(),

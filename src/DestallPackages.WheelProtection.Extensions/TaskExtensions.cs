@@ -112,6 +112,19 @@ public static class TaskExtensions
         await asyncAction();
     }
 
+    public static async Task<T> Then<T>(this Task task, Task<T> another)
+    {
+        await task;
+        var result = await another;
+        return result;
+    }
+
+    public static async Task Then(this Task task, Task another)
+    {
+        await task;
+        await another;
+    }
+
     public static void Forget(this Task _) { }
 
     public static TaskAwaiter<ValueTuple<T1, T2>> GetAwaiter<T1, T2>(

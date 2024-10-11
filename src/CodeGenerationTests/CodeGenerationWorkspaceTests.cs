@@ -22,7 +22,7 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
 
         // Act
         var sourceFile = new CodeFile(new ProjectRelativeFilePath(projectName, fileName), sourceText);
-        await system.AddSourceFilesAsync(sourceFile.Yield(), default);
+        await system.AddSourceFilesAsync([sourceFile], default);
         var compilation = await system.GetProjectCompilationAsync(projectName, default);
 
         // Assert
@@ -40,7 +40,7 @@ public class CodeGenerationWorkspaceTests : CodeGenerationTests
 
         // Act
         var sourceFile = new CodeFile(new ProjectRelativeFilePath(secondaryProjectName, fileName), sourceText);
-        await system.AddSourceFilesAsync(sourceFile.Yield(), default);
+        await system.AddSourceFilesAsync([sourceFile], default);
         var compilation = await system.GetProjectCompilationAsync(mainProjectName, default);
 
         // Assert

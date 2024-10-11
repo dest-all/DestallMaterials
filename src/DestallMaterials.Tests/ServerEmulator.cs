@@ -1,58 +1,60 @@
 ﻿using DestallMaterials.WheelProtection.Queues;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DestallMaterials.Tests
+namespace DestallMaterials.Tests;
+
+class ServerEmulator
 {
-    class ServerEmulator
+    Recycler<RequestProcessor> _recycler;
+
+    public ServerEmulator(int capacity = 1)
     {
-        Recycler<RequestProcessor> _recycler = new RequestsProcessorRecycler();
-        public async Task<long> ProcessRequestAsync(TimeSpan operationExecutionLength)
+        _recycler = new RequestsProcessorRecycler(capacity);
+    }
+
+    public async Task<long> ProcessRequestAsync(TimeSpan operationExecutionLength)
+    {
+        using var processorLocker = await _recycler.AwaitAnother();
+        await processorLocker.Item.ProcessRequestAsync(operationExecutionLength);
+        return operationExecutionLength.Ticks;
+    }
+
+    class RequestProcessor : IDisposable
+    {
+        bool _isBusy = false;
+
+        public void Dispose()
         {
-            using var processorLocker = await _recycler.AwaitAnother();
-            await processorLocker.Item.ProcessRequestAsync(operationExecutionLength);
-            return operationExecutionLength.Ticks;
+
         }
 
-        class RequestProcessor : IDisposable
+        public async Task ProcessRequestAsync(TimeSpan operationExecutionLength)
         {
-            bool _isBusy = false;
-
-            public void Dispose()
+            if (_isBusy)
             {
-
+                throw new InvalidOperationException();
             }
+            _isBusy = true;
+            await Task.Delay(operationExecutionLength);
+            _isBusy = false;
+        }
+    }
 
-            public async Task ProcessRequestAsync(TimeSpan operationExecutionLength)
-            {
-                if (_isBusy)
-                {
-                    throw new InvalidOperationException();
-                }
-                _isBusy = true;
-                await Task.Delay(operationExecutionLength);
-                _isBusy = false;
-            }
+    class RequestsProcessorRecycler : Recycler<RequestProcessor>
+    {
+        public RequestsProcessorRecycler(int capacity = 1) : base(capacity)
+        {
         }
 
-        class RequestsProcessorRecycler : Recycler<RequestProcessor>
+        protected override bool TryCreateNew(out RequestProcessor requestProcessor)
         {
-            public RequestsProcessorRecycler() : base(1)
-            {
-            }
-
-            protected override RequestProcessor CreateNew()
-                => new RequestProcessor();
-
-            protected override void Discard(RequestProcessor item)
-            => item.Dispose();
-
-            protected override bool IsWell(RequestProcessor item)
-            => true;
+            requestProcessor = new();
+            return true;
         }
+
+        protected override void Discard(RequestProcessor item)
+        => item.Dispose();
+
+        protected override bool IsWell(RequestProcessor item)
+        => true;
     }
 }

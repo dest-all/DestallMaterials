@@ -270,25 +270,4 @@ public static class EnumerableExtensions
 
     public static bool None<T>(this IEnumerable<T> source)
         => !source.Any();
-
-    ///// <summary>
-    ///// Two sequences are identical in terms of content.
-    ///// </summary>
-    ///// <typeparam name="T"></typeparam>
-    ///// <param name="items1">First sequence</param>
-    ///// <param name="items2">Second sequence</param>
-    ///// <param name="areEqual">Comparing function</param>
-    ///// <returns></returns>
-    //public static bool IsIdentical<T>(this IEnumerable<T> items1, IEnumerable<T> items2, Func<T, T, bool> areEqual)
-    //    => items1.SequenceEqual();
-
-    ///// <summary>
-    ///// Two sequences are identical in terms of content, using default comparison function.
-    ///// </summary>
-    ///// <typeparam name="T"></typeparam>
-    ///// <param name="items1">First sequence</param>
-    ///// <param name="items2">Second sequence</param>
-    ///// <returns></returns>
-    //public static bool IsIdentical<T>(this IEnumerable<T> items1, IEnumerable<T> items2)
-    //    => IsIdentical(items1, items2, (i1, i2) => i1.Equals(i2));
 }

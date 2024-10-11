@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace DestallMaterials.WheelProtection.Queues
 {
-
 #if NETSTANDARD2_0
     internal static class StandardQueueExtensions
     {
@@ -22,13 +21,50 @@ namespace DestallMaterials.WheelProtection.Queues
     }
 #endif
 
-    public abstract class Recycler<T>
+    /// <summary>
+    /// Works on a fixed pool of items. Creating new items will not happen.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class FixedPoolRecycler<T> : Recycler<T> where T : class
+    {
+        readonly IReadOnlyList<T> _fixedPool;
+        int _reachedItem;
+        protected FixedPoolRecycler(IReadOnlyList<T> items) 
+            : base(items.Count)
+        {
+            _fixedPool = items;
+        }
+
+        protected override sealed bool TryCreateNew(out T item)
+        {
+            if (_reachedItem == _fixedPool.Count)
+            {
+                item = default;
+                return false;
+            }
+
+            item = _fixedPool[_reachedItem++];
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Accumulates pool of items up to the limit provided.
+    /// Awaits items to be released from use and yields them once it's done.
+    /// Creates new items, when other items in the pool are busy and there is still room in the pool.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public abstract class Recycler<T> where T : class
     {
         /// <summary>
-        /// Construct new produced item directly.
+        /// Try to construct new produced item directly, if possible.
         /// </summary>
-        /// <returns></returns>
-        protected abstract T CreateNew();
+        /// <param name="item">Created item</param>
+        /// <returns>
+        /// True - item has been created. It will be used later.
+        /// False - item is not allowed to be created. Recycler will await other pooled items to be released.
+        /// </returns>
+        protected abstract bool TryCreateNew(out T item);
 
         /// <summary>
         /// Determine if item can be returned to pool with its instant state.
@@ -51,7 +87,8 @@ namespace DestallMaterials.WheelProtection.Queues
             _pool = new ItemManager[maxPoolSize];
         }
 
-        readonly System.Collections.Generic.Queue<TaskCompletionSource<ItemLocker<T>>> _subscriptions = new System.Collections.Generic.Queue<TaskCompletionSource<ItemLocker<T>>>();
+        readonly System.Collections.Generic.Queue<TaskCompletionSource<ItemLocker<T>>> _subscriptions
+            = new System.Collections.Generic.Queue<TaskCompletionSource<ItemLocker<T>>>();
 
         /// <summary>
         /// Request new item locker from the Recycler, waiting for once it's:
@@ -100,20 +137,24 @@ ValueTask<ItemLocker<T>>
                 }
                 if (nonEmptyCount == _pool.Length)
                 {
-                    var taskSource = new TaskCompletionSource<ItemLocker<T>>();
-                    _subscriptions.Enqueue(taskSource);
-                    cancellationToken.Register(() => taskSource.TrySetCanceled());
-#if NETSTANDARD2_0
-                    return taskSource.Task;
-#else
-                    return new ValueTask<ItemLocker<T>>(taskSource.Task);
-#endif
+                    return WaitOnPooledItem(cancellationToken);
                 }
                 for (i = 0; i < spanPool.Length; i++)
                 {
                     if (spanPool[i] is null)
                     {
                         ItemManager itemManager = CreateNewManager(i);
+
+                        if (itemManager is null)
+                        {
+                            if (nonEmptyCount == 0)
+                            {
+                                throw new InvalidOperationException("No items in the pool and new item was not retrieved. Request can't be carried out.");
+                            }
+
+                            return WaitOnPooledItem(cancellationToken);
+                        }
+
 #if NETSTANDARD2_0
                         return Task.FromResult<ItemLocker<T>>(itemManager);
 #else
@@ -125,9 +166,30 @@ ValueTask<ItemLocker<T>>
             }
         }
 
+        private
+#if NETSTANDARD2_0
+Task<ItemLocker<T>>
+#else
+ValueTask<ItemLocker<T>>
+#endif 
+            WaitOnPooledItem(CancellationToken cancellationToken)
+        {
+            var taskSource = new TaskCompletionSource<ItemLocker<T>>();
+            _subscriptions.Enqueue(taskSource);
+            cancellationToken.Register(() => taskSource.TrySetCanceled());
+#if NETSTANDARD2_0
+                    return taskSource.Task;
+#else
+            return new ValueTask<ItemLocker<T>>(taskSource.Task);
+#endif
+        }
+
         ItemManager CreateNewManager(int i)
         {
-            var item = CreateNew();
+            if (!TryCreateNew(out var item))
+            {
+                return null;
+            }
             var itemManager = new ItemManager(OnItemReleased(i, item))
             {
                 Item = item
