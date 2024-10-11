@@ -178,31 +178,6 @@ public class SourceFileWriter
     }
 
     /// <summary>
-    /// Compose file system path for project-based path.
-    /// </summary>
-    /// <param name="sourceFilePath"></param>
-    /// <returns></returns>
-    public string ToAbsolutePath(ProjectRelativeFilePath sourceFilePath)
-    {
-        var workspace = _codeGenerationWorkspace;
-        var projectName = sourceFilePath.ProjectName;
-
-        var projectDirectory = Directory.GetParent(workspace.ProjectLocations[projectName])?.FullName
-            ?? throw new DirectoryNotFoundException();
-
-        sourceFilePath = sourceFilePath with { ProjectName = projectDirectory };
-
-        var result = sourceFilePath.ToString();
-
-        if (Path.DirectorySeparatorChar != '/')
-        {
-            result = result.Replace('/', Path.DirectorySeparatorChar);
-        }
-
-        return result;
-    }
-
-    /// <summary>
     /// Write file physically to file system.
     /// </summary>
     /// <param name="workspace">Code generation workspace</param>
@@ -217,7 +192,7 @@ public class SourceFileWriter
             throw new InvalidOperationException($"File {sourceFile.Path} marked as virtual but an attempt to write it has been made.");
         }
 
-        var absolutePath = ToAbsolutePath(sourceFile.Path);
+        var absolutePath = workspace.ToAbsolutePath(sourceFile.Path);
 
         var directory = Path.GetDirectoryName(absolutePath)!;
         Directory.CreateDirectory(directory);

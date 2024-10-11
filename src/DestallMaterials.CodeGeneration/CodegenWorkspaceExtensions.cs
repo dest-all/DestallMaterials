@@ -7,6 +7,8 @@ namespace DestallMaterials.CodeGeneration;
 
 public static class CodegenWorkspaceExtensions
 {
+
+
     /// <summary>
     /// Subscribe for particular project changes
     /// </summary>
@@ -51,5 +53,27 @@ public static class CodegenWorkspaceExtensions
         => codeGenerationWorkspace.AddSourceFileAsync(new CodeFile(new ProjectRelativeFilePath(projectName, fileName), code), cancellationToken);
 
 
-    
+    /// <summary>
+    /// Compose file system path for project-based path.
+    /// </summary>
+    /// <param name="sourceFilePath"></param>
+    /// <returns></returns>
+    public static string ToAbsolutePath(this CodeGenerationWorkspace workspace, ProjectRelativeFilePath sourceFilePath)
+    {
+        var projectName = sourceFilePath.ProjectName;
+
+        var projectDirectory = Directory.GetParent(workspace.ProjectLocations[projectName])?.FullName
+            ?? throw new DirectoryNotFoundException();
+
+        sourceFilePath = sourceFilePath with { ProjectName = projectDirectory };
+
+        var result = sourceFilePath.ToString();
+
+        if (Path.DirectorySeparatorChar != '/')
+        {
+            result = result.Replace('/', Path.DirectorySeparatorChar);
+        }
+
+        return result;
+    }
 }
