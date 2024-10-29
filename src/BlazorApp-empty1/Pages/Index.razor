@@ -1,0 +1,14 @@
+﻿@page "/"
+@using DestallMaterials.Blazor.Components.Universal.Inputs
+
+<DateTimeInput Value="Value" OnDateTimeChanged="OnValueChanged" Label="Test date input" />
+
+@code{
+    DateTime Value;
+
+    void OnValueChanged(DateTime dateTime)
+    {
+        Console.WriteLine(dateTime.ToString());
+        Value = dateTime;
+    }
+}
