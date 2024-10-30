@@ -60,9 +60,6 @@
     [Parameter]
     public Action<TimeSpan> OnTimeChanged { get; set; } = t => {};
 
-    [Parameter]
-    public Action<DateTime> OnDateTimeChanged { get; set; } = dt => {};
-
     /// <summary>
     /// If only date is pickable then the picked Date will denote the last tick of the selected date.
     /// </summary>
@@ -125,14 +122,14 @@
     {
         Value = Value.Date.Add(time);
         OnTimeChanged?.Invoke(time);
-        OnDateTimeChanged?.Invoke(Value);
+        OnValueSet?.Invoke(Value);
     }
 
     void DateChanged(DateOnly date)
     {
         Value = date.ToDateTime(TimeOnly.FromTimeSpan(Value.TimeOfDay));
         OnDateChanged?.Invoke(date);
-        OnDateTimeChanged?.Invoke(Value);
+        OnValueSet?.Invoke(Value);
     }
 
     public DateTimeInput()
