@@ -9,7 +9,7 @@
 <MudItem Class="@Class" Style="@containerStyle">
     @{
         const string icon = Icons.Material.Filled.Clear;
-        string style = Value == default ? $"visibility: hidden;" : "";
+        string style = Date == default ? $"visibility: hidden;" : "";
         style = $"{style} ;";
 
         <MudIconButton Icon="@icon" Style="@style" OnClick="() => { Value = default; StateHasChanged(); }" Size="Size.Small" />
@@ -29,7 +29,7 @@
         string timeLabel = Label.IsEmpty() ? "" : " ";
         <MudTimePicker Culture=Culture
                        Class="d-inline-flex"
-                       Style="margin-left: 10px"
+                       Style="margin-left: 10px; width:88px"
                        Label=@timeLabel
                        TimeChanged="t => TimeChanged(t ?? default)"
                        Time="Time" />
@@ -66,7 +66,7 @@
     [Parameter]
     public bool PickLastMomentOfDay { get; set; } = true;
 
-    string containerStyle => "display: flex; max-width: 350px;";
+    string containerStyle => "display: flex; max-width: 250px; min-width: 250px;";
 
     protected override void OnParametersSet()
     {

@@ -1,69 +1,72 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
-using Microsoft.Extensions.ObjectPool;
+using DestallMaterials.WheelProtection.Extensions.Tasks;
 
-[SimpleJob(RuntimeMoniker.Net70)]
-[SimpleJob(RuntimeMoniker.NativeAot70)]
+[SimpleJob(RuntimeMoniker.Net90)]
 [MemoryDiagnoser]
 [RPlotExporter]
 public class DifferentInvocations
 {
-    readonly TunableStruct _struct = new();
-    readonly SealedImplementor _implementor = new();
-    readonly Implementor _regularImplementor = new();
-    readonly BaseClass _baseImplementor = new Implementor();
-
     [Params(1000, 10000)]
     public int N;
 
     [GlobalSetup]
     public void Setup()
     {
-       
     }
 
     [Benchmark]
-    public string Struct_Delegate() => _struct.CalculateDelegate(N);
+    public (int, int, int) Using_Task_WhenAll()
+        => DestallMaterials.WheelProtection.Extensions.Tasks.TaskExtensions.GetAwaiter((RunBigTask(), RunBigTask(), RunBigTask()))
+            .GetResult();
 
     [Benchmark]
-    public string Struct_Direct() => _struct.CalculateIndependently(N);
+    public (int, int, int, int, int) Using_Task_WhenAll_5()
+    => DestallMaterials.WheelProtection.Extensions.Tasks.TaskExtensions.GetAwaiter((RunBigTask(), RunBigTask(), RunBigTask(), RunBigTask(), RunBigTask()))
+        .GetResult();
 
     [Benchmark]
-    public string Regular_Implementor() => _regularImplementor.Calculate(N);
-
-    [Benchmark]
-    public string Base_Implementor() => _baseImplementor.Calculate(N);
-
-    [Benchmark]
-    public string Sealed_Implementor() => _implementor.Calculate(N);
-}
-
-abstract class BaseClass
-{
-    public abstract string Calculate(int n);
-}
-
-class Implementor : BaseClass
-{
-    public static string UniversalCalc(int n) 
-        => string.Join('.', Enumerable.Range(0, n));
-
-    public override string Calculate(int n)
-        => UniversalCalc(n); 
-}
-
-sealed class SealedImplementor : Implementor
-{
-}
-
-struct TunableStruct
-{
-    public TunableStruct()
+    public (int, int, int, int, int, int, int) Using_Task_WhenAll_7()
+        => DestallMaterials.WheelProtection.Extensions.Tasks.TaskExtensions.GetAwaiter_TaskWhenAll((RunBigTask(), RunBigTask(), RunBigTask(), RunBigTask(), RunBigTask(), RunBigTask(), RunBigTask()))
+            .GetResult();
+    Task<int> RunBigTask() => Task.Run(() =>
     {
+        var n = N;
+        return FindNthPrime(n);
+    });
+
+    static int FindNthPrime(int n)
+    {
+        int count = 0;
+        int num = 2;
+
+        while (true)
+        {
+            if (IsPrime(num))
+            {
+                count++;
+                if (count == n)
+                {
+                    return num;
+                }
+            }
+            num++;
+        }
     }
 
-    public Func<int, string> CalculateDelegate { get; } = Implementor.UniversalCalc;
+    static bool IsPrime(int num)
+    {
+        if (num <= 1) return false;
+        if (num == 2) return true;
+        if (num % 2 == 0) return false;
 
-    public string CalculateIndependently(int n) => Implementor.UniversalCalc(n);
+        var boundary = (int)Math.Floor(Math.Sqrt(num));
+
+        for (int i = 3; i <= boundary; i += 2)
+        {
+            if (num % i == 0) return false;
+        }
+
+        return true;
+    }
 }
-

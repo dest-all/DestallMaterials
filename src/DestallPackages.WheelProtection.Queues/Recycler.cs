@@ -29,7 +29,7 @@ namespace DestallMaterials.WheelProtection.Queues
     {
         readonly IReadOnlyList<T> _fixedPool;
         int _reachedItem;
-        protected FixedPoolRecycler(IReadOnlyList<T> items) 
+        protected FixedPoolRecycler(IReadOnlyList<T> items)
             : base(items.Count)
         {
             _fixedPool = items;
@@ -178,7 +178,7 @@ ValueTask<ItemLocker<T>>
             _subscriptions.Enqueue(taskSource);
             cancellationToken.Register(() => taskSource.TrySetCanceled());
 #if NETSTANDARD2_0
-                    return taskSource.Task;
+            return taskSource.Task;
 #else
             return new ValueTask<ItemLocker<T>>(taskSource.Task);
 #endif
@@ -190,15 +190,12 @@ ValueTask<ItemLocker<T>>
             {
                 return null;
             }
-            var itemManager = new ItemManager(OnItemReleased(i, item))
-            {
-                Item = item
-            };
+            var itemManager = new ItemManager(item, OnItemReleased(i, item));
             _pool[i] = itemManager;
             return itemManager;
         }
 
-        Action<ItemManager> OnItemReleased(int i, T item)
+        Action<CallbackItemLocker<T>> OnItemReleased(int i, T item)
             => im =>
             {
                 lock (_locker)
@@ -216,7 +213,7 @@ ValueTask<ItemLocker<T>>
                                 return;
                             }
                         }
-                        im.Available = true;
+                        ((ItemManager)im).Available = true;
                     }
                     else
                     {
@@ -242,22 +239,14 @@ ValueTask<ItemLocker<T>>
                 }
             };
 
-        sealed class ItemManager : ItemLocker<T>
+        sealed class ItemManager : CallbackItemLocker<T>
         {
+            public ItemManager(T item, Action<CallbackItemLocker<T>> onDisposed)
+                : base(item, onDisposed)
+            {
+            }
+
             public bool Available { get; set; }
-
-            readonly Action _dispose;
-            public ItemManager(Action dispose)
-            {
-                _dispose = dispose;
-            }
-
-            public ItemManager(Action<ItemManager> dispose)
-            {
-                _dispose = () => dispose(this);
-            }
-
-            public override void Dispose() => _dispose();
         }
     }
 }

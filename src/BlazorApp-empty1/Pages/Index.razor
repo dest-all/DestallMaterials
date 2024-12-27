@@ -1,7 +1,13 @@
 ﻿@page "/"
 @using DestallMaterials.Blazor.Components.Universal.Inputs
 
-<DateTimeInput Value="Value" OnDateTimeChanged="OnValueChanged" Label="Test date input" />
+<DateTimeInput Value="Value" OnValueSet="OnValueChanged" Label="Test date input" />
+
+<DateTimeInput Value="Value" OnValueSet="OnValueChanged" />
+
+<SearchSelectorSingular TItem="string" GetItemsByFilter="GetItemsAsync" >
+    <div>Inserted text</div>
+</SearchSelectorSingular>
 
 @code{
     DateTime Value;
@@ -11,4 +17,7 @@
         Console.WriteLine(dateTime.ToString());
         Value = dateTime;
     }
+
+    async Task<IEnumerable<string>> GetItemsAsync(string filter, CancellationToken cancellationToken)
+        => "First Second Third Fourth Fifth Sixth Seventh Eighth Ninth Tenth".Split(' ');
 }

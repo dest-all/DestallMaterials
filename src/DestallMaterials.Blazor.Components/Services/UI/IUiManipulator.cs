@@ -22,5 +22,5 @@ public interface IUiManipulator
     Task<double> GetItemScroll_Y(string elementId);
     Task DisableDefaultEventHandling(string elementId, string eventType);
 
-    Task<ElementBoungingRectangle> GetElementBoungingRectangle(string elementId);
+    Task<ElementBoungingRectangle?> GetElementBoungingRectangle(string elementId);
 }

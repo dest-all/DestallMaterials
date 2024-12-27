@@ -186,7 +186,7 @@ else
     }
 
     protected override Task OnInitializedAsync()
-        => base.OnInitializedAsync().Then(async () => await LoadAnotherAsync(UntilDisposed));
+        => base.OnInitializedAsync().ThenAsync(async () => await LoadAnotherAsync(UntilDisposed));
 
     bool? _boundAsWindow;
     IDisposable callback;
@@ -208,7 +208,15 @@ else
                     return;
                 }
                 var itemRectangle = await ui.GetElementBoungingRectangle(_tableId);
-                if ((itemRectangle.Bottom - scrollState.VisibleHeight) / scrollState.VisibleHeight < LoadAtScrollRatio)
+
+                if (itemRectangle is null)
+                {
+                    callback.Dispose();
+                    callback = null;
+                    return;
+                }
+
+                if ((itemRectangle.Value.Bottom - scrollState.VisibleHeight) / scrollState.VisibleHeight < LoadAtScrollRatio)
                 {
                     await LoadAnotherAsync(UntilDisposed);
                 }

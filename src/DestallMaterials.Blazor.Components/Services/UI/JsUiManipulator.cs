@@ -63,10 +63,15 @@ public class JsUiManipulator : IUiManipulator
         await _runtime.InvokeVoidAsync(command, elementId, eventType);
     }
 
-    public async Task<ElementBoungingRectangle> GetElementBoungingRectangle(string elementId)
+    public async Task<ElementBoungingRectangle?> GetElementBoungingRectangle(string elementId)
     {
         const string command = "destallMaterials.uiManipulation.getBoundingRectangle";
         var numbers = await _runtime.InvokeAsync<double[]>(command, elementId);
+
+        if (numbers is null)
+        {
+            return default;
+        }
 
         var result = new ElementBoungingRectangle
         {

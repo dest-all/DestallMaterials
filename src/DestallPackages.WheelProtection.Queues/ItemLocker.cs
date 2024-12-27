@@ -8,12 +8,12 @@ namespace DestallMaterials.WheelProtection.Queues
     /// <typeparam name="T"></typeparam>
     public abstract class ItemLocker<T> : IDisposable
     {
-#if NET7_0_OR_GREATER
-        public required T Item { get; init; }
-#else
-        public T Item { get; internal set; }
-#endif
+        public T Item { get; }
 
+        protected ItemLocker(T item)
+        {
+            Item = item;
+        }
 
         public abstract void Dispose();
 
@@ -22,5 +22,17 @@ namespace DestallMaterials.WheelProtection.Queues
         public override sealed string ToString() => Item.ToString();
         public override sealed bool Equals(object obj) => Item.Equals(obj);
         public override sealed int GetHashCode() => Item.GetHashCode();
+    }
+
+    public class CallbackItemLocker<T> : ItemLocker<T>
+    {
+        readonly Action<CallbackItemLocker<T>> _onDisposed;
+        public CallbackItemLocker(T item, Action<CallbackItemLocker<T>> onDisposed)
+            : base(item)
+        {
+            _onDisposed = onDisposed;
+        }
+
+        public override sealed void Dispose() => _onDisposed(this);
     }
 }
