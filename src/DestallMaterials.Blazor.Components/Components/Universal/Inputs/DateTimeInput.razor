@@ -20,19 +20,19 @@
                             OnValueChanged="d => DateChanged(d)"
                             Value=Date
                             PlaceholderText="Nothing"
-                            Culture=Culture 
-                            Label="@Label"
-                            />
+                            Culture=Culture
+                            Label="@Label" />
     }
     @if (PickTime)
     {
         string timeLabel = Label.IsEmpty() ? "" : " ";
         <MudTimePicker Culture=Culture
                        Class="d-inline-flex"
-                       Style="margin-left: 10px; width:88px"
+                       Style="margin-left: 10px;min-width:88px;"
                        Label=@timeLabel
                        TimeChanged="t => TimeChanged(t ?? default)"
-                       Time="Time" />
+                       Time="Time"
+                       PickerVariant="PickerVariant.Dialog" />
     }
 
 </MudItem>
@@ -55,16 +55,19 @@
     public CultureInfo Culture { get; set; } = System.Globalization.CultureInfo.CurrentCulture;
 
     [Parameter]
-    public Action<DateOnly?> OnDateChanged { get; set; } = d => {};
+    public Action<DateOnly?> OnDateChanged { get; set; } = d => { };
 
     [Parameter]
-    public Action<TimeSpan> OnTimeChanged { get; set; } = t => {};
+    public Action<TimeSpan> OnTimeChanged { get; set; } = t => { };
 
     /// <summary>
     /// If only date is pickable then the picked Date will denote the last tick of the selected date.
     /// </summary>
     [Parameter]
     public bool PickLastMomentOfDay { get; set; } = true;
+
+    [Parameter]
+    public string? Error { get; set; }
 
     string containerStyle => "display: flex; max-width: 250px; min-width: 250px;";
 

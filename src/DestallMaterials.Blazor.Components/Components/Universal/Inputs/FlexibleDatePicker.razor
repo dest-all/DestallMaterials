@@ -18,7 +18,7 @@
 
 @code {
     private string _dateFormat = "dd.MM.yyyy";
-    
+
     static readonly string[] _shortFormats = ["ddMM", "dd.MM", "dd", "d"];
     static readonly string[] _formats = ["ddMMyy", "dd.MM.yyyy", "dd.M.yyyy", "d.MM.yyyy", "d.M.yyyy", "dd.MM.yy", "dd.M.yy", "d.MM.yy", "d.M.yy"];
 
@@ -38,7 +38,7 @@
     public bool Clearable { get; set; }
 
     [Parameter]
-    public string Label { get;set; }
+    public string Label { get; set; }
 
     [Parameter]
     public string ValueNotSetText { get; set; } = "Not set";
@@ -67,7 +67,7 @@
         }
         var valueChanged = newValue != Value;
         Value = newValue;
-                
+
         if (valueChanged)
         {
             OnValueChanged(newValue);
