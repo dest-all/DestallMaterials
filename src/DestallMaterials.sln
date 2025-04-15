@@ -49,7 +49,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp-empty1", "BlazorA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SourceGenerators", "SourceGenerators", "{659EF48D-288F-420C-A4CB-7A05C1AFFDD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceGenerator", "SourceGenerators\TupleUtilitiesGenerator\SourceGenerator\SourceGenerator.csproj", "{D1504905-D631-4C05-BF5A-7B8B8EF4665B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DestallMaterials.SyntaxGenerator", "SourceGenerators\TupleUtilitiesGenerator\SourceGenerator\DestallMaterials.SyntaxGenerator.csproj", "{D1504905-D631-4C05-BF5A-7B8B8EF4665B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SourceGeneratorTests", "SourceGenerators\TupleUtilitiesGenerator\SourceGeneratorTests\SourceGeneratorTests.csproj", "{C8D9142D-1FD3-43A5-A157-85E8091B21AC}"
 EndProject

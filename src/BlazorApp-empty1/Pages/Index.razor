@@ -4,13 +4,16 @@
 
 <DateTimeInput Value="Value" OnValueSet="OnValueChanged" Label="Test date input" />
 
-<DateTimeInput Value="Value" OnValueSet="OnValueChanged" />
+<DateTimeInput Value="Value" OnValueSet="OnValueChanged" Error="Error text" />
 
 @* <SearchSelectorSingular TItem="string" GetItemsByFilter="GetItemsAsync" >
     <div>Inserted text</div>
 </SearchSelectorSingular> *@
 
-<SearchSelectorPlural TItem="string" GetItemsByFilter="GetItemsAsync" ItemErrors="AllItems.Select((item, index) => (item, index)).Where(ii => ii.index > -1).Select(ii => (ii.index, ii.item)).ToArray()" />
+@* <SearchSelectorPlural 
+        TItem="string" 
+        GetItemsByFilter="GetItemsAsync" 
+        ItemErrors="AllItems.Select((item, index) => (item, index)).Where(ii => ii.index > -1).Select(ii => (ii.index, ii.item)).ToArray()" /> *@
 
 @code{
     DateTime Value;

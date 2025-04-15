@@ -17,15 +17,25 @@ namespace SourceGenerator
         readonly HashSet<TupleExpressionSyntax> _tupleSyntaxes = new HashSet<TupleExpressionSyntax>();
         public void Execute(GeneratorExecutionContext context)
         {
+            //context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("SG001", "Success", "Success", "Success", DiagnosticSeverity.Error, true), Location.None));
+
             context.AddSource($"UtilityTypes.cs", UtilityTypes.All.Select(t => t.Code).Merge("\n"));
-            
-            var result = _tupleSyntaxes.GenerateExtensionClass(context.Compilation);
 
-            File.WriteAllText("aaa.bbb", $"{_tupleSyntaxes.Count}");
+            try
+            {
+                var result = _tupleSyntaxes.GenerateExtensionClass(context.Compilation);
 
-            var code = result.ToString();
-            context.AddSource($"TupleExtensions.cs", code);
-            File.WriteAllText("artifact.tt", $"{code}");
+                var code = result.ToString();
+                context.AddSource($"DestallTupleExtensions.cs", code);
+                //File.WriteAllText("DestallTupleExtensions.artifact", $"{code}");
+
+                //context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("SG001", "Success", "Success", "Success", DiagnosticSeverity.Error, true), Location.None));
+            }
+            catch (System.Exception e)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(new DiagnosticDescriptor("SG001", "Error", $"{e}", "Error", DiagnosticSeverity.Error, true), Location.None));
+                File.WriteAllText("artifact.tt", $"{e}");
+            }
         }
 
         public void Initialize(GeneratorInitializationContext context)

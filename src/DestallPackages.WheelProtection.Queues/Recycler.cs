@@ -54,8 +54,10 @@ namespace DestallMaterials.WheelProtection.Queues
     /// Creates new items, when other items in the pool are busy and there is still room in the pool.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class Recycler<T> where T : class
+    public abstract class Recycler<T> : IDisposable
+        where T : class
     {
+        volatile bool _isDisposed;
         /// <summary>
         /// Try to construct new produced item directly, if possible.
         /// </summary>
@@ -107,6 +109,11 @@ ValueTask<ItemLocker<T>>
 
             AwaitAnother(CancellationToken cancellationToken = default)
         {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(Recycler<T>));
+            }
+
             lock (_locker)
             {
                 var spanPool = _pool
@@ -238,6 +245,21 @@ ValueTask<ItemLocker<T>>
                     }
                 }
             };
+
+        public void Dispose()
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            _isDisposed = true;
+
+            foreach (var item in _pool)
+            {
+                item.Dispose();
+            }
+        }
 
         sealed class ItemManager : CallbackItemLocker<T>
         {

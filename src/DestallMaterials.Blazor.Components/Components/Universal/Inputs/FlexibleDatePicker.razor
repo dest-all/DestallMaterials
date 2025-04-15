@@ -1,5 +1,10 @@
-﻿@using MudBlazor
+﻿@using DestallMaterials.WheelProtection.Extensions.Strings
+@using MudBlazor
 @using System.Globalization
+
+@{
+    var errorred = Error.HasContent();
+}
 
 <MudDatePicker Label=@Label
                Editable="true"
@@ -14,13 +19,17 @@
                PickerVariant="PickerVariant.Dialog"
                Class="flexible-date-picker"
                HelperText=" "
-               ErrorText=@IncorrectDateText />
+               ErrorText=@Error
+               Error=errorred
+               Style="min-width: 125px;" />
 
 @code {
     private string _dateFormat = "dd.MM.yyyy";
 
-    static readonly string[] _shortFormats = ["ddMM", "dd.MM", "dd", "d"];
-    static readonly string[] _formats = ["ddMMyy", "dd.MM.yyyy", "dd.M.yyyy", "d.MM.yyyy", "d.M.yyyy", "dd.MM.yy", "dd.M.yy", "d.MM.yy", "d.M.yy"];
+    static readonly string[] _shortFormats 
+        = ["ddMM", "dd.MM", "dd", "d"];
+    static readonly string[] _formats 
+        = ["ddMMyy", "dd.MM.yyyy", "dd.M.yyyy", "d.MM.yyyy", "d.M.yyyy", "dd.MM.yy", "dd.M.yy", "d.MM.yy", "d.M.yy"];
 
     [Parameter]
     public Action<DateOnly> OnValueChanged { get; set; } = (newDate) => { };
@@ -41,10 +50,10 @@
     public string Label { get; set; }
 
     [Parameter]
-    public string ValueNotSetText { get; set; } = "Not set";
+    public string Error { get; set; }
 
     [Parameter]
-    public string IncorrectDateText { get; set; } = "Invalid date";
+    public string ValueNotSetText { get; set; } = "Not set";
 
     void DatePickerTextChanged(string value)
     {

@@ -101,8 +101,11 @@
                         },
                         AfterSuccess = () =>
                         {
-                            _lines.Remove(lineManager);
-                            _table.FireLineChanged(line, null);
+                            if (RemoveLineOnDeletion)
+                            {
+                                _lines.Remove(lineManager);
+                                _table.FireLineChanged(line, null);
+                            }                            
                         },
                         ShowStateFor = ShowButtonStateFor
                     };
@@ -216,6 +219,9 @@
 
     [Parameter]
     public TimeSpan ShowButtonStateFor { get; set; } = TimeSpan.FromSeconds(5);
+
+    [Parameter]
+    public bool RemoveLineOnDeletion { get; set; } = true;
 
     public void FireLineChanged(TLineModel line, TLineModel newLineValue)
     {

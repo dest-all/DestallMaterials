@@ -5,7 +5,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
-
+   
   <ItemGroup>
     <ProjectReference Include="..\SourceGenerator\SourceGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>

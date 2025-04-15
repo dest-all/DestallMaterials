@@ -9,6 +9,16 @@ public static class TaskExtensions
 
     public static Task IgnoreError(this Task task) => task.ContinueWith(t => { });
 
+    public static Task IgnoreError<TException>(this Task task)
+        where TException : Exception => task.ContinueWith(t => 
+        {
+            var error = t.Exception;
+            if (error is not null && error is not TException)
+            {
+                throw error;
+            }
+        });
+
     public static async Task IgnoreErrors(this IEnumerable<Task> tasks)
     {
         foreach (var task in tasks)
