@@ -9,7 +9,7 @@
 		<Description>All-encompassing extensions for standard objects.</Description>
 		<RepositoryType>https://github.com/dest-all/DestallMaterials</RepositoryType>
 		<NeutralLanguage>en</NeutralLanguage>
-		<Version>1.2.1</Version>
+		<Version>1.2.2</Version>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -184,10 +184,18 @@ public static class StringExtensions
 
     public static bool IsEmpty(this string? input) => string.IsNullOrEmpty(input);
 
+    [Obsolete("Use Merge instead.")]
     public static string Join(this IEnumerable<string> input, string joiner) =>
         string.Join(joiner, input);
 
+    [Obsolete("Use Merge instead.")]
     public static string Join(this IEnumerable<string> input, char joiner) =>
+        string.Join(joiner, input);
+
+    public static string Merge(this IEnumerable<string> input, string joiner) =>
+       string.Join(joiner, input);
+
+    public static string Merge(this IEnumerable<string> input, char joiner) =>
         string.Join(joiner, input);
 
 

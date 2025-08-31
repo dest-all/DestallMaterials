@@ -1,187 +1,173 @@
-﻿using System;
+﻿using DestallMaterials.Chronos;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace DestallMaterials.WheelProtection.Queues
+namespace DestallMaterials.WheelProtection.Queues;
+
+public class RateController : IRateController
 {
-    public interface IRateController
+    readonly IChronos _nowProvider;
+
+    readonly CallConstraint[] _actionConstraints;
+
+    readonly List<StartAndFinishTime> _history = new List<StartAndFinishTime>();
+
+    readonly int _commonCallSlotsNumber;
+
+    void StartAnother()
     {
-        Task<IDisposable> WaitNext();
+        if (_subscriptions.TryDequeue(out var sub))
+        {
+            var nextCallAt = CalculateNextCallAllowedTime();
+            _nowProvider.WhenComes(nextCallAt).ContinueWith((_) => sub.Item1());
+        }
     }
 
-    public class RateController : IRateController
+    readonly ControlledQueue<Tuple<Action, Task>> _subscriptions
+        = new(x => x.Item2.IsCompleted == false);
+
+    readonly object _locker = new object();
+
+    public RateController(IEnumerable<CallConstraint> actionConstraints, IChronos nowProvider)
     {
-        public class RateControlLocker : IDisposable
+        _actionConstraints = actionConstraints.OptimizeConstraints().ToArray();
+        _nowProvider = nowProvider;
+        _commonCallSlotsNumber = _actionConstraints.Sum(a => a.MaxCallsCount);
+    }
+
+    public RateController(IEnumerable<CallConstraint> actionConstraints)
+        : this(actionConstraints, RealTimeChronos.Instance)
+    {
+    }
+
+    public ValueTask<IDisposable> AwaitNext(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (TryTakeImmediately(out var immediateResult))
         {
-            private readonly Action _onDisposed;
-
-            public RateControlLocker(Action onDisposed)
-            {
-                _onDisposed = onDisposed;
-            }
-
-            public void Release()
-            {
-                _onDisposed();
-            }
-
-            void IDisposable.Dispose() => Release();
-        }
-        readonly IReadOnlyList<KeyValuePair<TimeSpan, int>> _actionConstraints;
-
-        readonly List<StartAndFinishTime> _history = new List<StartAndFinishTime>();
-
-        void OneIsDone()
-        {
-            if (_subscriptions.TryDequeue(out var sub))
-            {
-                sub();
-            }
+            return new(immediateResult);
         }
 
-        readonly ConcurrentQueue<Action> _subscriptions = new ConcurrentQueue<Action>();
-
-        readonly object _locker = new object();
-
-        public RateController(IEnumerable<KeyValuePair<TimeSpan, int>> actionConstraints)
+        lock (_locker)
         {
-            _actionConstraints = actionConstraints.OptimizeConstraints();
-        }
+            var tcs = new TaskCompletionSource<IDisposable>();
 
-        public Task<IDisposable> WaitNext()
+            cancellationToken.Register(() => tcs.TrySetCanceled());
+
+            var action = () =>
+            {
+                if (tcs.Task.IsCompleted)
+                {
+                    return;
+                }
+
+                var result = CreateControlLocker();
+                tcs.TrySetResult(result);
+            };
+
+            bool willBeNext = _subscriptions.FindThrough() is null;
+
+            var subscriptionTask = Tuple.Create(action, tcs.Task as Task);
+            _subscriptions.Enqueue(subscriptionTask);
+
+            try
+            {
+                return new(tcs.Task);
+            }
+            finally
+            {
+                if (willBeNext)
+                {
+                    Task.Run(StartAnother, CancellationToken.None);
+                }
+            }
+        }
+    }
+
+    public bool TryTakeImmediately(out IDisposable result)
+    {
+        lock (_locker)
+        {
+            var nextPossibleCallAt = CalculateNextCallAllowedTime();
+            if (nextPossibleCallAt == default)
+            {
+                result = CreateControlLocker();
+                return true;
+            }
+
+            result = null;
+            return false;
+        }
+    }
+
+    IDisposable CreateControlLocker()
+    {
+        var time = new StartAndFinishTime(_nowProvider.Now);
+        _history.Add(time);
+        return new RateControlLocker(() =>
         {
             lock (_locker)
             {
-                var awaitTime = CalculateAwaitTime();
-
-                if (awaitTime == TimeSpan.MinValue)
-                {
-                    var taskSource = new TaskCompletionSource<IDisposable>();
-
-                    _subscriptions.Enqueue(() =>
-                    {
-                        var result = CreateNewControlLocker();
-                        taskSource.SetResult(result);
-                    });
-
-                    return taskSource.Task;
-                }
-                return Task.Delay(awaitTime).ContinueWith(t => CreateNewControlLocker());
+                time.Finish = _nowProvider.Now;
+                StartAnother();
             }
-        }
+        });
+    }
 
-        IDisposable CreateNewControlLocker()
+    /// <summary>
+    /// Calculate time in which the next call can be made.
+    /// </summary>
+    /// <returns>TimeSpan.MinValue - if call may be made immediately</returns>
+    DateTimeOffset CalculateNextCallAllowedTime()
+    {
+        var executionsHistory = _history;
+        var callsCount = executionsHistory.Count;
+        Span<CallConstraint> actionConstraints = _actionConstraints;
+        var now = _nowProvider.Now.UtcDateTime;
+        if (executionsHistory.Count == 0)
         {
-            var time = new StartAndFinishTime()
-            {
-                Start = DateTime.UtcNow
-            };
-            _history.Add(time);
-            return new RateControlLocker(() =>
-            {
-                lock (_locker)
-                {
-                    time.Finish = DateTime.UtcNow;
-                    OneIsDone();
-                }
-            });
+            return default;
         }
 
-        public class StartAndFinishTime
+        DateTimeOffset earliestCallPossible = default;
+        for (int i = 0; i < actionConstraints.Length; i++)
         {
-            public DateTime Start;
-            public DateTime Finish;
+            var (period, callsAllowedQuantity) = actionConstraints[i];
+            var allowedNextCallByThisConstraint = DateTimeOffset.MaxValue;
 
-            public TimeSpan Duration => (Start > default(DateTime) && Finish > default(DateTime)) ? Finish - Start : default;
+            for (int callIndex = callsCount - 1; callsCount - callIndex < _commonCallSlotsNumber; callIndex--)
+            {
+                var (start, finish) = executionsHistory[callIndex];
+                var isOver = now < finish;
+                var withinConstraint = isOver || now - finish <= period;
+                if (withinConstraint is false)
+                {
+                    allowedNextCallByThisConstraint = default;
+                    break;
+                }
+
+                if (isOver)
+                {
+                    allowedNextCallByThisConstraint = start + period;
+                    break;
+                }
+            }
+
+            if (allowedNextCallByThisConstraint == DateTime.MaxValue)
+            {
+                return DateTime.MaxValue;
+            }
+
+            earliestCallPossible = earliestCallPossible > allowedNextCallByThisConstraint ?
+                earliestCallPossible :
+                allowedNextCallByThisConstraint;
         }
 
-        TimeSpan CalculateAwaitTime()
-        {
-            var executionsHistory = _history;
-            var actionConstraints = _actionConstraints;
-            var result = TimeSpan.Zero;
-
-            int currentlyRunning = 0;
-
-            if (executionsHistory.Count == 0)
-            {
-                return result;
-            }
-
-            var currentTime = DateTime.UtcNow;
-
-#if NETSTANDARD2_0
-            var firstCalls = new DateTime[actionConstraints.Count];
-            var actionsInLimits = new int[actionConstraints.Count];      
-#else
-            Span<DateTime> firstCalls = stackalloc DateTime[actionConstraints.Count];
-            Span<int> actionsInLimits = stackalloc int[actionConstraints.Count];
-
-#endif
-
-            for (var historyPointIndex = executionsHistory.Count - 1; historyPointIndex >= 0; historyPointIndex--)
-            {
-                var actionDate = executionsHistory[historyPointIndex];
-                if (actionDate.Finish == default)
-                {
-                    currentlyRunning++;
-                }
-
-                for (var constraintIndex = actionConstraints.Count - 1; constraintIndex >= 0; constraintIndex--)
-                {
-                    var constraint = actionConstraints[constraintIndex];
-
-                    if (constraint.Value <= currentlyRunning)
-                    {
-                        return TimeSpan.MinValue;
-                    }
-
-                    var withinConstraint = actionDate.Finish == default || currentTime - actionDate.Start < constraint.Key;
-
-                    if (withinConstraint)
-                    {
-                        actionsInLimits[constraintIndex]++;
-                        if (actionsInLimits[constraintIndex] == constraint.Value && actionDate.Finish != default)
-                        {
-                            firstCalls[constraintIndex] = actionDate.Finish;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            bool needsCleaning = executionsHistory.Count > actionConstraints[0].Value * 2;
-            if (needsCleaning)
-            {
-                executionsHistory.RemoveAll(e => actionConstraints.All(ac => DateTime.UtcNow - e.Finish > ac.Key));
-            }
-
-            var toAwait = TimeSpan.Zero;
-
-            for (var i = 0; i < firstCalls.Length; i++)
-            {
-                var call = firstCalls[i];
-
-                if (call == default)
-                {
-                    continue;
-                }
-
-                var timeLengthForConstraint = actionConstraints[i].Key;
-
-                var toAwaitForThisConstraint = timeLengthForConstraint - (currentTime - call);
-
-                if (toAwaitForThisConstraint > toAwait)
-                {
-                    toAwait = toAwaitForThisConstraint;
-                }
-            }
-
-            return toAwait;
-        }
+        return earliestCallPossible;
     }
 }

@@ -7,7 +7,9 @@
   </PropertyGroup>
    
   <ItemGroup>
-    <ProjectReference Include="..\SourceGenerator\SourceGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\SourceGenerator\DestallMaterials.SyntaxGenerator.csproj" 
+					  ReferenceOutputAssembly="false" 
+					  OutputItemType="Analyzer" />    
   </ItemGroup>
 
 </Project>

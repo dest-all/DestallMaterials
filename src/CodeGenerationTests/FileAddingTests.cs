@@ -15,10 +15,11 @@ public class FileAddingTests : CodeGenerationTests
         // Arrange
         var system = CodeGenerationWorkspace.Create(_consumerProject, SourceFilesWritingSettings.NameAnnotated);
         var projectName = system.ProjectLocations.Keys.First(pn => pn.Contains("Consumer"));
-        var folders = "FolderedItems".ToArrayOfOne();
-        
+        string[] folders = ["FolderedItems"];
+        ProjectRelativeFilePath path = new(projectName, folders, "FolderedClass.cs");
+        var sourceFile = new CodeFile(path, sourceText);
+
         // Act
-        var sourceFile = new CodeFile(new ProjectRelativeFilePath(projectName, folders, "FolderedClass.cs"), sourceText);
         var added = await system.AddSourceFilesAsync([sourceFile], default);
         
         // Assert

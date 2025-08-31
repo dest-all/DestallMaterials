@@ -28,7 +28,7 @@
             {
                 return Line(lineManager.CurrentValue);
             }
-        };  
+        };
     }
     else
     {
@@ -41,7 +41,7 @@
              ContainerStyle="@ContainerStyle"
              Context="line"
              LoadAtScrollRatio="LoadAtScrollRatio"
-             OnLineRightClick=onLineRightClickAsync
+             OnLineRightClick=OnLineRightClickAsync
              PortionSize="PortionSize"
              Source="LoadAnother"
              TableClass="@TableClass"
@@ -56,73 +56,73 @@
 
         @if (canDoAnything)
         {
-            <td>
-                @if (Save is not null)
+        <td>
+            @if (Save is not null)
+            {
+                var saveButton = new ButtonConfiguration
                 {
-                    var saveButton = new ButtonConfiguration
+                    ActionName = "",
+                    Color = Color.Info,
+                    Disabled = !modified,
+                    Icon = Icons.Material.Filled.Save,
+                    Callback = async (ct) =>
                     {
-                        ActionName = "",
-                        Color = Color.Info,
-                        Disabled = !modified,
-                        Icon = Icons.Material.Filled.Save,
-                        Callback = async (ct) =>
-                        {
-                            var saveResult = await Save(line, ct);
+                        var saveResult = await Save(line, ct);
 
-                            lineManager.PreviousValue = line;
-                            lineManager.CurrentValue = saveResult;
+                        lineManager.PreviousValue = line;
+                        lineManager.CurrentValue = saveResult;
 
-                            lineManager.CheckSum = ComputeChecksum(saveResult);
+                        lineManager.CheckSum = ComputeChecksum(saveResult);
 
-                            lineManager.NewlyAdded = false;
+                        lineManager.NewlyAdded = false;
 
-                            lineManager.IsBeingEdited = false;
+                        lineManager.IsBeingEdited = false;
 
-                            @*_hashCodes[line] = ComputeHashCode(saveResult);*@
-                            _table.FireLineChanged(line, saveResult);
+                        @*_hashCodes[line] = ComputeHashCode(saveResult);*@
+                        _table.FireLineChanged(line, saveResult);
 
-                        },
-                        ShowStateFor = ShowButtonStateFor
-                    };
-                    <DynamicButton Button="saveButton" ReferenceAction="b => lineManager.Save = b.PressAsync" />
-                }
+                    },
+                    ShowStateFor = ShowButtonStateFor
+                };
+                <DynamicButton Button="saveButton" ReferenceAction="b => lineManager.Save = b.PressAsync" />
+            }
 
-                @if (Delete is not null)
+            @if (Delete is not null)
+            {
+                var deleteButton = new ButtonConfiguration
                 {
-                    var deleteButton = new ButtonConfiguration
+                    ActionName = "",
+                    Color = Color.Error,
+                    Disabled = lineManager.NewlyAdded,
+                    Icon = Icons.Material.Filled.Delete,
+                    Callback = async (ct) =>
                     {
-                        ActionName = "",
-                        Color = Color.Error,
-                        Disabled = lineManager.NewlyAdded,
-                        Icon = Icons.Material.Filled.Delete,
-                        Callback = async (ct) =>
+                        await Delete(line, ct);
+                    },
+                    AfterSuccess = () =>
+                    {
+                        if (RemoveLineOnDeletion)
                         {
-                            await Delete(line, ct);
-                        },
-                        AfterSuccess = () =>
-                        {
-                            if (RemoveLineOnDeletion)
-                            {
-                                _lines.Remove(lineManager);
-                                _table.FireLineChanged(line, null);
-                            }                            
-                        },
-                        ShowStateFor = ShowButtonStateFor
-                    };
-                    <DynamicButton Button="deleteButton" ReferenceAction="b => lineManager.Delete = b.PressAsync" />
-                }
-                @foreach (var action in AdditionalActions)
-                {
-                    <DynamicButton Button="action" />
-                }
-            </td>
-        }
-        @if (CanRevert)
-        {
-            string style = !modified ? "visibility:hidden" : "";
-            <MudIconButton Disabled="!modified" Icon="@Icons.Material.Filled.RepeatOne" Style=@style />
-        }
-        @lineFragment(lineManager)
+                            _lines.Remove(lineManager);
+                            _table.FireLineChanged(line, null);
+                        }
+                    },
+                    ShowStateFor = ShowButtonStateFor
+                };
+                <DynamicButton Button="deleteButton" ReferenceAction="b => lineManager.Delete = b.PressAsync" />
+            }
+            @foreach (var action in AdditionalActions)
+            {
+                <DynamicButton Button="action" />
+            }
+        </td>
+    }
+    @if (CanRevert)
+    {
+        string style = !modified ? "visibility:hidden" : "";
+        <MudIconButton Disabled="!modified" Icon="@Icons.Material.Filled.RepeatOne" Style=@style />
+    }
+    @lineFragment(lineManager)
     </Line>
 
     <Head>
@@ -146,7 +146,7 @@
                 }
             </td>
         }
-        @Head
+    @Head
     </Head>
 
 </LoadedTable>
@@ -223,6 +223,9 @@
     [Parameter]
     public bool RemoveLineOnDeletion { get; set; } = true;
 
+    [Parameter]
+    public bool EditOnRightClick { get; set; }
+
     public void FireLineChanged(TLineModel line, TLineModel newLineValue)
     {
         var manager = GetManager(line);
@@ -269,14 +272,18 @@
 
     EditableLineManager<TLineModel> GetManager(TLineModel line) => _lines.First(l => LinesAreEqual(l.CurrentValue, line));
 
-    async Task onLineRightClickAsync(TLineModel line, RenderPiece renderPiece)
+    async Task OnLineRightClickAsync(TLineModel line, RenderPiece renderPiece)
     {
+        if (EditOnRightClick is false)
+        {
+            return;
+        }
         var manager = GetManager(line);
-        await toggleEdited(manager);
+        await ToggleEdited(manager);
         renderPiece.Refresh();
     }
 
-    async ValueTask toggleEdited(EditableLineManager<TLineModel> item, bool? targetState = null)
+    async ValueTask ToggleEdited(EditableLineManager<TLineModel> item, bool? targetState = null)
     {
         bool edited = item.IsBeingEdited;
         if (edited == targetState)
@@ -317,7 +324,7 @@
     }
 
     static readonly Func<TLineModel, TLineModel, bool> LinesAreEqual = typeof(TLineModel) == typeof(string) ?
-        (s1, s2) => s1.Equals(s2) : (s1,s2) => object.ReferenceEquals(s1, s2);
+        (s1, s2) => s1.Equals(s2) : (s1, s2) => object.ReferenceEquals(s1, s2);
 
     bool CanRevert => Copy is not null;
 }

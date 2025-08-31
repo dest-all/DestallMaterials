@@ -1,76 +1,142 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SourceGenerator;
 using Xunit;
-using Xunit.Abstractions;
 
-namespace SourceGeneratorTests
+namespace SourceGeneratorTests;
+
+public class Tests
 {
-    public class Tests
-    {
-        private readonly ITestOutputHelper _output;
+    const string ExtensionNamespace = TupleCodeGeneration.ExtensionNamespace;
 
-        public Tests(ITestOutputHelper output)
+    [Fact]
+    void ExtensionsSyntax()
+    {
+        var manyTypes = "decimal int byte string short ushort uint long ulong bool System.DateTime char int[] string[]"
+            .Split(' ');
+
+        string source = $@"
+using {ExtensionNamespace};
+using System.Threading.Tasks;
+namespace Foo
+{{
+    class C
+    {{
+        void M()
+        {{
+            Task.Run(async () => 
+            {{
+                var tuple = (10, ""Car"");
+                var tasks = (Task.Delay(10), Task.FromResult(500));
+                var tasks2 = (Task.FromResult(900), Task.FromResult(900));
+
+                var (_, number) = await tasks;
+                var (number1, number2) = tasks2;
+
+                var ({manyTypes.Select((_, i) => $"i{i}").Merge()})
+                    = await ({manyTypes.Select((t) => $"Task.FromResult(default({t}))").Merge()});
+
+                System.Console.WriteLine(tuple);
+
+                var dict = (
+    1, 5,
+    2, 10,
+    3, 15
+).ToDictionary();
+                
+            }}).Wait();
+        }}
+    }}
+}}";
+
+        var diagnostics = GetGeneratedOutput(source).OrderByDescending(d => d.Severity).ToArray();
+
+        Assert.Empty(diagnostics);
+
+        //if (diagnostics.Length > 0)
+        //{
+        //    Console.ForegroundColor = ConsoleColor.Red;
+        //    Console.WriteLine("Diagnostics:");
+        //    foreach (var diag in diagnostics)
+        //    {
+        //        Console.WriteLine("   " + diag.ToString());
+        //    }
+        //    Console.WriteLine();
+        //    Console.WriteLine("Output:");
+        //}
+        //else
+        //{
+        //    Console.ForegroundColor = ConsoleColor.Green;
+        //    Console.WriteLine("No errors!");
+        //}
+    }
+
+    static IEnumerable<TupleExpressionSyntax> GetTupleExpressionSyntaxes(SyntaxNode syntaxNode)
+    {
+        if (syntaxNode is TupleExpressionSyntax tupleExpressionSyntax)
         {
-            _output = output;
+            yield return tupleExpressionSyntax;
         }
 
-        [Fact]
-        public void Test1()
+        foreach (var node in syntaxNode.DescendantNodes())
         {
-            string source = @"
-namespace Foo
-{
-    class C
-    {
-        void M()
-        {
+            foreach (var result in GetTupleExpressionSyntaxes(node))
+            {
+                yield return result;
+            }
         }
     }
-}";
-            string output = GetGeneratedOutput(source);
 
-            Assert.NotNull(output);
+    private static ImmutableArray<Diagnostic> GetGeneratedOutput(string source)
+    {
+        var tree = CSharpSyntaxTree.ParseText(source);
 
-            Assert.Equal("// global::Foo.C", output.Trim());
-        }
-
-        private string GetGeneratedOutput(string source)
+        var references = new List<MetadataReference>();
+        Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        foreach (var assembly in assemblies)
         {
-            var syntaxTree = CSharpSyntaxTree.ParseText(source);
-
-            var references = new List<MetadataReference>();
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var assembly in assemblies)
+            if (!assembly.IsDynamic)
             {
-                if (!assembly.IsDynamic && !string.IsNullOrWhiteSpace(assembly.Location))
-                {
-                    references.Add(MetadataReference.CreateFromFile(assembly.Location));
-                }
+                references.Add(MetadataReference.CreateFromFile(assembly.Location));
             }
-
-            var compilation = CSharpCompilation.Create("foo", new SyntaxTree[] { syntaxTree }, references, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
-            // TODO: Uncomment this line if you want to fail tests when the injected program isn't valid _before_ running generators
-            // var compileDiagnostics = compilation.GetDiagnostics();
-            // Assert.False(compileDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error), "Failed: " + compileDiagnostics.FirstOrDefault()?.GetMessage());
-
-            ISourceGenerator generator = new Generator();
-
-            var driver = CSharpGeneratorDriver.Create(generator);
-            driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var generateDiagnostics);
-            Assert.False(generateDiagnostics.Any(d => d.Severity == DiagnosticSeverity.Error), "Failed: " + generateDiagnostics.FirstOrDefault()?.GetMessage());
-
-            string output = outputCompilation.SyntaxTrees.Last().ToString();
-
-            _output.WriteLine(output);
-
-            return output;
         }
+
+        var compilation = CSharpCompilation.Create(
+            assemblyName: "foo",
+            syntaxTrees: [tree],
+            references: references,
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        compilation = compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText(UtilityTypes.All.Select(t => t.Code).Merge("\n")));
+
+        var tupleSyntaxes = GetTupleExpressionSyntaxes(tree.GetRoot());
+
+        // TODO: Uncomment these lines if you want to return immediately if the injected program isn't valid _before_ running generators
+        //
+        // ImmutableArray<Diagnostic> compilationDiagnostics = compilation.GetDiagnostics();
+        //
+        // if (diagnostics.Any())
+        // {
+        //     return (diagnostics, "");
+        // }
+
+        var extensionsClass = tupleSyntaxes
+            .DistinctBy(s => s.ToFullString())
+            .GenerateExtensionClass(compilation)
+            .ToString();
+
+        compilation = compilation.AddSyntaxTrees(CSharpSyntaxTree.ParseText(extensionsClass));
+
+        File.WriteAllText("artifact.cs", extensionsClass);
+
+        return compilation.GetDiagnostics();
     }
 }

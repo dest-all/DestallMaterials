@@ -1,7 +1,4 @@
-﻿using CommunityToolkit.HighPerformance;
-using System.Buffers;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 
 namespace DestallMaterials.WheelProtection.DataStructures.Serialization;
 
@@ -14,11 +11,11 @@ public static class TuplesSerialization
 
     public static void SerializeTuple<T1, T2>((T1, T2) items, Stream stream)
     {
-        stream.Write((byte)'[');
+        stream.WriteByte((byte)'[');
         JsonSerializer.Serialize(stream, items.Item1, _serializerOptions);
-        stream.Write((byte)',');
+        stream.WriteByte((byte)',');
         JsonSerializer.Serialize(stream, items.Item2, _serializerOptions);
-        stream.Write((byte)']');
+        stream.WriteByte((byte)']');
     }
 
 

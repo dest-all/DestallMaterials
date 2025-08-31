@@ -23,4 +23,8 @@ public class ButtonConfiguration
     public TimeSpan ShowStateFor { get; set; } = TimeSpan.FromSeconds(1);
 
     public Action AfterSuccess { get; set; } = () => { };
+
+    public string Style { get; set; } = "";
+
+    public string CssClass { get; set; } = "";
 }

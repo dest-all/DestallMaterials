@@ -7,7 +7,7 @@ public class EqualityComparer
     [Test]
     public void TestWithDictionary()
     {
-        var equalityComparer = ByReferenceEqualityComparer<string>.Instance;
+        var equalityComparer = ReferenceEqualityComparer.Instance;
 
         var dict = new HashSet<string>(equalityComparer);
 
@@ -36,7 +36,7 @@ public class EqualityComparer
     [Test]
     public void GetHashCode_MustIgnoreOverriden()
     {
-        var equalityComparer = ByReferenceEqualityComparer<OverridingClass>.Instance;
+        var equalityComparer = ReferenceEqualityComparer.Instance;
 
         var item1 = new OverridingClass
         {

@@ -37,8 +37,8 @@ public static class TaskExtensions
 
     public static Task<T> WithinDeadline<T>(this Task<T> task, TimeSpan deadline) =>
         Task.WhenAny(task, Task.Delay(deadline))
-            .ContinueWith(t =>
-                !t.IsCompleted
+            .ContinueWith(_ =>
+                !task.IsCompleted
                     ? throw new TimeoutException(
                         $"Task is not completed within period of {deadline}."
                     )
@@ -47,9 +47,9 @@ public static class TaskExtensions
 
     public static Task WithinDeadline(this Task task, TimeSpan deadline) =>
         Task.WhenAny(task, Task.Delay(deadline))
-            .ContinueWith(t =>
+            .ContinueWith(_ =>
             {
-                if (!t.IsCompleted)
+                if (!task.IsCompleted)
                 {
                     throw new TimeoutException(
                         $"Task is not completed within period of {deadline}."

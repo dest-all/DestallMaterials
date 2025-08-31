@@ -2,11 +2,13 @@
 
 namespace DestallMaterials.Tests;
 
-class ServerEmulator
+
+
+partial class LoadEmulator
 {
     Recycler<RequestProcessor> _recycler;
 
-    public ServerEmulator(int capacity = 1)
+    public LoadEmulator(int capacity = 1)
     {
         _recycler = new RequestsProcessorRecycler(capacity);
     }
