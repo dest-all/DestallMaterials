@@ -1,4 +1,5 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11109.219
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -74,6 +75,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EverModern.Events", "EverModern.Events\EverModern.Events.csproj", "{A1DF6499-78EE-49F0-9A5F-1479E2C979DB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EverModern.QueryKit", "Utilities\EverModern.Linq2Db.Extensions\EverModern.QueryKit.csproj", "{75393726-E3FC-3969-2C94-C3D4072ED7C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EverModern.Memory", "EverModern.Memory\EverModern.Memory.csproj", "{0CC6CE96-5813-4F71-98EF-4C7ADF89C771}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -197,6 +200,10 @@ Global
 		{75393726-E3FC-3969-2C94-C3D4072ED7C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75393726-E3FC-3969-2C94-C3D4072ED7C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75393726-E3FC-3969-2C94-C3D4072ED7C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CC6CE96-5813-4F71-98EF-4C7ADF89C771}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CC6CE96-5813-4F71-98EF-4C7ADF89C771}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CC6CE96-5813-4F71-98EF-4C7ADF89C771}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CC6CE96-5813-4F71-98EF-4C7ADF89C771}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -232,6 +239,7 @@ Global
 		{2E016F87-843C-4617-9237-DAD63CE09220} = {023EFA56-3D87-402E-A854-2D74FE19A4E2}
 		{A1DF6499-78EE-49F0-9A5F-1479E2C979DB} = {023EFA56-3D87-402E-A854-2D74FE19A4E2}
 		{75393726-E3FC-3969-2C94-C3D4072ED7C5} = {023EFA56-3D87-402E-A854-2D74FE19A4E2}
+		{0CC6CE96-5813-4F71-98EF-4C7ADF89C771} = {659EF48D-288F-420C-A4CB-7A05C1AFFDD2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F0F81FA6-ADDA-4AC5-A926-AC32F3A47ABD}

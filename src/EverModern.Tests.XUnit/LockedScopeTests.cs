@@ -28,7 +28,7 @@ public class LockedScopeTests
         var acquiredAfterEnter = semaphore.Wait(0);
         Assert.False(acquiredAfterEnter);
 
-        scope.Exit();
+        scope.Finish();
 
         var acquiredAfterExit = semaphore.Wait(0);
         Assert.True(acquiredAfterExit);
@@ -41,7 +41,7 @@ public class LockedScopeTests
         var lockObj = new Lock();
 
         var scope = LockedScope.Enter(lockObj);
-        scope.Exit();
+        scope.Finish();
 
         using var scope2 = LockedScope.Enter(lockObj);
     }

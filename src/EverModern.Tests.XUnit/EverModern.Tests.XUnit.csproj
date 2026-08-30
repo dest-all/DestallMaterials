@@ -18,6 +18,7 @@
     <ProjectReference Include="..\Utilities\EverModern.WheelProtection.Extensions\EverModern.WheelProtection.Extensions.csproj" />
     <ProjectReference Include="..\Utilities\EverModern.WheelProtection.LinqToTuples\EverModern.WheelProtection.LinqToTuples.csproj" />
     <ProjectReference Include="..\Utilities\EverModern.WheelProtection.Queues\EverModern.Threading.csproj" />
+    <ProjectReference Include="..\EverModern.Events\EverModern.Events.csproj" />
   </ItemGroup>
 
   <ItemGroup>

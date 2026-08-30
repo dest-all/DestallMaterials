@@ -83,7 +83,7 @@ public class LockedScope : Scope
     }
 
     /// <summary>
-    /// Enters this scope, making <see cref="Scope.Exit"/> fire lifecycle events.
+    /// Enters this scope, making <see cref="Scope.Finish"/> fire lifecycle events.
     /// Used when the scope is created un-entered (e.g. via the parameterless constructor)
     /// and needs to be entered before use.
     /// </summary>

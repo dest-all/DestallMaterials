@@ -28,9 +28,45 @@ namespace EverModern.SyntaxGenerator
             }}
         }}");
 
+        public static UtilityType TaskTupleAwaiter { get; } = new UtilityType("TaskTupleAwaiter",
+            "EverModern.Extensions.Tuples",
+            $@"using System;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+
+namespace EverModern.Extensions.Tuples
+{{
+    public readonly struct TaskTupleAwaiter<T> : INotifyCompletion
+    {{
+        private readonly Task _task;
+        private readonly Func<T> _getResult;
+
+        internal TaskTupleAwaiter(Task task, Func<T> getResult)
+        {{
+            _task = task;
+            _getResult = getResult;
+        }}
+
+        public bool IsCompleted => _task.IsCompleted;
+
+        public T GetResult()
+        {{
+            _task.GetAwaiter().GetResult();
+            return _getResult();
+        }}
+
+        public void OnCompleted(Action continuation) =>
+            _task.GetAwaiter().OnCompleted(continuation);
+
+        public void UnsafeOnCompleted(Action continuation) =>
+            _task.GetAwaiter().UnsafeOnCompleted(continuation);
+    }}
+}}");
+
         public static IReadOnlyList<UtilityType> All = new UtilityType[]
         {
-            Nothing
+            Nothing,
+            TaskTupleAwaiter
         };
     }
 }

@@ -7,7 +7,7 @@ namespace EverModern.Tests.XUnit;
 
 public class RateControllerTesting
 {
-    [Fact]
+    [Fact(Timeout = 10000)]
     public async Task SimpleExample()
     {
         CancellationToken cancellationToken = CancellationToken.None;
@@ -41,7 +41,7 @@ public class RateControllerTesting
         Assert.True(waiting.IsCompleted);
     }
 
-    [Fact]
+    [Fact(Timeout = 10000)]
     public async Task HarderExample()
     {
         CancellationToken cancellationToken = CancellationToken.None;

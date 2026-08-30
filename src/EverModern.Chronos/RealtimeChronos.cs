@@ -23,7 +23,7 @@ public sealed class RealtimeChronos : IChronos
     {
         var delay = targetTime - Now;
 
-        // handle past time safely
+        // handle pastime safely
         if (delay <= TimeSpan.Zero)
             return Task.CompletedTask;
 

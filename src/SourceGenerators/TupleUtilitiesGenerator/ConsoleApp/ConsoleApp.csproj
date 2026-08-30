@@ -3,11 +3,14 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MemoryPack" />
+  </ItemGroup>
    
   <ItemGroup>
-    <ProjectReference Include="..\SourceGenerator\EverModern.SyntaxGenerator.csproj" 
-					  ReferenceOutputAssembly="false" 
-					  OutputItemType="Analyzer" />    
+    <ProjectReference Include="..\..\..\EverModern.Memory\EverModern.Memory.csproj" ReferenceOutputAssembly="true" OutputItemType="Analyzer" />
+    <ProjectReference Include="..\SourceGenerator\EverModern.SyntaxGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
   </ItemGroup>
 
 </Project>

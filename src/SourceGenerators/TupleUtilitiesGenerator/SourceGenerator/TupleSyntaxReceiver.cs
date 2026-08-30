@@ -6,7 +6,7 @@ namespace EverModern.SyntaxGenerator
 {
     public class TupleSyntaxReceiver : ISyntaxReceiver
     {
-        public HashSet<TupleExpressionSyntax> Tuples { get; } = new HashSet<TupleExpressionSyntax>();
+        public HashSet<TupleExpressionSyntax> Tuples { get; } = [];
 
         public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
         {
